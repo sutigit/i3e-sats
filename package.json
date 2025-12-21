@@ -11,7 +11,8 @@
   "dependencies": {
     "cesium": "^1.136.0",
     "dotenv": "^17.2.3",
-    "preact": "^10.27.2"
+    "preact": "^10.27.2",
+    "tle.js": "^5.0.1"
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
