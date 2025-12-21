@@ -43,6 +43,6 @@ export function App() {
   }, [])
 
   return (
-    <div ref={cesiumRef} />
+    <div ref={cesiumRef} id='cesium-view' />
   )
 }
