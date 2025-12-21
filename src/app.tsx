@@ -4,7 +4,7 @@ import CesiumView from "./components/CesiumView";
 
 export function App() {
   return (
-    <TleProvider>
+    <TleProvider debug={false}>
       <CesiumView />
     </TleProvider>
   )
