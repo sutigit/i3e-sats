@@ -6,7 +6,9 @@ const CESIUM_KEY = import.meta.env.VITE_CESIUM_KEY
 if (!CESIUM_KEY) console.log("📌 Missing cesium api key")
 
 Ion.defaultAccessToken = CESIUM_KEY
-const otaniemi = { lon: 24.83, lat: 60.18 }
+const coords = {
+    "otaniemi": { lon: 24.83, lat: 60.18 }
+}
 
 export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>) => {
     if (!cesiumRef.current) {
@@ -18,7 +20,7 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>) => {
     });
 
     viewer.camera.flyTo({
-        destination: Cartesian3.fromDegrees(otaniemi.lon, otaniemi.lat, 40000000.0),
+        destination: Cartesian3.fromDegrees(coords["otaniemi"].lon, coords["otaniemi"].lat, 40000000.0),
         orientation: {
             heading: CesiumMath.toRadians(0.0),
             pitch: CesiumMath.toRadians(-90.0),
