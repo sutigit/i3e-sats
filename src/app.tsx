@@ -2,7 +2,7 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import './app.css'
 import { useEffect, useRef } from 'preact/hooks';
 import { cesiumView } from './lib/cesiumView';
-import { TLEProvider } from "./lib/tle";
+import { TLEProvider } from "./queries/TLEQuery";
 
 export function App() {
   const cesiumRef = useRef<HTMLDivElement>(null)
