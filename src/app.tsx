@@ -1,24 +1,11 @@
-import "cesium/Build/Cesium/Widgets/widgets.css";
 import './app.css'
-import { useEffect, useRef } from 'preact/hooks';
-import { cesiumView } from './lib/cesiumView';
-import { TLEProvider } from "./queries/TLEQuery";
+import { TleProvider } from "./queries/TleQuery";
+import CesiumView from "./components/CesiumView";
 
 export function App() {
-  const cesiumRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    if (!cesiumRef.current) return
-    const viewer = cesiumView(cesiumRef)
-
-    return () => {
-      viewer.destroy()
-    }
-  }, [])
-
   return (
-    <TLEProvider>
-      <div ref={cesiumRef} id='cesium-view' />
-    </TLEProvider>
+    <TleProvider>
+      <CesiumView />
+    </TleProvider>
   )
 }
