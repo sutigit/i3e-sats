@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.90.12",
     "cesium": "^1.136.0",
     "dotenv": "^17.2.3",
     "preact": "^10.27.2",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@preact/preset-vite": "^2.10.2",
+    "@tanstack/eslint-plugin-query": "^5.91.2",
     "@types/node": "^24.10.1",
     "typescript": "~5.9.3",
     "vite": "npm:rolldown-vite@7.2.5",
