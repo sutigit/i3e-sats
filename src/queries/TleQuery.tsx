@@ -5,11 +5,12 @@ import {
 } from "@tanstack/react-query";
 import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import type { ReactNode } from "preact/compat";
-import { getData } from "./tle/iceye";
+import { getIceyeData, getIceyeMockData } from "./tle/iceye";
 
 const queryClient = new QueryClient();
 
-export const useTleQuery = () => useQuery({ queryKey: ['iceye'], queryFn: getData })
+export const useTleQuery = () => useQuery({ queryKey: ['iceye'], queryFn: getIceyeData })
+export const useTleMockQuery = () => useQuery({ queryKey: ['iceye_mock'], queryFn: getIceyeMockData })
 
 type TleProviderProps = {
   /**

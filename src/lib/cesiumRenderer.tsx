@@ -1,4 +1,4 @@
-import { Cartesian3, Ion, Math as CesiumMath, Viewer, Color, GeoJsonDataSource, PolylineGlowMaterialProperty, PolylineGraphics, ConstantProperty, SkyAtmosphere } from 'cesium';
+import { Cartesian3, Ion, Math as CesiumMath, Viewer, Color } from 'cesium';
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import type { RefObject } from 'preact';
 
@@ -6,9 +6,6 @@ const CESIUM_KEY = import.meta.env.VITE_CESIUM_KEY
 if (!CESIUM_KEY) console.log("📌 Missing cesium api key")
 
 Ion.defaultAccessToken = CESIUM_KEY
-
-const geoJsonUrl = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json";
-
 
 export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon: number, lat: number, height: number }) => {
     if (!cesiumRef.current) {
@@ -51,7 +48,7 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
 
     // 3. Fog settings (Now that atmosphere is on, fog behaves better)
     viewer.scene.fog.enabled = false;
-    // viewer.scene.fog.density = 0.0002; // Subtle depth
+    viewer.scene.fog.density = 0.0002; // Subtle depth
 
 
     // Set colors to Dark/Black
