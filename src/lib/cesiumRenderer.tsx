@@ -46,9 +46,9 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
     });
 
     viewer.scene.debugShowFramesPerSecond = true;
-    // viewer.scene.requestRenderMode = true;
+    // viewer.scene.requestRenderMode = true; // renders only on change
 
-    viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
+    viewer.scene.globe.maximumScreenSpaceError = 2; // default 2
     viewer.resolutionScale = 1; // default 1
 
     viewer.scene.fog.enabled = false; // fog
