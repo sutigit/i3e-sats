@@ -1,4 +1,4 @@
-import { Cartesian3, createOsmBuildingsAsync, Ion, Math as CesiumMath, Terrain, Viewer } from 'cesium';
+import { Cartesian3, Ion, Math as CesiumMath, Viewer, Color, GeoJsonDataSource, PolylineGlowMaterialProperty, PolylineGraphics, ConstantProperty, SkyAtmosphere } from 'cesium';
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import type { RefObject } from 'preact';
 
@@ -7,6 +7,8 @@ if (!CESIUM_KEY) console.log("📌 Missing cesium api key")
 
 Ion.defaultAccessToken = CESIUM_KEY
 
+const geoJsonUrl = "https://raw.githubusercontent.com/johan/world.geo.json/master/countries.geo.json";
+
 
 export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon: number, lat: number, height: number }) => {
     if (!cesiumRef.current) {
@@ -14,30 +16,65 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
     }
 
     const viewer = new Viewer(cesiumRef.current, {
-        terrain: Terrain.fromWorldTerrain(),
-        scene3DOnly: true,
         terrainProvider: undefined,
+        scene3DOnly: true,
+        baseLayerPicker: false,
 
-        // 1. The Time Controls (Bottom)
+        // UI Toggles
         timeline: false,
         animation: false,
-
-        // 2. The Navigation & Map Tools (Top Right)
-        geocoder: false,           // Search bar
-        homeButton: false,         // Home icon
-        baseLayerPicker: false,    // Map chooser
-        sceneModePicker: false,    // 2D/3D switcher
-        navigationHelpButton: false, // Question mark icon
+        geocoder: false,
+        homeButton: false,
+        sceneModePicker: false,
+        navigationHelpButton: false,
         fullscreenButton: false,
         vrButton: false,
+        selectionIndicator: false,
+        infoBox: false,
 
-        // 3. The Selection UI (Popups & Green Boxes)
-        selectionIndicator: false, // The green square when you click something
-        infoBox: false,            // The side panel description popup
+        // Visuals
+        skyBox: false,
+        skyAtmosphere: false,
+        contextOptions: {
+            webgl: { alpha: true } // make css background visible
+        },
     });
 
+    viewer.scene.debugShowFramesPerSecond = true;
+    viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
+    viewer.resolutionScale = 1; // default 1
+
+    viewer.scene.globe.showGroundAtmosphere = true;
+    viewer.scene.globe.atmosphereBrightnessShift = -0.2;
+    viewer.scene.globe.enableLighting = false;
+    viewer.shadows = false;
+
+    // 3. Fog settings (Now that atmosphere is on, fog behaves better)
+    viewer.scene.fog.enabled = false;
+    // viewer.scene.fog.density = 0.0002; // Subtle depth
+
+
+    // Set colors to Dark/Black
+    viewer.scene.backgroundColor = Color.fromCssColorString('#0c1214');
+    viewer.scene.globe.baseColor = Color.fromCssColorString('#0f766e');
+
+    // Hide Sun/Moon
+    if (viewer.scene.sun) viewer.scene.sun.show = false;
+    if (viewer.scene.moon) viewer.scene.moon.show = false;
+
+
+    // --- IMAGERY OPTIONS (ICEYE SAR style) --- 
+    const layer = viewer.scene.imageryLayers.get(0)
+
+    layer.saturation = 0.1;
+    layer.alpha = 0.6;
+    layer.contrast = 1.5;
+    layer.brightness = 0.4;
+    layer.gamma = 1.4;
+
+    // --- CAMERA & SCENE SETTINGS ---
     viewer.camera.flyTo({
-        destination: Cartesian3.fromDegrees(initView.lon, initView.lat, initView.height),
+        destination: Cartesian3.fromDegrees(initView.lon, initView.lat, initView.height), // otaniemi
         orientation: {
             heading: CesiumMath.toRadians(0.0),
             pitch: CesiumMath.toRadians(-90.0),
@@ -45,27 +82,5 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
         },
     });
 
-    viewer.scene.debugShowFramesPerSecond = true;
-    // viewer.scene.requestRenderMode = true; // renders only on change
-
-    viewer.scene.globe.maximumScreenSpaceError = 2; // default 2
-    viewer.resolutionScale = 1; // default 1
-
-    viewer.scene.fog.enabled = false; // fog
-    // viewer.scene.globe.showGroundAtmosphere = false; // "blue haze" around planet
-    viewer.scene.skyAtmosphere = undefined; // planets outer glow
-    viewer.shadows = false; // shadow (heavy)
-
-    (async () => {
-        try {
-            const buildingTileset = await createOsmBuildingsAsync();
-            if (!viewer.isDestroyed()) {
-                viewer.scene.primitives.add(buildingTileset);
-            }
-        } catch {
-            console.error('Error loading cesium')
-        }
-    })();
-
-    return viewer
+    return viewer;
 }

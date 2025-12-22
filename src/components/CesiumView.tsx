@@ -41,9 +41,13 @@ export default function CesiumView() {
     useEffect(() => {
         if (!cesiumRef.current) return
         const { lon, lat } = coords["otaniemi"]
-        const viewer = cesiumView(cesiumRef, { lon, lat, height: 30000000.0 })
+        const viewer = cesiumView(cesiumRef, { lon, lat, height: 35000000.0 })
 
-        addShapes(viewer, [polylineGround, polylineSpace])
+        // addShapes(viewer, [polylineSpace])
+
+        return () => {
+            viewer.destroy()
+        }
     }, [])
 
 

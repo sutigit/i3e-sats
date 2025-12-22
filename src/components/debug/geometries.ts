@@ -1,4 +1,11 @@
-import { ArcType, Cartesian3, Color, Entity, Viewer } from "cesium";
+import {
+  ArcType,
+  Cartesian3,
+  Color,
+  Entity,
+  PolylineGlowMaterialProperty,
+  Viewer,
+} from "cesium";
 
 const coords = {
   otaniemi: { lon: 24.83, lat: 60.18 },
@@ -66,8 +73,25 @@ export const polylineSpace = new Entity({
       2000000.0, // Bangkok
     ]),
 
-    width: 2,
-    material: Color.RED,
+    // 1. THICKNESS IS KEY
+    // You cannot have a glow on a 0.5px line.
+    // You need at least 5-10px to see the "core" and the "fade".
+    width: 5,
+
+    // 2. THE GLOW MATERIAL
+    material: new PolylineGlowMaterialProperty({
+      // The color of the light
+      color: Color.fromCssColorString("#ffffff"),
+
+      // How "intense" the core is vs the halo.
+      // 0.1 = Thin core, big halo.
+      // 0.5 = Thick core, small halo.
+      glowPower: 0.2,
+
+      // 0.0 = Solid beam (Fluorescent tube)
+      // 1.0 = Fades to invisible at the tips (Laser bolt)
+      taperPower: 0.3,
+    }),
 
     clampToGround: false, // Don't touch the ground
 
