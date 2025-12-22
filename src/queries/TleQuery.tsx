@@ -11,11 +11,23 @@ const queryClient = new QueryClient();
 
 export const useTleQuery = () => useQuery({ queryKey: ['iceye'], queryFn: getData })
 
-export const TleProvider = ({ debug = false, children }: { debug?: boolean, children: ReactNode }) => {
+type TleProviderProps = {
+  /**
+   * Turns on the react-query dev tool on initial open
+   */
+  devTools?: boolean,
+
+  /**
+   * Pass in any valid ReactNode component
+   */
+  children?: ReactNode
+}
+
+export const TleProvider = ({ devTools = false, children }: TleProviderProps) => {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      <ReactQueryDevtools initialIsOpen={debug} />
+      <ReactQueryDevtools initialIsOpen={devTools} />
     </QueryClientProvider>
   )
 }

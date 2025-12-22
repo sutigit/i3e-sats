@@ -11,15 +11,15 @@ const coords = {
     "otaniemi": { lon: 24.83, lat: 60.18 }
 }
 
-const addSatellites = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
-    if (!data) return
-    console.log("📌 data", data)
-    data.forEach((d: TLE) => {
-        const hmm = getLatLngObj(`${d.name}\r${d.line1}\r${d.line2}`)
-        console.log("📌 d", hmm)
-    })
+// const addSatellites = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
+//     if (!data) return
+//     console.log("📌 data", data)
+//     data.forEach((d: TLE) => {
+//         const hmm = getLatLngObj(`${d.name}\r${d.line1}\r${d.line2}`)
+//         console.log("📌 d", hmm)
+//     })
 
-}
+// }
 
 
 
