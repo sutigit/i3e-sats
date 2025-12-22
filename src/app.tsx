@@ -1,11 +1,17 @@
 import './app.css'
 import { TleProvider } from "./queries/TleQuery";
 import CesiumView from "./components/CesiumView";
+import SatList from './components/SatList';
+import SatDetail from './components/SatDetail';
 
 export function App() {
   return (
-    <TleProvider devTools={false}>
-      <CesiumView />
-    </TleProvider>
+    <main id="app">
+      <TleProvider devTools={false}>
+        <SatList />
+        <SatDetail />
+        <CesiumView />
+      </TleProvider>
+    </main>
   )
 }

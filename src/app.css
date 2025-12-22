@@ -1,8 +1,47 @@
 #app {
-  margin: 0 auto;
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  min-width: 100vh;
 }
 
 #cesium-view {
-  width: 100vw;
-  height: 100vh;
+  position: absolute;
+  inset: 0 0 0 0;
+  width: 100%;
+  height: 100%;
+}
+
+#sat-list {
+  position: absolute;
+  left: 0;
+  z-index: 1;
+  height: 100%;
+  width: 360px;
+  padding: 2rem 1rem 3rem 1rem;
+}
+
+#sat-detail {
+  position: absolute;
+  right: 0;
+  z-index: 1;
+  height: 100%;
+  width: 420px;
+  padding: 2rem 1rem 3rem 1rem;
+}
+
+#sat-list .content {
+  width: 100%;
+  height: 100%;
+  background-color: #18181b;
+  border-radius: 1rem;
+  padding: 2rem;
+}
+
+#sat-detail .content {
+  width: 100%;
+  height: 60%;
+  background-color: #18181b;
+  border-radius: 1rem;
+  padding: 2rem;
 }
