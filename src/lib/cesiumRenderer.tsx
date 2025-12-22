@@ -15,6 +15,25 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
 
     const viewer = new Viewer(cesiumRef.current, {
         terrain: Terrain.fromWorldTerrain(),
+        scene3DOnly: true,
+        terrainProvider: undefined,
+
+        // 1. The Time Controls (Bottom)
+        timeline: false,
+        animation: false,
+
+        // 2. The Navigation & Map Tools (Top Right)
+        geocoder: false,           // Search bar
+        homeButton: false,         // Home icon
+        baseLayerPicker: false,    // Map chooser
+        sceneModePicker: false,    // 2D/3D switcher
+        navigationHelpButton: false, // Question mark icon
+        fullscreenButton: false,
+        vrButton: false,
+
+        // 3. The Selection UI (Popups & Green Boxes)
+        selectionIndicator: false, // The green square when you click something
+        infoBox: false,            // The side panel description popup
     });
 
     viewer.camera.flyTo({
@@ -25,6 +44,17 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
             roll: CesiumMath.toRadians(0.0)
         },
     });
+
+    viewer.scene.debugShowFramesPerSecond = true;
+    // viewer.scene.requestRenderMode = true;
+
+    viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
+    viewer.resolutionScale = 1; // default 1
+
+    viewer.scene.fog.enabled = false; // fog
+    // viewer.scene.globe.showGroundAtmosphere = false; // "blue haze" around planet
+    viewer.scene.skyAtmosphere = undefined; // planets outer glow
+    viewer.shadows = false; // shadow (heavy)
 
     (async () => {
         try {
