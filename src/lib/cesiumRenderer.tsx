@@ -37,7 +37,8 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
         },
     });
 
-    viewer.scene.debugShowFramesPerSecond = true;
+    viewer.scene.debugShowFramesPerSecond = false; // debugging
+
     viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
     viewer.resolutionScale = 1; // default 1
 
