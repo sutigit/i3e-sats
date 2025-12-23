@@ -1,0 +1,24 @@
+@use "variables";
+
+%float-panel {
+  position: absolute;
+  z-index: 1;
+  padding: 2rem 1rem 3rem 1rem;
+}
+
+@mixin float-panel-left {
+  @extend %float-panel;
+  left: 0;
+}
+
+@mixin float-panel-right {
+  @extend %float-panel;
+  right: 0;
+}
+
+@mixin dashboard-panel {
+  background-color: variables.$dashboard-bg-color;
+  display: flex;
+  border-radius: 1rem;
+  padding: 1rem;
+}

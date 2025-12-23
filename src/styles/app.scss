@@ -1,52 +1,45 @@
+// variables (e.g. colors, breaking-points)
+@use "variables";
+
 // common scss styles (e.g. .bold, .centered)
 @use "utilities";
 
+// common styles (e.g. absolute-positioning, animations)
+@use "common";
+
+// common components styles (e.g. dashboard-panel)
+@use "components";
+
 #app {
+  @include common.full-screen-width-height;
   position: relative;
-  width: 100vw;
-  height: 100vh;
-  min-width: 100vh;
 }
 
 #cesium-view {
+  @include common.full-width-height;
   position: absolute;
-  inset: 0 0 0 0;
-  width: 100%;
-  height: 100%;
 }
 
 #sat-list {
-  position: absolute;
-  left: 0;
-  z-index: 1;
+  @include components.float-panel-left;
   height: 100%;
   width: 380px;
-  padding: 2rem 1rem 3rem 1rem;
 
   .content {
-    display: flex;
+    @include components.dashboard-panel;
     width: 100%;
     height: 100%;
-    background-color: #18181b;
-    border-radius: 1rem;
-    padding: 1rem;
   }
 }
 
 #sat-detail {
-  position: absolute;
-  right: 0;
-  z-index: 1;
+  @include components.float-panel-right;
   height: 100%;
   width: 380px;
-  padding: 2rem 1rem 3rem 1rem;
 
   .content {
-    display: flex;
+    @include components.dashboard-panel;
     width: 100%;
     min-height: 60%;
-    background-color: #18181b;
-    border-radius: 1rem;
-    padding: 1rem;
   }
 }
