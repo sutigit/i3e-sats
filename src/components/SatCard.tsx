@@ -2,7 +2,6 @@ import type { SatelliteCardProps } from "../types"
 
 const round = (val: number) => Math.round(val * 10) / 10;
 
-// Updated to handle both Numbers (rounded) and Strings (raw)
 const Measure = ({ label, value, unit }: { label: string, value: string | number, unit?: string }) => {
     const displayValue = typeof value === 'number' ? round(value) : value;
 
@@ -13,6 +12,19 @@ const Measure = ({ label, value, unit }: { label: string, value: string | number
             </p>
             <p style={{ fontSize: '1rem', fontWeight: 600 }}>
                 {displayValue} <span style={{ fontSize: '0.7rem', fontWeight: 400 }}>{unit}</span>
+            </p>
+        </div>
+    )
+}
+
+const MeasureMin = ({ label, value, unit }: { label: string, value: string | number, unit?: string }) => {
+    const displayValue = typeof value === 'number' ? round(value) : value;
+
+    return (
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.9rem', gap: 6 }}>
+            <p style={{ opacity: 0.6, textTransform: 'uppercase' }}>{label}</p>
+            <p style={{ fontWeight: 600 }}>
+                {displayValue} {unit && <span style={{ fontSize: '0.7rem', opacity: 0.8 }}>{unit}</span>}
             </p>
         </div>
     )
@@ -36,9 +48,12 @@ export const SatNearCard = ({ data }: { data: SatelliteCardProps }) => {
 }
 
 export const SatDistantCard = ({ data }: { data: SatelliteCardProps }) => {
+    const s = data.stat;
+
     return (
         <div className="sat-card-distant">
-            {data.name}
+            <p style={{ fontSize: '0.9rem' }}>{data.name}</p>
+            <MeasureMin label="" value={s.look.range} unit="km" />
         </div>
     )
 }
