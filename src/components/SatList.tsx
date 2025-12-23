@@ -1,6 +1,7 @@
 import { useEffect, useState } from "preact/hooks"
 import { useTleMockQuery } from "../queries/TleQuery"
 import type { TLE } from "../types"
+import Loading from "./common/Loading"
 
 type SatelliteData = {
     name: string
@@ -21,8 +22,8 @@ export default function SatList() {
 
     }, [isSuccess])
 
-    if (isLoading) return (<div id="sat-list"><div className="content centered">Loading data...</div></div>)
-    if (isError) return (<div id="sat-list"><div className="content centered">Error</div></div>)
+    if (isLoading) return (<div id="sat-list"><Loading /></div>)
+    if (isError) return (<div id="sat-list"><Error /></div>)
 
     return (
         <div id="sat-list">

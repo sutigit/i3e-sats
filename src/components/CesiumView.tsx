@@ -3,6 +3,7 @@ import { cesiumView } from '../lib/cesiumRenderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useTleQuery, useTleMockQuery } from '../queries/TleQuery';
 import { addPaths, addPoints, addTrails } from '../draw/orbitEntities';
+import Loading from './common/Loading';
 
 const coords = {
     "otaniemi": { lon: 24.83, lat: 60.18 }
@@ -25,8 +26,8 @@ export default function CesiumView() {
         }
     }, [isSuccess])
 
-    if (isLoading) return (<div>Loading data...</div>)
-    if (isError) return (<div>Error</div>)
+    if (isLoading) return (<Loading />)
+    if (isError) return (<Error />)
 
     return (
         <div ref={cesiumRef} id='cesium-view' />
