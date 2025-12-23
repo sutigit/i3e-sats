@@ -6,16 +6,18 @@ import Loading from "./common/Loading"
 import Divider from "./common/Divider"
 import { getSatStats } from "../utils/getSatStats"
 import { coords, satDataFallback } from "../utils/defaults"
+import ObserverInput from "./ObserverInput"
 
 export default function SatList() {
     const { data, isLoading, isSuccess, isError } = useTleMockQuery()
     const [dataList, setDataList] = useState<SatelliteCardProps[]>([])
+    const [observerCoords, setObserverCoords] = useState({ lat: coords["otaniemi"].lat, lon: coords["otaniemi"].lon });
 
     useEffect(() => {
         if (!data) return;
 
         const satDat: SatelliteCardProps[] = data.map((d: TLE) => {
-            const stats = getSatStats(d.tle, coords["otaniemi"].lat, coords["otaniemi"].lon);
+            const stats = getSatStats(d.tle, observerCoords.lat, observerCoords.lon);
             return { name: d.name, stat: stats || satDataFallback };
         });
 
@@ -32,7 +34,7 @@ export default function SatList() {
         });
 
         setDataList(satDat);
-    }, [isSuccess, data])
+    }, [isSuccess, data, observerCoords])
 
     if (isLoading) return (<div id="left-panel"><Loading /></div>)
     if (isError) return (<div id="left-panel"><Error /></div>)
@@ -41,6 +43,7 @@ export default function SatList() {
         <div id="left-panel">
             <div className="content">
                 <h3>Ground observer</h3>
+                <ObserverInput coords={observerCoords} setCoords={setObserverCoords} />
                 <Divider />
                 <h3>Nearest satellites</h3>
                 <div className="item-list">
