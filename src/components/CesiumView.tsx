@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { cesiumView } from '../lib/cesiumRenderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { useTleQuery, useTleMockQuery } from '../queries/TleQuery';
-import { addPaths, addPoints, addTrails } from '../draw/orbitEntities';
+import { addObserver, addPaths, addPoints, addTrails } from '../draw/orbitEntities';
 import Loading from './common/Loading';
 import { coords } from '../utils/defaults';
 
@@ -19,6 +19,7 @@ export default function CesiumView() {
         addPaths({ data, viewer })
         addTrails({ data, viewer })
         addPoints({ data, viewer })
+        addObserver({ coords: coords["otaniemi"], viewer })
 
         return () => {
             viewer.destroy()

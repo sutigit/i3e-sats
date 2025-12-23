@@ -158,6 +158,18 @@ const _drawPoint = (point: Cartesian3, viewer: Viewer ) => {
     viewer.entities.add(ent)
 }
 
+const _drawObserver = (point: Cartesian3, viewer: Viewer ) => {
+    const ent = new Entity({
+        position: point,
+        point: {
+            pixelSize: 10,             
+            color: Color.fromCssColorString('#a78bfa'),  
+        }
+    });
+
+    viewer.entities.add(ent);
+}
+
 export const addPaths = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
     if (!data) return
     data.forEach((d: TLE) => {
@@ -177,7 +189,15 @@ export const addTrails = ({ data, viewer }: { data: TLE[] | undefined, viewer: V
 export const addPoints = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
     if (!data) return
     data.forEach((d: TLE) => {
-        const path = _getOrbitPoint(d.tle, Date.now())
-        _drawPoint(path, viewer)
+        const point = _getOrbitPoint(d.tle, Date.now())
+        _drawPoint(point, viewer)
     })
 }
+
+export const addObserver = ({ coords, viewer }: { coords: { lon: number, lat: number }, viewer: Viewer }) => {
+    const pos = Cartesian3.fromDegrees(coords.lon, coords.lat);
+    
+    _drawObserver(pos, viewer);
+}
+
+

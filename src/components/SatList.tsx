@@ -45,7 +45,7 @@ export default function SatList() {
                 <h3>Ground observer</h3>
                 <ObserverInput coords={observerCoords} setCoords={setObserverCoords} />
                 <Divider />
-                <h3>Nearest satellites</h3>
+                <h3>Nearest visible time</h3>
                 <div className="item-list">
                     {dataList.slice(0, 3).map((sat: SatelliteCardProps) => (
                         <SatNearCard key={sat.name} data={sat} />
