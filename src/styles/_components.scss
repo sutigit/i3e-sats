@@ -17,8 +17,9 @@
 }
 
 @mixin dashboard-panel {
-  background-color: variables.$dashboard-bg-color;
   display: flex;
+  flex-direction: column;
+  background-color: variables.$dashboard-bg-color;
   border-radius: 1rem;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
 }

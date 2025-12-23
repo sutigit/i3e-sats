@@ -1,4 +1,11 @@
+@use "variables";
+
 .place-center {
   justify-content: center;
   align-items: center;
+}
+
+.divider {
+  width: 100%;
+  border-bottom: 1px solid variables.$border-color;
 }

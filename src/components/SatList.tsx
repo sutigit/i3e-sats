@@ -2,6 +2,7 @@ import { useEffect, useState } from "preact/hooks"
 import { useTleMockQuery } from "../queries/TleQuery"
 import type { TLE } from "../types"
 import Loading from "./common/Loading"
+import Divider from "./common/Divider"
 
 type SatelliteData = {
     name: string
@@ -28,7 +29,10 @@ export default function SatList() {
     return (
         <div id="sat-list">
             <div className="content">
-                {/* <div className="content">Location</div>
+                <h2>My location</h2>
+                <Divider />
+                <h2>Nearest</h2>
+                {/*
                 <div className="content">
                     <p>Nearest</p>
                     {dataList.map((sat: SatelliteData) => (
