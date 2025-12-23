@@ -1,4 +1,5 @@
 import { getSatelliteInfo, type SatelliteInfoOutput } from "tle.js";
+import type { SatStat } from "../types";
 
 // 1. Helper: Convert Degrees to Compass Direction
 const getCompassDirection = (azimuth: number): string => {
@@ -14,7 +15,7 @@ export const getSatStats = (
   observerLat: number,
   observerLon: number,
   observerAlt: number = 0 // meters
-) => {
+): SatStat => {
   // Current timestamp
   const now = Date.now();
 
@@ -27,8 +28,6 @@ export const getSatStats = (
     observerLon,
     observerAlt
   );
-
-  if (!info) return null;
 
   // --- DOPPLER (Range Rate) TRICK ---
   // We can't get range-rate directly from tle.js without vectors.

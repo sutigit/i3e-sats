@@ -4,16 +4,35 @@ import type { SatelliteCardProps, TLE } from "../types"
 import { SatNearCard, SatDistantCard } from "./SatCard"
 import Loading from "./common/Loading"
 import Divider from "./common/Divider"
+import { getSatStats } from "../utils/getSatStats"
+import { coords, satDataFallback } from "../utils/defaults"
 
 export default function SatList() {
     const { data, isLoading, isSuccess, isError } = useTleMockQuery()
     const [dataList, setDataList] = useState<SatelliteCardProps[]>([])
 
     useEffect(() => {
-        if (!data) return
-        const list = data.map((d: TLE) => ({ name: d.name }))
-        setDataList(list)
-    }, [isSuccess])
+        if (!data) return;
+
+        const satDat: SatelliteCardProps[] = data.map((d: TLE) => {
+            const stats = getSatStats(d.tle, coords["otaniemi"].lat, coords["otaniemi"].lon);
+            return { name: d.name, stat: stats || satDataFallback };
+        });
+
+        satDat.sort((a, b) => {
+            const distA = a.stat.look.range;
+            const distB = b.stat.look.range;
+
+            // Fix: Treat '0' (Error/Fallback) as Infinity so it drops to the bottom
+            if (distA === 0) return 1;
+            if (distB === 0) return -1;
+
+            // Standard Ascending Sort
+            return distA - distB;
+        });
+
+        setDataList(satDat);
+    }, [isSuccess, data])
 
     if (isLoading) return (<div id="left-panel"><Loading /></div>)
     if (isError) return (<div id="left-panel"><Error /></div>)

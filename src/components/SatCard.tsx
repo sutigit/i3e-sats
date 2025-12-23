@@ -1,23 +1,35 @@
 import type { SatelliteCardProps } from "../types"
 
-const Measure = ({ label, value }: { label: string, value: number }) => {
+const round = (val: number) => Math.round(val * 10) / 10;
+
+// Updated to handle both Numbers (rounded) and Strings (raw)
+const Measure = ({ label, value, unit }: { label: string, value: string | number, unit?: string }) => {
+    const displayValue = typeof value === 'number' ? round(value) : value;
+
     return (
-        <div>
-            <p style={{ fontSize: '0.8rem' }}>{label}</p>
-            <p>{value}</p>
+        <div style={{ minWidth: '70px', marginBottom: '0.5rem' }}>
+            <p style={{ fontSize: '0.75rem', opacity: 0.7, marginBottom: '2px', textTransform: 'uppercase' }}>
+                {label}
+            </p>
+            <p style={{ fontSize: '1rem', fontWeight: 600 }}>
+                {displayValue} <span style={{ fontSize: '0.7rem', fontWeight: 400 }}>{unit}</span>
+            </p>
         </div>
     )
 }
 
 export const SatNearCard = ({ data }: { data: SatelliteCardProps }) => {
+    const s = data.stat;
+
     return (
-        <div className="sat-card-nearest">
-            <p style={{ fontSize: '0.9rem' }}>{data.name}</p>
-            <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1rem', gap: 3, flexWrap: 'wrap' }}>
-                <Measure label="coord" value={0.0} />
-                <Measure label="altitude" value={0.0} />
-                <Measure label="speed" value={0.0} />
-                <Measure label="distance" value={0.0} />
+        <div className="sat-card-nearest" style={{ padding: '0.5rem 1rem', borderRadius: '0.5rem', width: '100%' }}>
+            <p style={{ fontSize: '1.1rem', fontWeight: 'bold', marginBottom: '0.8rem' }}>{data.name}</p>
+
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                <Measure label="Distance" value={s.look.range} unit="km" />
+                <Measure label="Azimuth" value={s.look.azimuth} unit="°" />
+                <Measure label="Elevation" value={s.look.elevation} unit="°" />
+                <Measure label="Look" value={s.look.compass} />
             </div>
         </div>
     )
