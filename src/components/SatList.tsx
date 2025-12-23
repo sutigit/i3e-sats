@@ -21,21 +21,21 @@ export default function SatList() {
 
     }, [isSuccess])
 
-    if (isLoading) return (<div className="sat-list"><div className="content centered">Loading data...</div></div>)
-    if (isError) return (<div className="sat-list"><div className="content centered">Error</div></div>)
+    if (isLoading) return (<div id="sat-list"><div className="content centered">Loading data...</div></div>)
+    if (isError) return (<div id="sat-list"><div className="content centered">Error</div></div>)
 
     return (
-        <div className="sat-list">
+        <div id="sat-list">
             <div className="content">
-                <div className="content-container">Location</div>
-                <div className="list-container">
+                {/* <div className="content">Location</div>
+                <div className="content">
                     <p>Nearest</p>
                     {dataList.map((sat: SatelliteData) => (
                         <div key={sat.name} class="list-item">
                             {sat.name}
                         </div>
                     ))}
-                </div>
+                </div> */}
             </div>
         </div>
     )
