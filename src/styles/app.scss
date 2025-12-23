@@ -20,7 +20,7 @@
   position: absolute;
 }
 
-#sat-list {
+#left-panel {
   @include components.float-panel-left;
   height: 100%;
   width: 380px;
@@ -32,7 +32,7 @@
   }
 }
 
-#sat-detail {
+#right-panel {
   @include components.float-panel-right;
   height: 100%;
   width: 380px;
@@ -42,4 +42,28 @@
     width: 100%;
     min-height: 60%;
   }
+}
+
+.item-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.item-scroll-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding-right: 1rem;
+  overflow-y: auto;
+}
+
+.sat-card-nearest {
+  border: 1px solid variables.$border-color;
+  border-radius: 0.4rem;
+  padding: 0.8rem 1rem;
+}
+
+.sat-card-distant {
+  padding: 0.8rem 1rem;
 }

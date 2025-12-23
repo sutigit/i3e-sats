@@ -4,3 +4,7 @@ export type TLE = {
   line2: string;
   tle: string;
 };
+
+export type SatelliteCardProps = {
+  name: string;
+};

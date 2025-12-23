@@ -1,3 +1,5 @@
+@use "variables";
+
 @mixin full-screen-width-height {
   width: 100vw;
   height: 100vh;

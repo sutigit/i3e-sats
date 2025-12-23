@@ -1,6 +1,6 @@
 export default function SatDetail() {
     return (
-        <div id="sat-detail">
+        <div id="right-panel">
             <div className="content place-center" >
                 SatDetail
             </div>

@@ -1,6 +1,5 @@
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.2;
   font-size: 14px;
   font-weight: 400;
 
@@ -25,6 +24,10 @@ a:hover {
 
 * {
   box-sizing: border-box;
+}
+
+p {
+  margin: 6px 0;
 }
 
 body {
