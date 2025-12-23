@@ -23,7 +23,7 @@
 #left-panel {
   @include components.float-panel-left;
   height: 100%;
-  width: 400px;
+  width: 380px;
 
   .content {
     @include components.dashboard-panel;
@@ -35,7 +35,7 @@
 #right-panel {
   @include components.float-panel-right;
   height: 100%;
-  width: 400px;
+  width: 380px;
 
   .content {
     @include components.dashboard-panel;

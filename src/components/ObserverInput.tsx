@@ -75,7 +75,7 @@ export default function ObserverInput({ coords, setCoords, onFly }: ObserverInpu
                         height="14"
                         viewBox="0 0 24 24"
                         fill="none"
-                        stroke="#a855f7"
+                        stroke="#d8b4fe"
                         strokeWidth="2"
                         strokeLinecap="round"
                         strokeLinejoin="round"
