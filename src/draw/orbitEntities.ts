@@ -1,6 +1,6 @@
 import { ArcType, Cartesian3, Color, Entity, GeometryInstance, HeadingPitchRoll, Math as CesiumMath, PolylineColorAppearance, PolylineGeometry, Primitive, Transforms, Viewer } from "cesium";
 import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
-import type { TLE } from "../../types";
+import type { TLE } from "../types";
 
 const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
     return Cartesian3.fromDegrees(

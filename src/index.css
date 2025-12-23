@@ -32,3 +32,21 @@ body {
   min-width: 320px;
   min-height: 100vh;
 }
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #fafafa33 transparent;
+}
+
+/* 2. WebKit (Chrome, Edge, Safari) */
+
+/* The total width of the scrollbar area */
+::-webkit-scrollbar {
+  width: 6px; /* Vertical scrollbar width */
+  height: 6px; /* Horizontal scrollbar height */
+}
+
+/* The background "track" (invisible) */
+::-webkit-scrollbar-track {
+  background: transparent;
+}

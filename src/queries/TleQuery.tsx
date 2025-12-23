@@ -18,9 +18,6 @@ type TleProviderProps = {
    */
   devTools?: boolean,
 
-  /**
-   * Pass in any valid ReactNode component
-   */
   children?: ReactNode
 }
 
