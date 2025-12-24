@@ -7,7 +7,16 @@ if (!CESIUM_KEY) console.log("📌 Missing cesium api key")
 
 Ion.defaultAccessToken = CESIUM_KEY
 
-export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon: number, lat: number, height: number }) => {
+export const cesiumView = (
+    cesiumRef: RefObject<HTMLDivElement>,
+    view: {
+        lon: number,
+        lat: number,
+        height: number,
+        flyTo?: boolean,
+        radar?: boolean,
+    }) => {
+
     if (!cesiumRef.current) {
         throw new Error('Cesium container ref is not attached to a DOM element');
     }
@@ -35,6 +44,9 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
         contextOptions: {
             webgl: { alpha: true } // make css background visible
         },
+
+        // Hide credits for radar view
+        creditContainer: view.radar ? document.createElement('div') : undefined
     });
 
     viewer.scene.debugShowFramesPerSecond = false; // debugging
@@ -65,20 +77,22 @@ export const cesiumView = (cesiumRef: RefObject<HTMLDivElement>, initView: { lon
     const layer = viewer.scene.imageryLayers.get(0)
 
     layer.saturation = 0.1;
-    layer.alpha = 0.6;
-    layer.contrast = 1.5;
-    layer.brightness = 0.4;
-    layer.gamma = 1.4;
+    layer.alpha = view.radar ? 0.6 : 0.6;
+    layer.contrast = view.radar ? 1.0 : 1.5;
+    layer.brightness = view.radar ? 1.0 : 0.4;
+    layer.gamma = view.radar ? 1.2 : 1.4;
 
     // --- CAMERA & SCENE SETTINGS ---
-    viewer.camera.flyTo({
-        destination: Cartesian3.fromDegrees(initView.lon, initView.lat, initView.height), // otaniemi
+    const viewConfig = {
+        destination: Cartesian3.fromDegrees(view.lon, view.lat, view.height), // otaniemi
         orientation: {
             heading: CesiumMath.toRadians(0.0),
             pitch: CesiumMath.toRadians(-90.0),
             roll: CesiumMath.toRadians(0.0)
         },
-    });
+    }
+
+    view.flyTo ? viewer.camera.flyTo(viewConfig) : viewer.camera.setView(viewConfig);
 
     return viewer;
 }

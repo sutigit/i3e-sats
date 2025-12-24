@@ -162,8 +162,8 @@ const _drawObserver = (point: Cartesian3, viewer: Viewer ) => {
     const ent = new Entity({
         position: point,
         point: {
-            pixelSize: 10,             
-            color: Color.fromCssColorString('#a78bfa'),  
+            pixelSize: 12,             
+            color: Color.fromCssColorString('#f9a8d4'),  
         }
     });
 
