@@ -1,4 +1,4 @@
-import type { SatelliteCardProps } from "../types"
+import type { Satellite } from "../types"
 
 const round = (val: number) => Math.round(val * 10) / 10;
 
@@ -30,7 +30,7 @@ const MeasureMin = ({ label, value, unit }: { label: string, value: string | num
     )
 }
 
-export const SatNearCard = ({ data }: { data: SatelliteCardProps }) => {
+export const SatNearCard = ({ data }: { data: Satellite }) => {
     const s = data.stat;
 
     return (
@@ -50,7 +50,7 @@ export const SatNearCard = ({ data }: { data: SatelliteCardProps }) => {
     )
 }
 
-export const SatDistantCard = ({ data }: { data: SatelliteCardProps }) => {
+export const SatDistantCard = ({ data }: { data: Satellite }) => {
     const s = data.stat;
 
     return (
