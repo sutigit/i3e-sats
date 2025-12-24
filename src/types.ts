@@ -35,3 +35,9 @@ export type SatelliteCardProps = {
   name: string;
   stat: SatStat;
 };
+
+export type Satellite = {
+  name: string;
+  tle: string;
+  stat: SatStat | null;
+};
