@@ -41,3 +41,8 @@ export type Satellite = {
   tle: string;
   stat: SatStat;
 };
+
+export type Observer = {
+  lon: number;
+  lat: number;
+};

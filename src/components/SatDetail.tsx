@@ -1,21 +1,22 @@
 import { useEffect, useRef } from "preact/hooks"
 import { cesiumView } from "../lib/cesiumRenderer"
-import { coords } from "../utils/defaults"
 import { addObserver } from "../draw/orbitEntities"
+import { useSatellites } from "../context/ContextAPI"
 
 export default function SatDetail() {
     const cesiumRef = useRef(null)
+    const { observer } = useSatellites()
 
     useEffect(() => {
         if (!cesiumRef.current) return
-        const { lon, lat } = coords["otaniemi"]
+        const { lon, lat } = observer
         const viewer = cesiumView(cesiumRef, {
             lon,
             lat,
             height: 20000.0,
             radar: true,
         })
-        addObserver({ coords: coords["otaniemi"], viewer })
+        addObserver({ observer, viewer })
 
         return (() => {
             viewer.destroy()

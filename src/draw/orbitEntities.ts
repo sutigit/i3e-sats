@@ -1,6 +1,6 @@
 import { ArcType, Cartesian3, Color, Entity, GeometryInstance, HeadingPitchRoll, Math as CesiumMath, PolylineColorAppearance, PolylineGeometry, Primitive, Transforms, Viewer } from "cesium";
 import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
-import type { TLE } from "../types";
+import type { Observer, Satellite, TLE } from "../types";
 
 const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
     return Cartesian3.fromDegrees(
@@ -170,32 +170,32 @@ const _drawObserver = (point: Cartesian3, viewer: Viewer ) => {
     viewer.entities.add(ent);
 }
 
-export const addPaths = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
-    if (!data) return
-    data.forEach((d: TLE) => {
-        const path = _getOrbitPath(d.tle, Date.now())
+export const addPaths = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+    if (!satellites) return
+    satellites.forEach((s: Satellite) => {
+        const path = _getOrbitPath(s.tle, Date.now())
         _drawPath(path, viewer)
     })
 }
 
-export const addTrails = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
-    if (!data) return
-    data.forEach((d: TLE) => {
-        const path = _getOrbitPath(d.tle, Date.now(), 10)
+export const addTrails = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+    if (!satellites) return
+    satellites.forEach((s: Satellite) => {
+        const path = _getOrbitPath(s.tle, Date.now(), 10)
         _drawTrail(path, viewer)
     })
 }
 
-export const addPoints = ({ data, viewer }: { data: TLE[] | undefined, viewer: Viewer }) => {
-    if (!data) return
-    data.forEach((d: TLE) => {
-        const point = _getOrbitPoint(d.tle, Date.now())
+export const addPoints = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+    if (!satellites) return
+    satellites.forEach((s: Satellite) => {
+        const point = _getOrbitPoint(s.tle, Date.now())
         _drawPoint(point, viewer)
     })
 }
 
-export const addObserver = ({ coords, viewer }: { coords: { lon: number, lat: number }, viewer: Viewer }) => {
-    const pos = Cartesian3.fromDegrees(coords.lon, coords.lat);
+export const addObserver = ({ observer, viewer }: { observer: Observer, viewer: Viewer }) => {
+    const pos = Cartesian3.fromDegrees(observer.lon, observer.lat);
     
     _drawObserver(pos, viewer);
 }
