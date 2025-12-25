@@ -4,9 +4,6 @@ const SATELLITE_ICON = satelliteSVG;
 
 /**
  * Renders a trajectory path in the Cesium viewer.
- * * Modes:
- * - "space":  Standard `Primitive`. Uses per-vertex alpha to create a "comet tail" fade. High performance.
- * - "ground": `GroundPolylinePrimitive`. Clamps solid line to terrain/globe. Heavier init, optimized for zoom.
  */
 export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "ground") => {
     if (!path || path.length < 2) return;
@@ -60,9 +57,6 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
 
 /**
  * Renders a multi-color trail.
- * * Modes:
- * - "space":  Gradient fade (Purple -> Red). Uses lightweight `Primitive`.
- * - "ground": Solid line (Red). Uses `GroundPolylinePrimitive` clamped to terrain.
  */
 export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "ground") => {
     if (!path || path.length < 2) return;
@@ -130,6 +124,9 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
     }
 }
 
+/**
+ * Renders a satellite point in the Cesium viewer.
+ */
 export const drawPoint = (
     point: Cartesian3,
     orientation: Quaternion,
@@ -178,6 +175,9 @@ export const drawPoint = (
     }
 }
 
+/**
+ * Renders the observer point in the Cesium viewer.
+ */
 export const drawObserver = (point: Cartesian3, viewer: Viewer) => {
     const ent = new Entity({
         position: point,

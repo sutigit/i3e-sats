@@ -35,3 +35,8 @@ export const addObserverGround = ({ observer, viewer }: { observer: Observer, vi
     drawObserver(position, viewer);
 }
 
+export const addSatellitePointGround = ({ satellite, viewer }: { satellite: Satellite | undefined, viewer: Viewer }) => {
+    if (!satellite) return
+    const { position, orientation } = getOrbitPositionOrientation(satellite.tle, Date.now())
+    drawPoint(position, orientation, viewer, "ground")
+}
