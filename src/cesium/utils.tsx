@@ -56,7 +56,7 @@ const _getOrientation = (
     );
 }
 
-export const getOrbitPathSpace = (tle: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
+export const getOrbitPath = (tle: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
     const positions: Cartesian3[] = [];
     const stepInMinutes = 1;
     const durationMinutes = lastMins; // // default 97 min ICEYE satellite approximate orbit duration
@@ -78,7 +78,7 @@ export const getOrbitPathSpace = (tle: TLE["tle"], now: Timestamp, lastMins: num
     return positions;
 }
 
-export const getOrbitPositionOrientationSpace = (tle: TLE["tle"], now: Timestamp): { position: Cartesian3, orientation: Quaternion } => {
+export const getOrbitPositionOrientation = (tle: TLE["tle"], now: Timestamp): { position: Cartesian3, orientation: Quaternion } => {
     const info = getSatelliteInfo(tle, now);
     const velocity = _getVelocityVector(tle, now)
     const position = _getPosition(info)

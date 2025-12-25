@@ -1,4 +1,6 @@
-import { Cartesian3, Color, Entity, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion, GroundPolylinePrimitive, GroundPolylineGeometry, ColorGeometryInstanceAttribute } from "cesium";
+import { Cartesian3, Color, Entity, type Viewer, Math as CesiumMath, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion, GroundPolylinePrimitive, GroundPolylineGeometry, ColorGeometryInstanceAttribute, HeadingPitchRoll, HeightReference } from "cesium";
+import { satelliteSVG } from "./icons";
+const SATELLITE_ICON = satelliteSVG;
 
 /**
  * Renders a trajectory path in the Cesium viewer.
@@ -128,21 +130,52 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
     }
 }
 
-export const drawPoint = (point: Cartesian3, orientation: Quaternion, viewer: Viewer) => {
-    const ent = new Entity({
-        position: point,
-        orientation,
+export const drawPoint = (
+    point: Cartesian3,
+    orientation: Quaternion,
+    viewer: Viewer,
+    mode: "space" | "ground"
+) => {
 
-        box: {
-            dimensions: new Cartesian3(50000.0, 50000.0, 50000.0),
-            material: Color.fromCssColorString("#5eead4").withAlpha(0.3),
-            outline: true,
-            outlineColor: Color.fromCssColorString("#ccfbf1"),
-            outlineWidth: 1,
-        }
-    })
+    // --- MODE: SPACE (3D Box) ---
+    if (mode === "space") {
+        viewer.entities.add(new Entity({
+            position: point,
+            orientation: orientation,
+            box: {
+                dimensions: new Cartesian3(50000.0, 50000.0, 50000.0),
+                material: Color.fromCssColorString("#5eead4").withAlpha(0.3),
+                outline: true,
+                outlineColor: Color.fromCssColorString("#ccfbf1"),
+            }
+        }));
+    }
 
-    viewer.entities.add(ent)
+    // --- MODE: GROUND (SVG Billboard) ---
+    else {
+        // Calculate Rotation
+        const hpr = HeadingPitchRoll.fromQuaternion(orientation);
+        // We negate the heading because Cesium rotates Billboards Counter-Clockwise
+        // But Compass Heading is Clockwise.
+        const rotation = -hpr.heading + CesiumMath.PI_OVER_TWO;
+
+        viewer.entities.add(new Entity({
+            position: point,
+            billboard: {
+                image: SATELLITE_ICON,
+                width: 16,
+                height: 16,
+
+                rotation: rotation,
+                // Locks the rotation to the map surface (Compass behavior)
+                // instead of the screen (Spinning icon behavior)
+                alignedAxis: Cartesian3.normalize(point, new Cartesian3()),
+
+                heightReference: HeightReference.CLAMP_TO_GROUND,
+                disableDepthTestDistance: Number.POSITIVE_INFINITY
+            }
+        }));
+    }
 }
 
 export const drawObserver = (point: Cartesian3, viewer: Viewer) => {
