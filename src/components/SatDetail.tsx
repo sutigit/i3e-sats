@@ -2,6 +2,8 @@ import { useEffect, useRef } from "preact/hooks"
 import { cesiumView } from "../cesium/renderer"
 import { addObserverGround, addSatellitePointGround, addSatellitePathGround } from "../cesium/add"
 import { useSatellites } from "../context/ContextAPI"
+import type { Satellite } from "../types"
+import { Measure } from "./common/Measure"
 
 export default function SatDetail() {
     const cesiumMinimapRef = useRef(null)
@@ -34,10 +36,24 @@ export default function SatDetail() {
                         <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
                     </div>
 
-                    <div className="" style={{ padding: '1rem 1.5rem' }}>
-                        hello
-                    </div>
+                    <SatelliteDetails satellite={targetSatellite} />
                 </div>
+            </div>
+        </div>
+    )
+}
+
+const SatelliteDetails = ({ satellite }: { satellite: Satellite | undefined }) => {
+    if (!satellite) return
+
+    return (
+        <div className="" style={{ padding: '1.5rem' }}>
+            <h3>{satellite.name}</h3>
+            <div style={{ marginTop: '2rem', display: 'flex', justifyContent: 'space-between', gap: 5, flexWrap: 'wrap' }}>
+                <Measure label="Speed" value={0.0} unit="km/s" />
+                <Measure label="Speed" value={0.0} unit="km/s" />
+                <Measure label="Speed" value={0.0} unit="km/s" />
+                <Measure label="Speed" value={0.0} unit="km/s" />
             </div>
         </div>
     )

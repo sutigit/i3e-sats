@@ -64,7 +64,7 @@ export const cesiumView = (
     viewer.scene.debugShowFramesPerSecond = false;
 
     // Resolution
-    viewer.scene.globe.maximumScreenSpaceError = 2; // default 2
+    viewer.scene.globe.maximumScreenSpaceError = view.minimap ? 1 : 2; // default 2
     viewer.resolutionScale = 1; // default 1
 
     // Atmosphere

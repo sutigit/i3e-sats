@@ -108,7 +108,7 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
             geometryInstances: new GeometryInstance({
                 geometry: new GroundPolylineGeometry({
                     positions: path,
-                    width: 4.0, // Thicker for ground visibility
+                    width: 2.0, // Thicker for ground visibility
                 }),
                 attributes: {
                     // Ground lines do not support vertex arrays, so we use a single color attribute
@@ -156,8 +156,8 @@ export const drawPoint = (
             position: point,
             billboard: {
                 image: SATELLITE_ICON,
-                width: 16,
-                height: 16,
+                width: 14,
+                height: 14,
 
                 rotation: rotation,
                 // Locks the rotation to the map surface (Compass behavior)
