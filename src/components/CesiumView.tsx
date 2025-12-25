@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { cesiumView } from '../lib/cesiumRenderer'
+import { cesiumView } from '../cesium/cesiumRenderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { addObserver, addPaths, addPoints, addTrails } from '../draw/orbitEntities';
+import { addObserver, addPaths, addPoints, addTrails } from '../cesium/cesiumAdd';
 import Loading from './common/Loading';
 import { useSatellites } from '../context/ContextAPI';
 

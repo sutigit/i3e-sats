@@ -1,6 +1,6 @@
-import { ArcType, Cartesian3, Color, Entity, GeometryInstance, HeadingPitchRoll, Math as CesiumMath, PolylineColorAppearance, PolylineGeometry, Primitive, Transforms, Viewer } from "cesium";
+import { Cartesian3, Color, Entity, HeadingPitchRoll, Math as CesiumMath, Transforms, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance } from "cesium";
 import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
-import type { Observer, Satellite, TLE } from "../types";
+import type { TLE } from "../types";
 
 const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
     return Cartesian3.fromDegrees(
@@ -10,7 +10,7 @@ const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
             );
 }
 
-const _getOrbitPath = (tleLine: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
+export const getOrbitPath = (tleLine: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
     const positions: Cartesian3[] = [];
     const stepInMinutes = 1;
     const durationMinutes = lastMins; // // default 97 min ICEYE satellite approximate orbit duration
@@ -32,12 +32,12 @@ const _getOrbitPath = (tleLine: TLE["tle"], now: Timestamp, lastMins: number = 9
     return positions;
 }
 
-const _getOrbitPoint = (tleLine: TLE["tle"], now: Timestamp): Cartesian3 => {
+export const getOrbitPoint = (tleLine: TLE["tle"], now: Timestamp): Cartesian3 => {
     const info = getSatelliteInfo(tleLine, now);
     return _infoToCartesian3(info)
 }
 
-const _drawPath = (path: Cartesian3[], viewer: Viewer) => {
+export const _drawPath = (path: Cartesian3[], viewer: Viewer) => {
     if (!path || path.length < 2) return;
 
     // --- Config ---
@@ -81,7 +81,7 @@ const _drawPath = (path: Cartesian3[], viewer: Viewer) => {
     }));
 }
 
-const _drawTrail = (path: Cartesian3[], viewer: Viewer) => {
+export const drawTrail = (path: Cartesian3[], viewer: Viewer) => {
     if (!path || path.length < 2) return;
 
     // --- Config: Gradient Palette (Tail -> Head) ---
@@ -127,7 +127,7 @@ const _drawTrail = (path: Cartesian3[], viewer: Viewer) => {
     }));
 }
 
-const _drawPoint = (point: Cartesian3, viewer: Viewer ) => {
+export const drawPoint = (point: Cartesian3, viewer: Viewer ) => {
 // 1. CALCULATE ORIENTATION
     // This creates a rotation that aligns the object with "East-North-Up"
     // Result: Local Z is Up (Space), Local -Z is Down (Earth Center)
@@ -158,7 +158,7 @@ const _drawPoint = (point: Cartesian3, viewer: Viewer ) => {
     viewer.entities.add(ent)
 }
 
-const _drawObserver = (point: Cartesian3, viewer: Viewer ) => {
+export const drawObserver = (point: Cartesian3, viewer: Viewer ) => {
     const ent = new Entity({
         position: point,
         point: {
@@ -169,35 +169,3 @@ const _drawObserver = (point: Cartesian3, viewer: Viewer ) => {
 
     viewer.entities.add(ent);
 }
-
-export const addPaths = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
-    if (!satellites) return
-    satellites.forEach((s: Satellite) => {
-        const path = _getOrbitPath(s.tle, Date.now())
-        _drawPath(path, viewer)
-    })
-}
-
-export const addTrails = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
-    if (!satellites) return
-    satellites.forEach((s: Satellite) => {
-        const path = _getOrbitPath(s.tle, Date.now(), 10)
-        _drawTrail(path, viewer)
-    })
-}
-
-export const addPoints = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
-    if (!satellites) return
-    satellites.forEach((s: Satellite) => {
-        const point = _getOrbitPoint(s.tle, Date.now())
-        _drawPoint(point, viewer)
-    })
-}
-
-export const addObserver = ({ observer, viewer }: { observer: Observer, viewer: Viewer }) => {
-    const pos = Cartesian3.fromDegrees(observer.lon, observer.lat);
-    
-    _drawObserver(pos, viewer);
-}
-
-
