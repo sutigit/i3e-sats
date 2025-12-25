@@ -1,4 +1,4 @@
-import { Cartesian3, Color, Entity, HeadingPitchRoll, Math as CesiumMath, Transforms, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion } from "cesium";
+import { Cartesian3, Color, Entity, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion } from "cesium";
 
 export const drawPath = (path: Cartesian3[], viewer: Viewer) => {
     if (!path || path.length < 2) return;
