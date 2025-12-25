@@ -69,7 +69,7 @@ export const getSatStats = (
 
     // --- Physics & Status ---
     physics: {
-      velocity: info.velocity, // km/s (Speed)
+      speed: info.velocity, // km/s (Speed). NOTE: this is actually speed. the lib returns "velocity"
       rangeRate: rangeRate, // km/s (Doppler Speed)
     },
 

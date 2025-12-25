@@ -1,8 +1,21 @@
-import { Cartesian3 } from "cesium";
+import { Cartesian3, Matrix4, Quaternion, Transforms, Math as CesiumMath, HeadingPitchRoll } from "cesium";
 import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
 import type { TLE } from "../types";
 
-const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
+const _getVelocityVector = (tle: string, time: number): Cartesian3 => {
+    // 1. Get positions 1 second apart
+    const now = getSatelliteInfo(tle, time);
+    const next = getSatelliteInfo(tle, time + 1000);
+
+    // 2. Convert to Cesium Cartesian3 (Earth Fixed)
+    const p1 = Cartesian3.fromDegrees(now.lng, now.lat, now.height * 1000);
+    const p2 = Cartesian3.fromDegrees(next.lng, next.lat, next.height * 1000);
+
+    // 3. Calculate Vector (p2 - p1)
+    return Cartesian3.subtract(p2, p1, new Cartesian3());
+};
+
+const _getPosition = (info: SatelliteInfoOutput) => {
     return Cartesian3.fromDegrees(
         info.lng,
         info.lat,
@@ -10,14 +23,41 @@ const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
     );
 }
 
-export const getOrbitPathSpace = (tleLine: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
+const _getOrientation = (
+    info: SatelliteInfoOutput,
+    velocityVector: Cartesian3
+): Quaternion => {
+
+    // 1. Get Position (Cesium World Coords)
+    const position = Cartesian3.fromDegrees(info.lng, info.lat, info.height * 1000);
+
+    // 2. Transform Velocity to Local Frame (ENU)
+    // We need the velocity direction relative to the surface tangent plane.
+    const toLocal = Matrix4.inverse(Transforms.eastNorthUpToFixedFrame(position), new Matrix4());
+    const vLocal = Matrix4.multiplyByPointAsVector(toLocal, velocityVector, new Cartesian3());
+
+    // 3. Compute Orientation
+    // atan2(y, x) = Angle from East (+X).
+    // We use Pitch=0 and Roll=0 to ensure the local -Z axis (Belly) 
+    // stays locked to the Global Surface Normal (Down).
+    return Transforms.headingPitchRollQuaternion(
+        position,
+        new HeadingPitchRoll(
+            Math.atan2(vLocal.y, vLocal.x), // Heading (Yaw)
+            0,                              // Pitch (Tilt)
+            0                               // Roll (Bank)
+        )
+    );
+}
+
+export const getOrbitPathSpace = (tle: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
     const positions: Cartesian3[] = [];
     const stepInMinutes = 1;
     const durationMinutes = lastMins; // // default 97 min ICEYE satellite approximate orbit duration
 
     for (let i = -durationMinutes; i <= 0; i += stepInMinutes) {
         const timestamp = now + (i * 60000); // i is negative, so this subtracts time
-        const info = getSatelliteInfo(tleLine, timestamp);
+        const info = getSatelliteInfo(tle, timestamp);
 
         if (info && info.height) {
 
@@ -25,14 +65,17 @@ export const getOrbitPathSpace = (tleLine: TLE["tle"], now: Timestamp, lastMins:
                 console.warn("⚠️ Satellite is crashing!", info.height);
             }
 
-            const pos = _infoToCartesian3(info)
+            const pos = _getPosition(info)
             positions.push(pos);
         }
     }
     return positions;
 }
 
-export const getOrbitPointSpace = (tleLine: TLE["tle"], now: Timestamp): Cartesian3 => {
-    const info = getSatelliteInfo(tleLine, now);
-    return _infoToCartesian3(info)
+export const getOrbitPositionOrientationSpace = (tle: TLE["tle"], now: Timestamp): { position: Cartesian3, orientation: Quaternion } => {
+    const info = getSatelliteInfo(tle, now);
+    const velocity = _getVelocityVector(tle, now)
+    const position = _getPosition(info)
+    const orientation = _getOrientation(info, velocity)
+    return { position, orientation }
 }

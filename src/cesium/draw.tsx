@@ -1,6 +1,6 @@
 import { Cartesian3, Color, Entity, HeadingPitchRoll, Math as CesiumMath, Transforms, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance } from "cesium";
 
-export const _drawPath = (path: Cartesian3[], viewer: Viewer) => {
+export const drawPath = (path: Cartesian3[], viewer: Viewer) => {
     if (!path || path.length < 2) return;
 
     // --- Config ---

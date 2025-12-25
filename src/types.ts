@@ -20,7 +20,7 @@ export type SatStat = {
   };
 
   physics: {
-    velocity: number; // km/s. Orbital speed.
+    speed: number; // km/s. Orbital speed.
     rangeRate: number; // km/s. Doppler shift estimate.
     // Negative (-) = Approaching (Blue Shift)
     // Positive (+) = Moving Away (Red Shift)
