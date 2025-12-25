@@ -1,4 +1,4 @@
-import { Cartesian3, Color, Entity, HeadingPitchRoll, Math as CesiumMath, Transforms, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance } from "cesium";
+import { Cartesian3, Color, Entity, HeadingPitchRoll, Math as CesiumMath, Transforms, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion } from "cesium";
 
 export const drawPath = (path: Cartesian3[], viewer: Viewer) => {
     if (!path || path.length < 2) return;
@@ -90,24 +90,10 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer) => {
     }));
 }
 
-export const drawPoint = (point: Cartesian3, viewer: Viewer) => {
-    // 1. CALCULATE ORIENTATION
-    // This creates a rotation that aligns the object with "East-North-Up"
-    // Result: Local Z is Up (Space), Local -Z is Down (Earth Center)
-    const orientation = Transforms.headingPitchRollQuaternion(
-        point,
-        new HeadingPitchRoll(
-            CesiumMath.toRadians(0), // Heading (Rotation around Up)
-            CesiumMath.toRadians(0), // Pitch (Tilt forward/back)
-            CesiumMath.toRadians(0)  // Roll (Tilt left/right)
-        )
-    );
-
+export const drawPoint = (point: Cartesian3, orientation: Quaternion, viewer: Viewer) => {
     const ent = new Entity({
         position: point,
-
-        // 2. APPLY ROTATION
-        orientation: orientation,
+        orientation,
 
         box: {
             dimensions: new Cartesian3(50000.0, 50000.0, 50000.0),

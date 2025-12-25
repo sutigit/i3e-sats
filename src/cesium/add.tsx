@@ -22,8 +22,8 @@ export const addSatelliteTrailsSpace = ({ satellites, viewer }: { satellites: Sa
 export const addSatellitePointsSpace = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
-        const { position } = getOrbitPositionOrientationSpace(s.tle, Date.now())
-        drawPoint(position, viewer)
+        const { position, orientation } = getOrbitPositionOrientationSpace(s.tle, Date.now())
+        drawPoint(position, orientation, viewer)
     })
 }
 

@@ -29,24 +29,30 @@ const _getOrientation = (
 ): Quaternion => {
 
     // 1. Get Position (Cesium World Coords)
+    // info.height is km, convert to meters
     const position = Cartesian3.fromDegrees(info.lng, info.lat, info.height * 1000);
 
     // 2. Transform Velocity to Local Frame (ENU)
-    // We need the velocity direction relative to the surface tangent plane.
+    // Local: X=East, Y=North, Z=Up
     const toLocal = Matrix4.inverse(Transforms.eastNorthUpToFixedFrame(position), new Matrix4());
     const vLocal = Matrix4.multiplyByPointAsVector(toLocal, velocityVector, new Cartesian3());
 
-    // 3. Compute Orientation
-    // atan2(y, x) = Angle from East (+X).
-    // We use Pitch=0 and Roll=0 to ensure the local -Z axis (Belly) 
-    // stays locked to the Global Surface Normal (Down).
+    // 3. Compute Heading (Yaw)
+    // Math.atan2(y, x) = Angle from East (Counter-Clockwise).
+    // Cesium Heading  = Rotation around Negative-Z (Clockwise).
+    //
+    // We simply NEGATE the math angle to convert CCW -> CW.
+    // Examples:
+    // - Velocity East (0°):  -atan2(0, 1) = -0   -> Points East (Correct)
+    // - Velocity North (90°): -atan2(1, 0) = -90  -> Rotates 90° CCW -> Points North (Correct)
+    const heading = -Math.atan2(vLocal.y, vLocal.x);
+
+    // 4. Force "Belly Down"
+    // Pitch=0, Roll=0 ensures the local Z-axis matches the global Up-axis.
+    // The cube glides parallel to the curve of the earth.
     return Transforms.headingPitchRollQuaternion(
         position,
-        new HeadingPitchRoll(
-            Math.atan2(vLocal.y, vLocal.x), // Heading (Yaw)
-            0,                              // Pitch (Tilt)
-            0                               // Roll (Bank)
-        )
+        new HeadingPitchRoll(heading, 0, 0)
     );
 }
 
