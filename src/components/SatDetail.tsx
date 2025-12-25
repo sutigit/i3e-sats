@@ -25,9 +25,15 @@ export default function SatDetail() {
 
     return (
         <div id="right-panel">
-            <div className="content" >
-                <div style={{ position: 'relative', width: '100%', paddingBottom: '100%', backgroundColor: 'gray', borderRadius: '1rem', overflow: 'hidden' }}>
-                    <div ref={cesiumRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
+            <div className="panel-content">
+                <div className="panel-content-item">
+                    <div id="cesium-tracker-view-container">
+                        <div id="cesium-tracker-view" ref={cesiumRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
+                    </div>
+
+                    <div className="" style={{ padding: '1rem 1.5rem' }}>
+                        hello
+                    </div>
                 </div>
             </div>
         </div>

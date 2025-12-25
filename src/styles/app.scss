@@ -20,6 +20,20 @@
   position: absolute;
 }
 
+#cesium-tracker-view-container {
+  position: relative;
+  width: 100%;
+  padding-bottom: 100%;
+  border-radius: variables.$bento-border-radius;
+  overflow: hidden;
+  box-shadow: 0 0 8px 8px rgba(0, 0, 0, 0.1);
+
+  #cesium-tracker-view {
+    position: absolute;
+    inset: 0 0 0 0;
+  }
+}
+
 #left-panel {
   @include components.float-panel-left;
   height: 100%;

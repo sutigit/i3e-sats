@@ -20,7 +20,7 @@ export default function SatList() {
                 <div className="panel-content-item">
                     <h4 className="panel-content-title">Nearest visible time</h4>
                     <div className="sat-primary-list">
-                        {satellites.slice(0, 3).map((sat: Satellite) => (
+                        {satellites.slice(0, 4).map((sat: Satellite) => (
                             <SatPrimaryCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
                         ))}
                     </div>
