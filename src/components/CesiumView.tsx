@@ -14,7 +14,7 @@ export default function CesiumView() {
     useEffect(() => {
         if (!cesiumRef.current || !satellites) return
         const { lon, lat } = observer
-        const viewer = cesiumView(cesiumRef, { lon, lat, height: 24000000.0 })
+        const viewer = cesiumView(cesiumRef, { lon, lat, alt: 24000000.0 })
         addSatellitePathsSpace({ satellites, viewer })
         addSatelliteTrailsSpace({ satellites, viewer })
         addSatellitePointsSpace({ satellites, viewer })
@@ -23,6 +23,8 @@ export default function CesiumView() {
         return () => {
             viewer.destroy()
         }
+
+        // never re-render this. modify entities for animations
     }, [satellites])
 
     if (isLoading) return (<Loading />)

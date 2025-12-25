@@ -32,7 +32,6 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
                 })
             }),
             appearance: new PolylineColorAppearance({ translucent: true }),
-            asynchronous: false // Draw immediately (avoids pop-in)
         }));
     }
 
@@ -50,7 +49,6 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
                 }
             }),
             appearance: new PolylineColorAppearance({ translucent: true }),
-            asynchronous: false
         }));
     }
 }
@@ -98,7 +96,6 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
                 })
             }),
             appearance: new PolylineColorAppearance({ translucent: true }),
-            asynchronous: false
         }));
     }
 
@@ -119,7 +116,6 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
                 }
             }),
             appearance: new PolylineColorAppearance({ translucent: true }),
-            asynchronous: false
         }));
     }
 }

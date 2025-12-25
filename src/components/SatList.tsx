@@ -5,7 +5,7 @@ import ObserverInput from "./ObserverInput"
 import { useSatellites } from "../context/ContextAPI"
 
 export default function SatList() {
-    const { satellites, focus, observer, setObserver, isLoading, isError } = useSatellites();
+    const { satellites, targetSatellite, observer, setObserver, isLoading, isError } = useSatellites();
     if (isLoading) return (<div id="left-panel"><Loading /></div>)
     if (isError) return (<div id="left-panel"><Error /></div>)
 
@@ -21,7 +21,7 @@ export default function SatList() {
                     <h4 className="panel-content-title">Nearest visible time</h4>
                     <div className="sat-primary-list">
                         {satellites.slice(0, 4).map((sat: Satellite) => (
-                            <SatPrimaryCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
+                            <SatPrimaryCard focus={sat.name === targetSatellite?.name} key={sat.name} data={sat} />
                         ))}
                     </div>
                 </div>
@@ -33,7 +33,7 @@ export default function SatList() {
                     </h4>
                     <div className="sat-secondary-list">
                         {satellites.map((sat: Satellite) => (
-                            <SatSecondaryCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
+                            <SatSecondaryCard focus={sat.name === targetSatellite?.name} key={sat.name} data={sat} />
                         ))}
                     </div>
                 </div>

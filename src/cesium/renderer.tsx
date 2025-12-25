@@ -12,9 +12,8 @@ export const cesiumView = (
     view: {
         lon: number,
         lat: number,
-        height: number,
-        flyTo?: boolean,
-        radar?: boolean,
+        alt: number,
+        minimap?: boolean,
     }) => {
 
     if (!cesiumRef.current) {
@@ -22,9 +21,6 @@ export const cesiumView = (
     }
 
     const viewer = new Viewer(cesiumRef.current, {
-        terrainProvider: undefined,
-        scene3DOnly: true,
-        baseLayerPicker: false,
 
         // UI Toggles
         timeline: false,
@@ -39,32 +35,49 @@ export const cesiumView = (
         infoBox: false,
 
         // Visuals
+        terrainProvider: undefined,
+        scene3DOnly: true,
+        baseLayerPicker: false,
         skyBox: false,
         skyAtmosphere: false,
         contextOptions: {
             webgl: { alpha: true } // make css background visible
         },
 
-        // Hide credits for radar view
-        creditContainer: view.radar ? document.createElement('div') : undefined
+        // Hide credits for minimap view
+        creditContainer: view.minimap ? document.createElement('div') : undefined
     });
 
-    viewer.scene.debugShowFramesPerSecond = false; // debugging
 
-    viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
+    // Lock Panning (User cannot drag the map)
+    viewer.scene.screenSpaceCameraController.enableTranslate = !view.minimap;
+    viewer.scene.screenSpaceCameraController.enableRotate = !view.minimap;
+    viewer.scene.screenSpaceCameraController.enableTilt = !view.minimap;
+    viewer.scene.screenSpaceCameraController.enableLook = !view.minimap;
+    viewer.scene.screenSpaceCameraController.enableZoom = !view.minimap;
+
+    // Clamp Zoom (Meters)
+    viewer.scene.screenSpaceCameraController.minimumZoomDistance = !view.minimap ? 1000000 : 10000;
+    viewer.scene.screenSpaceCameraController.maximumZoomDistance = !view.minimap ? 50000000 : 1000000;
+
+    // Debugging
+    viewer.scene.debugShowFramesPerSecond = false;
+
+    // Resolution
+    viewer.scene.globe.maximumScreenSpaceError = 2; // default 2
     viewer.resolutionScale = 1; // default 1
 
+    // Atmosphere
     viewer.scene.globe.showGroundAtmosphere = true;
     viewer.scene.globe.atmosphereBrightnessShift = -0.2;
     viewer.scene.globe.enableLighting = false;
     viewer.shadows = false;
 
-    // 3. Fog settings (Now that atmosphere is on, fog behaves better)
+    // Fog settings (If atmosphere is on, fog behaves better)
     viewer.scene.fog.enabled = false;
     viewer.scene.fog.density = 0.0002; // Subtle depth
 
-
-    // Set colors to Dark/Black
+    // Colors
     viewer.scene.backgroundColor = Color.fromCssColorString('#0c1214');
     viewer.scene.globe.baseColor = Color.fromCssColorString('#0f766e');
 
@@ -77,22 +90,21 @@ export const cesiumView = (
     const layer = viewer.scene.imageryLayers.get(0)
 
     layer.saturation = 0.1;
-    layer.alpha = view.radar ? 0.6 : 0.6;
-    layer.contrast = view.radar ? 1.0 : 1.5;
-    layer.brightness = view.radar ? 1.0 : 0.4;
-    layer.gamma = view.radar ? 1.2 : 1.4;
+    layer.alpha = view.minimap ? 0.6 : 0.6;
+    layer.contrast = view.minimap ? 1.0 : 1.5;
+    layer.brightness = view.minimap ? 1.0 : 0.4;
+    layer.gamma = view.minimap ? 1.2 : 1.4;
 
     // --- CAMERA & SCENE SETTINGS ---
     const viewConfig = {
-        destination: Cartesian3.fromDegrees(view.lon, view.lat, view.height), // otaniemi
+        destination: Cartesian3.fromDegrees(view.lon, view.lat, view.alt), // otaniemi
         orientation: {
             heading: CesiumMath.toRadians(0.0),
             pitch: CesiumMath.toRadians(-90.0),
             roll: CesiumMath.toRadians(0.0)
         },
     }
-
-    view.flyTo ? viewer.camera.flyTo(viewConfig) : viewer.camera.setView(viewConfig);
+    viewer.camera.setView(viewConfig);
 
     return viewer;
 }

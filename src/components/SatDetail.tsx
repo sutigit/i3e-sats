@@ -1,34 +1,37 @@
 import { useEffect, useRef } from "preact/hooks"
 import { cesiumView } from "../cesium/renderer"
-import { addObserverGround } from "../cesium/add"
+import { addObserverGround, addSatellitePointGround, addSatellitePathGround } from "../cesium/add"
 import { useSatellites } from "../context/ContextAPI"
 
 export default function SatDetail() {
-    const cesiumRef = useRef(null)
-    const { observer } = useSatellites()
+    const cesiumMinimapRef = useRef(null)
+    const { observer, targetSatellite } = useSatellites()
 
     useEffect(() => {
-        if (!cesiumRef.current) return
-        const { lon, lat } = observer
-        const viewer = cesiumView(cesiumRef, {
-            lon,
-            lat,
-            height: 20000.0,
-            radar: true,
+        if (!cesiumMinimapRef.current || !targetSatellite) return
+        const viewer = cesiumView(cesiumMinimapRef, {
+            lon: targetSatellite.stat.location.lon,
+            lat: targetSatellite.stat.location.lat,
+            alt: 100000.0,
+            minimap: true,
         })
         addObserverGround({ observer, viewer })
+        addSatellitePointGround({ satellite: targetSatellite, viewer })
+        addSatellitePathGround({ satellite: targetSatellite, viewer })
 
         return (() => {
             viewer.destroy()
         })
-    }, [])
+
+        // never re-render this. modify entities for animations
+    }, [targetSatellite])
 
     return (
         <div id="right-panel">
             <div className="panel-content">
                 <div className="panel-content-item">
-                    <div id="cesium-tracker-view-container">
-                        <div id="cesium-tracker-view" ref={cesiumRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
+                    <div id="cesium-minimap-container">
+                        <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
                     </div>
 
                     <div className="" style={{ padding: '1rem 1.5rem' }}>
