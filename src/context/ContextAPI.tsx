@@ -6,6 +6,8 @@ import { getSatStats } from '../utils/getSatStats';
 
 interface SatelliteContextType {
     satellites: Satellite[];
+    focus?: Satellite;
+    setFocus: (sat: Satellite) => void;
     observer: { lat: number; lon: number };
     setObserver: (coords: { lat: number; lon: number }) => void;
     isLoading: boolean;
@@ -18,6 +20,7 @@ const SatelliteContext = createContext<SatelliteContextType | undefined>(undefin
 
 export const SatelliteProvider = ({ children }: { children: React.ReactNode }) => {
     const [satellites, setSatellites] = useState<Satellite[]>([]);
+    const [focus, setFocus] = useState<Satellite>()
     const [observer, setObserver] = useState({ lat: coords["otaniemi"].lat, lon: coords["otaniemi"].lon });
     const { data: rawData, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
 
@@ -28,10 +31,21 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
             return { name: d.name, tle: d.tle, stat: stats };
         });
         setSatellites(processed);
+        setFocus(processed[0])
     }, [rawData, observer]);
 
     return (
-        <SatelliteContext.Provider value={{ satellites, observer, setObserver, isLoading, isFetching, isError, isSuccess }}>
+        <SatelliteContext.Provider value={{
+            satellites,
+            observer,
+            setObserver,
+            focus,
+            setFocus,
+            isLoading,
+            isFetching,
+            isError,
+            isSuccess
+        }}>
             {children}
         </SatelliteContext.Provider>
     );

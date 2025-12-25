@@ -23,58 +23,138 @@
 #left-panel {
   @include components.float-panel-left;
   height: 100%;
-  width: 380px;
-
-  .content {
-    @include components.dashboard-panel;
-    width: 100%;
-    height: 100%;
-  }
 }
 
 #right-panel {
   @include components.float-panel-right;
-  height: 100%;
-  width: 380px;
+  height: 60%;
+}
 
-  .content {
-    @include components.dashboard-panel;
+.panel-content {
+  @include common.flex-column;
+  gap: variables.$bento-gap;
+  width: 100%;
+
+  .panel-content-item {
     width: 100%;
-    min-height: 60%;
+
+    .panel-content-title {
+      padding: 1rem 1.5rem;
+    }
+
+    background-color: variables.$dashboard-bg-color;
+    border-radius: variables.$bento-border-radius;
   }
 }
 
-.item-list {
+.sat-primary-list {
+  .sat-card-primary {
+    display: flex;
+    justify-content: space-between;
+    border-radius: variables.$bento-border-radius;
+    padding: 1.5rem;
+
+    .name {
+      font-size: 1.1rem;
+      font-weight: bold;
+    }
+
+    .measure {
+      min-width: 70px;
+
+      .label {
+        font-size: 0.75rem;
+        opacity: 0.7;
+        margin-bottom: 2px;
+      }
+
+      .value {
+        font-size: 1rem;
+        font-weight: 600;
+      }
+
+      .unit {
+        font-size: 0.7rem;
+      }
+    }
+  }
+
+  .focus {
+    background-color: variables.$dashboard-bg-highlight;
+  }
+}
+
+.observer-input {
   display: flex;
-  flex-direction: column;
-  gap: 5px;
+  gap: variables.$bento-gap;
+  width: 100%;
+  background-color: variables.$dashboard-bg-highlight;
+  border-radius: variables.$bento-border-radius;
+
+  .number-input {
+    width: 0;
+    flex: 1;
+    padding: 1rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    border-radius: variables.$bento-border-radius;
+  }
+
+  label {
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+    opacity: 0.7;
+  }
+
+  input {
+    color: inherit;
+    border: none;
+    outline: none;
+    width: auto;
+    background: none;
+    font-weight: 900;
+    font-size: 1.2rem;
+  }
+
+  .observer-button {
+    @include common.place-center;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem 3rem;
+    border: none;
+    outline: none;
+    border-radius: variables.$bento-border-radius;
+    background-color: variables.$dashboard-bg-highlight;
+    box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.05);
+
+    label {
+      font-weight: 900;
+      color: inherit;
+    }
+  }
 }
 
-.item-scroll-list {
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  padding-right: 1rem;
-  overflow-y: auto;
-}
-
-.sat-card-nearest {
-  border: 1px solid variables.$border-color;
-  border-radius: 0.4rem;
-  padding: 0.8rem 1rem;
-}
-
-.sat-card-distant {
+.sat-card-secondary {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  padding: 0.8rem 1rem;
-}
 
-// .cesium-viewer .cesium-widget-credits {
-//   position: absolute !important;
-//   bottom: 5px !important;
-//   right: 20px !important;
-//   left: auto !important;
-//   opacity: 0.6;
-// }
+  .measure {
+    min-width: 70px;
+
+    .label {
+      font-size: 0.75rem;
+      opacity: 0.7;
+      margin-bottom: 2px;
+    }
+
+    .value {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .unit {
+      font-size: 0.7rem;
+    }
+  }
+}

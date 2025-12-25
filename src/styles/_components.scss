@@ -3,7 +3,8 @@
 %float-panel {
   position: absolute;
   z-index: 1;
-  padding: 1rem 1rem 3rem 1rem;
+  padding: 1rem;
+  width: 380px;
 }
 
 @mixin float-panel-left {
@@ -14,12 +15,4 @@
 @mixin float-panel-right {
   @extend %float-panel;
   right: 0;
-}
-
-@mixin dashboard-panel {
-  display: flex;
-  flex-direction: column;
-  background-color: variables.$dashboard-bg-color;
-  border-radius: 1rem;
-  padding: 1rem 0.8rem;
 }

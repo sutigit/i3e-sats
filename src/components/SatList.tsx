@@ -1,33 +1,38 @@
 import type { Satellite } from "../types"
 import { SatNearCard, SatDistantCard } from "./SatCard"
 import Loading from "./common/Loading"
-import Divider from "./common/Divider"
 import ObserverInput from "./ObserverInput"
 import { useSatellites } from "../context/ContextAPI"
 
 export default function SatList() {
-    const { satellites, observer, setObserver, isLoading, isError } = useSatellites();
+    const { satellites, focus, observer, setObserver, isLoading, isError } = useSatellites();
     if (isLoading) return (<div id="left-panel"><Loading /></div>)
     if (isError) return (<div id="left-panel"><Error /></div>)
 
     return (
         <div id="left-panel">
-            <div className="content">
-                <h3>Ground observer</h3>
-                <ObserverInput coords={observer} setCoords={setObserver} />
-                <Divider />
-                <h3>Nearest visible time</h3>
-                <div className="item-list">
-                    {satellites.slice(0, 3).map((sat: Satellite) => (
-                        <SatNearCard key={sat.name} data={sat} />
-                    ))}
+            <div className="panel-content">
+                <div className="panel-content-item">
+                    <h4 className="panel-content-title">Ground observer</h4>
+                    <ObserverInput coords={observer} setCoords={setObserver} />
                 </div>
-                <Divider size="lg" />
-                <div className="item-scroll-list">
-                    {satellites.map((sat: Satellite) => (
-                        <SatDistantCard key={sat.name} data={sat} />
-                    ))}
+
+                <div className="panel-content-item">
+                    <h4 className="panel-content-title">Nearest visible time</h4>
+                    <div className="sat-primary-list">
+                        {satellites.slice(0, 3).map((sat: Satellite) => (
+                            <SatNearCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
+                        ))}
+                    </div>
                 </div>
+
+                {/* <div className="content-panel">
+                    <div className="satellite-secondary-list">
+                        {satellites.map((sat: Satellite) => (
+                            <SatDistantCard key={sat.name} data={sat} />
+                        ))}
+                    </div>
+                </div> */}
             </div>
         </div>
     )
