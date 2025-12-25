@@ -15,7 +15,7 @@ export const addSatelliteTrailsSpace = ({ satellites, viewer }: { satellites: Sa
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPathSpace(s.tle, Date.now(), 10)
-        drawTrail(path, viewer)
+        drawTrail(path, viewer, "space")
     })
 }
 

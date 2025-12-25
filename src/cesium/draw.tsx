@@ -56,50 +56,76 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
     }
 }
 
-export const drawTrail = (path: Cartesian3[], viewer: Viewer) => {
+/**
+ * Renders a multi-color trail.
+ * * Modes:
+ * - "space":  Gradient fade (Purple -> Red). Uses lightweight `Primitive`.
+ * - "ground": Solid line (Red). Uses `GroundPolylinePrimitive` clamped to terrain.
+ */
+export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "ground") => {
     if (!path || path.length < 2) return;
 
     // --- Config: Gradient Palette (Tail -> Head) ---
     const rawColors = ["#7c3aed", "#0284c7", "#059669", "#ca8a04", "#dc2626"];
     const palette = rawColors.map(c => Color.fromCssColorString(c));
-    const maxIdx = palette.length - 1;
 
-    const colors: Color[] = [];
-    const len = path.length;
+    // --- MODE: SPACE (Gradient Rainbow) ---
+    if (mode === "space") {
+        const colors: Color[] = [];
+        const len = path.length;
+        const maxIdx = palette.length - 1;
 
-    // --- Step 1: Compute Per-Vertex Colors ---
-    for (let i = 0; i < len; i++) {
-        const t = i / (len - 1); // Normalized progress (0.0 -> 1.0)
+        // Compute Per-Vertex Colors
+        for (let i = 0; i < len; i++) {
+            const t = i / (len - 1); // 0.0 -> 1.0
 
-        // Map t to palette indices (e.g., 0.5 -> blend(palette[2], palette[3]))
-        const scaledT = t * maxIdx;
-        const idx1 = Math.floor(scaledT);
-        const idx2 = Math.min(idx1 + 1, maxIdx);
+            // Map t to palette indices
+            const scaledT = t * maxIdx;
+            const idx1 = Math.floor(scaledT);
+            const idx2 = Math.min(idx1 + 1, maxIdx);
 
-        // Lerp RGB based on local segment progress
-        const rgb = Color.lerp(palette[idx1], palette[idx2], scaledT - idx1, new Color());
+            // Lerp RGB
+            const rgb = Color.lerp(palette[idx1], palette[idx2], scaledT - idx1, new Color());
 
-        // Lerp Alpha: Tail (0.0) -> Head (1.0) for "comet" fade
-        colors.push(Color.fromAlpha(rgb, t));
+            // Lerp Alpha (Tail=0.0 -> Head=1.0)
+            colors.push(Color.fromAlpha(rgb, t));
+        }
+
+        viewer.scene.primitives.add(new Primitive({
+            geometryInstances: new GeometryInstance({
+                geometry: new PolylineGeometry({
+                    positions: path,
+                    width: 1.2,
+                    colors: colors,        // The gradient array
+                    colorsPerVertex: true, // Required for gradient
+                    arcType: ArcType.NONE
+                })
+            }),
+            appearance: new PolylineColorAppearance({ translucent: true }),
+            asynchronous: false
+        }));
     }
 
-    // --- Step 2: Render via Primitive API (Performance) ---
-    // Primitives are lighter than Entities for geometry with per-vertex attributes
-    const instance = new GeometryInstance({
-        geometry: new PolylineGeometry({
-            positions: path,
-            width: 1.2,
-            colors: colors,        // Vertex color array (must match positions length)
-            colorsPerVertex: true, // triggers varying vec4 in shader
-            arcType: ArcType.NONE  // CRITICAL: prevents crash on tiny segments / pole crossings
-        })
-    });
+    // --- MODE: GROUND (Solid Head Color) ---
+    else {
+        // We use the "Head" color (last in palette) for maximum visibility
+        const solidColor = palette[palette.length - 1];
 
-    viewer.scene.primitives.add(new Primitive({
-        geometryInstances: instance,
-        appearance: new PolylineColorAppearance({ translucent: true }),
-        asynchronous: false // Force sync render to avoid popping
-    }));
+        viewer.scene.groundPrimitives.add(new GroundPolylinePrimitive({
+            geometryInstances: new GeometryInstance({
+                geometry: new GroundPolylineGeometry({
+                    positions: path,
+                    width: 4.0, // Thicker for ground visibility
+                }),
+                attributes: {
+                    // Ground lines do not support vertex arrays, so we use a single color attribute
+                    color: ColorGeometryInstanceAttribute.fromColor(solidColor.withAlpha(0.8))
+                }
+            }),
+            appearance: new PolylineColorAppearance({ translucent: true }),
+            asynchronous: false
+        }));
+    }
 }
 
 export const drawPoint = (point: Cartesian3, orientation: Quaternion, viewer: Viewer) => {
