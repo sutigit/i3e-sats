@@ -1,47 +1,59 @@
-import { Cartesian3, Color, Entity, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion } from "cesium";
+import { Cartesian3, Color, Entity, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion, GroundPolylinePrimitive, GroundPolylineGeometry, ColorGeometryInstanceAttribute } from "cesium";
 
-export const drawPath = (path: Cartesian3[], viewer: Viewer) => {
+/**
+ * Renders a trajectory path in the Cesium viewer.
+ * * Modes:
+ * - "space":  Standard `Primitive`. Uses per-vertex alpha to create a "comet tail" fade. High performance.
+ * - "ground": `GroundPolylinePrimitive`. Clamps solid line to terrain/globe. Heavier init, optimized for zoom.
+ */
+export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "ground") => {
     if (!path || path.length < 2) return;
 
-    // --- Config ---
-    const baseColor = Color.fromCssColorString("#2dd4bf"); // Teal
-    const maxAlpha = 0.3; // Opacity at the "Head" (0.0 to 1.0)
+    const baseColor = Color.fromCssColorString("#2dd4bf");
 
-    const colors: Color[] = [];
-    const len = path.length;
+    // --- MODE: SPACE (Gradient Fade) ---
+    if (mode === "space") {
+        const colors: Color[] = [];
+        const len = path.length;
+        const maxAlpha = 0.3;
 
-    // --- Step 1: Compute Per-Vertex Alpha ---
-    for (let i = 0; i < len; i++) {
-        // Normalized progress: 0.0 (Tail) -> 1.0 (Head)
-        const t = i / (len - 1);
+        // Compute per-vertex alpha for trail effect (Tail=0.0 -> Head=0.4)
+        for (let i = 0; i < len; i++) {
+            colors.push(Color.fromAlpha(baseColor, (i / (len - 1)) * maxAlpha));
+        }
 
-        // Linear fade: Tail starts at 0, Head ends at maxAlpha
-        // You can use t * t for a non-linear "fast fade"
-        const alpha = t * maxAlpha;
-
-        // Same color, changing alpha
-        colors.push(Color.fromAlpha(baseColor, alpha));
+        viewer.scene.primitives.add(new Primitive({
+            geometryInstances: new GeometryInstance({
+                geometry: new PolylineGeometry({
+                    positions: path,
+                    width: 1.0,
+                    colors: colors,        // Vertex colors enable the gradient
+                    colorsPerVertex: true,
+                    arcType: ArcType.NONE  // Linear interpolation (fastest for dense arrays)
+                })
+            }),
+            appearance: new PolylineColorAppearance({ translucent: true }),
+            asynchronous: false // Draw immediately (avoids pop-in)
+        }));
     }
 
-    // --- Step 2: Render Primitive ---
-    const instance = new GeometryInstance({
-        geometry: new PolylineGeometry({
-            positions: path,
-            width: 1.0,            // Constant width (no tapering)
-            colors: colors,        // Alpha gradient array
-            colorsPerVertex: true, // Enable blending
-            arcType: ArcType.NONE
-        })
-    });
-
-    viewer.scene.primitives.add(new Primitive({
-        geometryInstances: instance,
-        // appearance must be PolylineColorAppearance to read the 'colors' array
-        appearance: new PolylineColorAppearance({
-            translucent: true
-        }),
-        asynchronous: false
-    }));
+    // --- MODE: GROUND (Solid Clamp) ---
+    else {
+        viewer.scene.groundPrimitives.add(new GroundPolylinePrimitive({
+            geometryInstances: new GeometryInstance({
+                geometry: new GroundPolylineGeometry({
+                    positions: path,
+                    width: 2.0, // Thicker to mitigate z-fighting/texture noise
+                }),
+                attributes: {
+                    // Ground primitives require attributes for color, no vertex support
+                    color: ColorGeometryInstanceAttribute.fromColor(baseColor.withAlpha(0.6))
+                }
+            }),
+            appearance: new PolylineColorAppearance({ translucent: true }),
+            asynchronous: false
+        }));
+    }
 }
 
 export const drawTrail = (path: Cartesian3[], viewer: Viewer) => {

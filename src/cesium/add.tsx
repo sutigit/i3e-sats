@@ -7,7 +7,7 @@ export const addSatellitePathsSpace = ({ satellites, viewer }: { satellites: Sat
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPathSpace(s.tle, Date.now())
-        drawPath(path, viewer)
+        drawPath(path, viewer, "space")
     })
 }
 
