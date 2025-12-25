@@ -1,5 +1,5 @@
 import type { Satellite } from "../types"
-import { SatNearCard, SatDistantCard } from "./SatCard"
+import { SatPrimaryCard, SatSecondaryCard } from "./SatCard"
 import Loading from "./common/Loading"
 import ObserverInput from "./ObserverInput"
 import { useSatellites } from "../context/ContextAPI"
@@ -13,7 +13,7 @@ export default function SatList() {
         <div id="left-panel">
             <div className="panel-content">
                 <div className="panel-content-item">
-                    <h4 className="panel-content-title">Ground observer</h4>
+                    <h4 className="panel-content-title">My location</h4>
                     <ObserverInput coords={observer} setCoords={setObserver} />
                 </div>
 
@@ -21,18 +21,22 @@ export default function SatList() {
                     <h4 className="panel-content-title">Nearest visible time</h4>
                     <div className="sat-primary-list">
                         {satellites.slice(0, 3).map((sat: Satellite) => (
-                            <SatNearCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
+                            <SatPrimaryCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
                         ))}
                     </div>
                 </div>
 
-                {/* <div className="content-panel">
-                    <div className="satellite-secondary-list">
+                <div className="panel-content-item max-height">
+                    <h4 className="panel-content-title">
+                        All
+                        <span className="second-title">Time to visible</span>
+                    </h4>
+                    <div className="sat-secondary-list">
                         {satellites.map((sat: Satellite) => (
-                            <SatDistantCard key={sat.name} data={sat} />
+                            <SatSecondaryCard focus={sat.name === focus?.name} key={sat.name} data={sat} />
                         ))}
                     </div>
-                </div> */}
+                </div>
             </div>
         </div>
     )

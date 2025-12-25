@@ -9,6 +9,7 @@
 
 @mixin float-panel-left {
   @extend %float-panel;
+  padding-bottom: 3.5rem;
   left: 0;
 }
 
