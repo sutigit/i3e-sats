@@ -3,6 +3,8 @@ import type { Observer, Satellite } from "../types"
 import { drawPath, drawObserver, drawPoint, drawTrail } from "./draw"
 import { getOrbitPath, getOrbitPositionOrientation } from "./utils"
 
+
+// SPACE ENTITIES ---------------------------------------------
 export const addSatellitePathsSpace = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
@@ -27,7 +29,9 @@ export const addSatellitePointsSpace = ({ satellites, viewer }: { satellites: Sa
     })
 }
 
+// GROUND ENTITIES -----------------------------------------------
 export const addObserverGround = ({ observer, viewer }: { observer: Observer, viewer: Viewer }) => {
     const position = Cartesian3.fromDegrees(observer.lon, observer.lat);
     drawObserver(position, viewer);
 }
+

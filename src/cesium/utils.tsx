@@ -1,4 +1,4 @@
-import { Cartesian3, Matrix4, Quaternion, Transforms, Math as CesiumMath, HeadingPitchRoll } from "cesium";
+import { Cartesian3, Matrix4, Quaternion, Transforms, HeadingPitchRoll } from "cesium";
 import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
 import type { TLE } from "../types";
 
