@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { cesiumView } from '../cesium/cesiumRenderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { addObserver, addPaths, addPoints, addTrails } from '../cesium/cesiumAdd';
+import { addObserverGround, addSatellitePathsSpace, addSatellitePointsSpace, addSatelliteTrailsSpace } from '../cesium/cesiumAdd';
 import Loading from './common/Loading';
 import { useSatellites } from '../context/ContextAPI';
 
@@ -15,10 +15,10 @@ export default function CesiumView() {
         if (!cesiumRef.current || !satellites) return
         const { lon, lat } = observer
         const viewer = cesiumView(cesiumRef, { lon, lat, height: 24000000.0 })
-        addPaths({ satellites, viewer })
-        addTrails({ satellites, viewer })
-        addPoints({ satellites, viewer })
-        addObserver({ observer, viewer })
+        addSatellitePathsSpace({ satellites, viewer })
+        addSatelliteTrailsSpace({ satellites, viewer })
+        addSatellitePointsSpace({ satellites, viewer })
+        addObserverGround({ observer, viewer })
 
         return () => {
             viewer.destroy()

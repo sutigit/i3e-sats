@@ -2,7 +2,7 @@ import { Cartesian3, type Viewer } from "cesium"
 import type { Observer, Satellite } from "../types"
 import { _drawPath, drawObserver, drawPoint, drawTrail, getOrbitPath, getOrbitPoint } from "./cesiumDraw"
 
-export const addPaths = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+export const addSatellitePathsSpace = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPath(s.tle, Date.now())
@@ -10,7 +10,7 @@ export const addPaths = ({ satellites, viewer }: { satellites: Satellite[] | und
     })
 }
 
-export const addTrails = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+export const addSatelliteTrailsSpace = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPath(s.tle, Date.now(), 10)
@@ -18,7 +18,7 @@ export const addTrails = ({ satellites, viewer }: { satellites: Satellite[] | un
     })
 }
 
-export const addPoints = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+export const addSatellitePointsSpace = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const point = getOrbitPoint(s.tle, Date.now())
@@ -26,7 +26,7 @@ export const addPoints = ({ satellites, viewer }: { satellites: Satellite[] | un
     })
 }
 
-export const addObserver = ({ observer, viewer }: { observer: Observer, viewer: Viewer }) => {
+export const addObserverGround = ({ observer, viewer }: { observer: Observer, viewer: Viewer }) => {
     const pos = Cartesian3.fromDegrees(observer.lon, observer.lat);
     drawObserver(pos, viewer);
 }
