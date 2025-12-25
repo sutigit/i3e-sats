@@ -1,6 +1,7 @@
 import { Cartesian3, type Viewer } from "cesium"
 import type { Observer, Satellite } from "../types"
-import { _drawPath, drawObserver, drawPoint, drawTrail, getOrbitPath, getOrbitPoint } from "./cesiumDraw"
+import { _drawPath, drawObserver, drawPoint, drawTrail } from "./draw"
+import { getOrbitPath, getOrbitPoint } from "./utils"
 
 export const addSatellitePathsSpace = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
     if (!satellites) return

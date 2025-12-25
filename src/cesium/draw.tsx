@@ -1,41 +1,4 @@
 import { Cartesian3, Color, Entity, HeadingPitchRoll, Math as CesiumMath, Transforms, type Viewer, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance } from "cesium";
-import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
-import type { TLE } from "../types";
-
-const _infoToCartesian3 = (info: SatelliteInfoOutput) => {
-    return Cartesian3.fromDegrees(
-                info.lng,
-                info.lat,
-                info.height * 1000 // km to meters
-            );
-}
-
-export const getOrbitPath = (tleLine: TLE["tle"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
-    const positions: Cartesian3[] = [];
-    const stepInMinutes = 1;
-    const durationMinutes = lastMins; // // default 97 min ICEYE satellite approximate orbit duration
-
-    for (let i = -durationMinutes; i <= 0; i += stepInMinutes) {
-        const timestamp = now + (i * 60000); // i is negative, so this subtracts time
-        const info = getSatelliteInfo(tleLine, timestamp);
-
-        if (info && info.height) {
-
-            if (info.height < 100) {
-                console.warn("⚠️ Satellite is crashing!", info.height);
-            }
-
-            const pos = _infoToCartesian3(info)
-            positions.push(pos);
-        }
-    }
-    return positions;
-}
-
-export const getOrbitPoint = (tleLine: TLE["tle"], now: Timestamp): Cartesian3 => {
-    const info = getSatelliteInfo(tleLine, now);
-    return _infoToCartesian3(info)
-}
 
 export const _drawPath = (path: Cartesian3[], viewer: Viewer) => {
     if (!path || path.length < 2) return;
@@ -127,12 +90,12 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer) => {
     }));
 }
 
-export const drawPoint = (point: Cartesian3, viewer: Viewer ) => {
-// 1. CALCULATE ORIENTATION
+export const drawPoint = (point: Cartesian3, viewer: Viewer) => {
+    // 1. CALCULATE ORIENTATION
     // This creates a rotation that aligns the object with "East-North-Up"
     // Result: Local Z is Up (Space), Local -Z is Down (Earth Center)
     const orientation = Transforms.headingPitchRollQuaternion(
-        point, 
+        point,
         new HeadingPitchRoll(
             CesiumMath.toRadians(0), // Heading (Rotation around Up)
             CesiumMath.toRadians(0), // Pitch (Tilt forward/back)
@@ -142,9 +105,9 @@ export const drawPoint = (point: Cartesian3, viewer: Viewer ) => {
 
     const ent = new Entity({
         position: point,
-        
+
         // 2. APPLY ROTATION
-        orientation: orientation, 
+        orientation: orientation,
 
         box: {
             dimensions: new Cartesian3(50000.0, 50000.0, 50000.0),
@@ -158,12 +121,12 @@ export const drawPoint = (point: Cartesian3, viewer: Viewer ) => {
     viewer.entities.add(ent)
 }
 
-export const drawObserver = (point: Cartesian3, viewer: Viewer ) => {
+export const drawObserver = (point: Cartesian3, viewer: Viewer) => {
     const ent = new Entity({
         position: point,
         point: {
-            pixelSize: 12,             
-            color: Color.fromCssColorString('#f9a8d4'),  
+            pixelSize: 12,
+            color: Color.fromCssColorString('#f9a8d4'),
         }
     });
 

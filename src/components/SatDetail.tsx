@@ -1,6 +1,6 @@
 import { useEffect, useRef } from "preact/hooks"
-import { cesiumView } from "../cesium/cesiumRenderer"
-import { addObserverGround } from "../cesium/cesiumAdd"
+import { cesiumView } from "../cesium/renderer"
+import { addObserverGround } from "../cesium/add"
 import { useSatellites } from "../context/ContextAPI"
 
 export default function SatDetail() {

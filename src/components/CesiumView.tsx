@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
-import { cesiumView } from '../cesium/cesiumRenderer'
+import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { addObserverGround, addSatellitePathsSpace, addSatellitePointsSpace, addSatelliteTrailsSpace } from '../cesium/cesiumAdd';
+import { addObserverGround, addSatellitePathsSpace, addSatellitePointsSpace, addSatelliteTrailsSpace } from '../cesium/add';
 import Loading from './common/Loading';
 import { useSatellites } from '../context/ContextAPI';
 
