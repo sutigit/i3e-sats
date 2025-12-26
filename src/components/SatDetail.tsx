@@ -35,6 +35,7 @@ export default function SatDetail() {
                 <div className="panel-content-item">
                     <div id="cesium-minimap-container">
                         <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
+                        <div id="cesium-minimap-north-pointer">N</ div>
                     </div>
                     <SatelliteDetails satellite={targetSatellite} />
                 </div>
