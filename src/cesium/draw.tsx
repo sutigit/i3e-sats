@@ -1,4 +1,4 @@
-import { Cartesian3, Color, Entity, type Viewer, Math as CesiumMath, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion, GroundPolylinePrimitive, GroundPolylineGeometry, ColorGeometryInstanceAttribute, HeadingPitchRoll, HeightReference } from "cesium";
+import { Cartesian3, Color, Entity, type Viewer, Math as CesiumMath, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion, HeadingPitchRoll, HeightReference } from "cesium";
 import { satelliteSVG } from "./icons";
 const SATELLITE_ICON = satelliteSVG;
 
@@ -37,19 +37,14 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
 
     // --- MODE: GROUND (Solid Clamp) ---
     else {
-        viewer.scene.groundPrimitives.add(new GroundPolylinePrimitive({
-            geometryInstances: new GeometryInstance({
-                geometry: new GroundPolylineGeometry({
-                    positions: path,
-                    width: 2.0, // Thicker to mitigate z-fighting/texture noise
-                }),
-                attributes: {
-                    // Ground primitives require attributes for color, no vertex support
-                    color: ColorGeometryInstanceAttribute.fromColor(baseColor.withAlpha(0.6))
-                }
-            }),
-            appearance: new PolylineColorAppearance({ translucent: true }),
-        }));
+        viewer.entities.add({
+            polyline: {
+                positions: path,
+                width: 2.0,
+                material: baseColor.withAlpha(0.6),
+                clampToGround: true
+            }
+        });
     }
 }
 
@@ -101,22 +96,15 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
 
     // --- MODE: GROUND (Solid Head Color) ---
     else {
-        // We use the "Head" color (last in palette) for maximum visibility
-        const solidColor = palette[palette.length - 1];
-
-        viewer.scene.groundPrimitives.add(new GroundPolylinePrimitive({
-            geometryInstances: new GeometryInstance({
-                geometry: new GroundPolylineGeometry({
-                    positions: path,
-                    width: 2.0, // Thicker for ground visibility
-                }),
-                attributes: {
-                    // Ground lines do not support vertex arrays, so we use a single color attribute
-                    color: ColorGeometryInstanceAttribute.fromColor(solidColor.withAlpha(0.8))
-                }
-            }),
-            appearance: new PolylineColorAppearance({ translucent: true }),
-        }));
+        const solidColor = Color.fromCssColorString('#d97706');
+        viewer.entities.add({
+            polyline: {
+                positions: path,
+                width: 2.0,
+                material: solidColor.withAlpha(0.7),
+                clampToGround: true // Handles all the terrain intersection logic for you
+            }
+        });
     }
 }
 

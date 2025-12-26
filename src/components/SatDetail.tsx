@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from "preact/hooks"
 import { cesiumView } from "../cesium/renderer"
-import { addObserverGround, addSatellitePointGround, addSatellitePathGround } from "../cesium/add"
+import { addObserverGround, addSatellitePointGround, addSatelliteTrailGround } from "../cesium/add"
 import { useSatellites } from "../context/ContextAPI"
 import type { Satellite } from "../types"
 import { Measure } from "./common/Measure"
@@ -20,7 +20,7 @@ export default function SatDetail() {
         })
         addObserverGround({ observer, viewer })
         addSatellitePointGround({ satellite: targetSatellite, viewer })
-        addSatellitePathGround({ satellite: targetSatellite, viewer })
+        addSatelliteTrailGround({ satellite: targetSatellite, viewer })
 
         return (() => {
             viewer.destroy()

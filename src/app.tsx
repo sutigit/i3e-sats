@@ -12,7 +12,7 @@ export function App() {
         <SatelliteProvider>
           <SatList />
           <SatDetail />
-          <CesiumView />
+          <CesiumView showFPS />
         </SatelliteProvider>
       </TleProvider>
     </main>
