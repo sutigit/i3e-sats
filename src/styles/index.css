@@ -15,7 +15,7 @@
 * {
   box-sizing: border-box;
   scrollbar-width: thin;
-  scrollbar-color: #fafafa33 transparent;
+  scrollbar-color: #35363d transparent;
 }
 
 /* The total width of the scrollbar area */
@@ -45,8 +45,6 @@ body {
 }
 
 .cesium-viewer .cesium-widget-credits {
-  /* bottom: 5px !important;
-  right: 20px !important; */
   position: absolute !important;
   bottom: 6px !important;
   left: 10px !important;
