@@ -49,23 +49,44 @@ export const cesiumView = (
     });
 
 
-    // Lock Panning (User cannot drag the map)
-    viewer.scene.screenSpaceCameraController.enableTranslate = !view.minimap;
-    viewer.scene.screenSpaceCameraController.enableRotate = !view.minimap;
-    viewer.scene.screenSpaceCameraController.enableTilt = !view.minimap;
-    viewer.scene.screenSpaceCameraController.enableLook = !view.minimap;
-    viewer.scene.screenSpaceCameraController.enableZoom = !view.minimap;
+    // --- IMAGERY OPTIONS (ICEYE SAR style) --- 
+    const layer = viewer.scene.imageryLayers.get(0)
 
-    // Clamp Zoom (Meters)
-    viewer.scene.screenSpaceCameraController.minimumZoomDistance = !view.minimap ? 1000000 : 10000;
-    viewer.scene.screenSpaceCameraController.maximumZoomDistance = !view.minimap ? 50000000 : 1000000;
+    if (view.minimap) {
+        // Lock Panning (User cannot drag the map)
+        viewer.scene.screenSpaceCameraController.enableTranslate = false;
+        viewer.scene.screenSpaceCameraController.enableRotate = false;
+        viewer.scene.screenSpaceCameraController.enableTilt = false;
+        viewer.scene.screenSpaceCameraController.enableLook = false;
+        viewer.scene.screenSpaceCameraController.enableZoom = false;
+        // Clamp Zoom (Meters)
+        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 10000;
+        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 1000000;
 
-    // Debugging
-    viewer.scene.debugShowFramesPerSecond = false;
+        // Resolution
+        viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
 
-    // Resolution
-    viewer.scene.globe.maximumScreenSpaceError = view.minimap ? 1 : 2; // default 2
-    viewer.resolutionScale = 1; // default 1
+        // Aesthetics
+        layer.saturation = 0.1;
+        layer.alpha = 0.6;
+        layer.contrast = 1.0;
+        layer.brightness = 1.0;
+        layer.gamma = 1.2;
+    } else {
+        // Clamp Zoom globe (Meters)
+        viewer.scene.screenSpaceCameraController.minimumZoomDistance = 1000000;
+        viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000000;
+
+        // Resolution
+        viewer.scene.globe.maximumScreenSpaceError = 2; // default 2
+
+        // Aesthetics
+        layer.saturation = 0.1;
+        layer.alpha = 0.6;
+        layer.contrast = 1.5;
+        layer.brightness = 0.4;
+        layer.gamma = 1.4;
+    }
 
     // Atmosphere
     viewer.scene.globe.showGroundAtmosphere = true;
@@ -84,16 +105,6 @@ export const cesiumView = (
     // Hide Sun/Moon
     if (viewer.scene.sun) viewer.scene.sun.show = false;
     if (viewer.scene.moon) viewer.scene.moon.show = false;
-
-
-    // --- IMAGERY OPTIONS (ICEYE SAR style) --- 
-    const layer = viewer.scene.imageryLayers.get(0)
-
-    layer.saturation = 0.1;
-    layer.alpha = view.minimap ? 0.6 : 0.6;
-    layer.contrast = view.minimap ? 1.0 : 1.5;
-    layer.brightness = view.minimap ? 1.0 : 0.4;
-    layer.gamma = view.minimap ? 1.2 : 1.4;
 
     // --- CAMERA & SCENE SETTINGS ---
     const viewConfig = {

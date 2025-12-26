@@ -25,8 +25,8 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
             geometryInstances: new GeometryInstance({
                 geometry: new PolylineGeometry({
                     positions: path,
-                    width: 1.0,
                     colors: colors,        // Vertex colors enable the gradient
+                    width: 1.0,
                     colorsPerVertex: true,
                     arcType: ArcType.NONE  // Linear interpolation (fastest for dense arrays)
                 })
@@ -89,8 +89,8 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
             geometryInstances: new GeometryInstance({
                 geometry: new PolylineGeometry({
                     positions: path,
-                    width: 1.2,
                     colors: colors,        // The gradient array
+                    width: 1.2,
                     colorsPerVertex: true, // Required for gradient
                     arcType: ArcType.NONE
                 })

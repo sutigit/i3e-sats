@@ -7,7 +7,7 @@ import { useSatellites } from '../context/ContextAPI';
 
 
 
-export default function CesiumView() {
+export default function CesiumView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumRef = useRef<HTMLDivElement>(null)
     const { satellites, observer, isLoading, isError } = useSatellites()
 
@@ -19,6 +19,9 @@ export default function CesiumView() {
         addSatelliteTrailsSpace({ satellites, viewer })
         addSatellitePointsSpace({ satellites, viewer })
         addObserverGround({ observer, viewer })
+
+        // Debugging
+        viewer.scene.debugShowFramesPerSecond = showFPS;
 
         return () => {
             viewer.destroy()
