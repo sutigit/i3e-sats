@@ -1,4 +1,4 @@
-import { Cartesian3, Matrix4, Quaternion, Transforms, HeadingPitchRoll } from "cesium";
+import { Cartesian3, Matrix4, Quaternion, Transforms, HeadingPitchRoll, Math as CesiumMath } from "cesium";
 import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
 import type { TLE } from "../types";
 
@@ -84,4 +84,16 @@ export const getOrbitPositionOrientation = (tle: TLE["tle"], now: Timestamp): { 
     const position = _getPosition(info)
     const orientation = _getOrientation(info, velocity)
     return { position, orientation }
+}
+
+export const getMinimapViewConfig = (lon: number, lat: number, alt: number) => {
+    const viewConfig = {
+        destination: Cartesian3.fromDegrees(lon, lat, alt),
+        orientation: {
+            heading: CesiumMath.toRadians(0.0),
+            pitch: CesiumMath.toRadians(-90.0),
+            roll: CesiumMath.toRadians(0.0)
+        },
+    }
+    return viewConfig
 }

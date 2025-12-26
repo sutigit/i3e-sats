@@ -5,8 +5,6 @@ import { addObserverGround, addSatellitePathsSpace, addSatellitePointsSpace, add
 import Loading from './common/Loading';
 import { useSatellites } from '../context/ContextAPI';
 
-
-
 export default function CesiumView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumRef = useRef<HTMLDivElement>(null)
     const { satellites, observer, isLoading, isError, satellitesReady } = useSatellites()
@@ -27,7 +25,7 @@ export default function CesiumView({ showFPS = false }: { showFPS?: boolean }) {
             viewer.destroy()
         }
 
-        // never re-render this. modify entities for animations
+        // never re-render this to avoid re-instantiating cesium renderer.
     }, [satellitesReady])
 
     if (isLoading) return (<Loading />)

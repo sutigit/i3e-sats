@@ -1,42 +1,23 @@
-import { useEffect, useRef, useState } from "preact/hooks"
-import { cesiumView } from "../cesium/renderer"
-import { addObserverGround, addSatellitePointGround, addSatelliteTrailGround } from "../cesium/add"
+import { useState } from "preact/hooks"
 import { useSatellites } from "../context/ContextAPI"
 import type { Satellite } from "../types"
 import { Measure } from "./common/Measure"
 import { TabBody, TabHeader } from "./common/Tabs"
+import CesiumMinimapView from "./CesiumMinimapView"
+import Loading from "./common/Loading"
+import Error from "./common/Error"
 
 export default function SatDetail() {
-    const cesiumMinimapRef = useRef(null)
-    const { observer, targetSatellite, satellitesReady } = useSatellites()
+    const { targetSatellite, isLoading, isError } = useSatellites()
 
-    useEffect(() => {
-        if (!cesiumMinimapRef.current || !targetSatellite) return
-        const viewer = cesiumView(cesiumMinimapRef, {
-            lon: targetSatellite.stat.location.lon,
-            lat: targetSatellite.stat.location.lat,
-            alt: 100000.0,
-            minimap: true,
-        })
-        addObserverGround({ observer, viewer })
-        addSatellitePointGround({ satellite: targetSatellite, viewer })
-        addSatelliteTrailGround({ satellite: targetSatellite, viewer })
-
-        return (() => {
-            viewer.destroy()
-        })
-
-        // never re-render this. modify entities for animations
-    }, [satellitesReady])
+    if (isLoading) return (<div id="left-panel"><Loading /></div>)
+    if (isError) return (<div id="left-panel"><Error /></div>)
 
     return (
         <div id="right-panel">
             <div className="panel-content">
                 <div className="panel-content-item">
-                    <div id="cesium-minimap-container">
-                        <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
-                        <div id="cesium-minimap-north-pointer">N</ div>
-                    </div>
+                    <CesiumMinimapView />
                     <SatelliteDetails satellite={targetSatellite} />
                 </div>
             </div>
