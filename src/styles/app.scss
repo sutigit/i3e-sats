@@ -41,7 +41,7 @@
 
 #right-panel {
   @include components.float-panel-right;
-  height: 60%;
+  height: auto;
 }
 
 .panel-content {
@@ -214,6 +214,7 @@
 
     &.selected {
       background-color: variables.$dashboard-bg-highlight;
+      font-weight: 900;
     }
 
     // right-side neighbour tab button
@@ -237,8 +238,6 @@
 }
 
 .tab-body {
-  display: flex;
-  justify-content: space-between;
   padding: 2rem;
   background-color: variables.$dashboard-bg-highlight;
   border-radius: variables.$bento-border-radius;
@@ -251,5 +250,16 @@
   &.round-right {
     border-top-left-radius: 0;
     border-top-right-radius: variables.$bento-border-radius;
+  }
+
+  .tab-body-page {
+    .title {
+      margin-bottom: 1.5rem;
+    }
+
+    .content {
+      display: flex;
+      justify-content: space-between;
+    }
   }
 }
