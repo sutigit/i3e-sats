@@ -196,3 +196,60 @@
     }
   }
 }
+
+.tab-header {
+  display: flex;
+  position: relative;
+
+  .tab-button {
+    flex: 1;
+    font-size: 0.9rem;
+    display: flex;
+    justify-content: center;
+    padding: 0.6rem 0;
+    background-color: variables.$dashboard-bg-color;
+    border-radius: 0.8rem 0.8rem 0rem 0rem;
+    z-index: 2;
+    cursor: pointer;
+
+    &.selected {
+      background-color: variables.$dashboard-bg-highlight;
+    }
+
+    // right-side neighbour tab button
+    &.selected + .tab-button {
+      border-bottom-left-radius: 0.8rem;
+    }
+
+    // left-side neighbour tab button
+    &:has(+ .selected) {
+      border-bottom-right-radius: 0.8rem;
+    }
+  }
+
+  .background-piece {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: variables.$dashboard-bg-highlight;
+    height: 0.6rem;
+  }
+}
+
+.tab-body {
+  display: flex;
+  justify-content: space-between;
+  padding: 2rem;
+  background-color: variables.$dashboard-bg-highlight;
+  border-radius: variables.$bento-border-radius;
+
+  &.round-left {
+    border-top-left-radius: variables.$bento-border-radius;
+    border-top-right-radius: 0;
+  }
+
+  &.round-right {
+    border-top-left-radius: 0;
+    border-top-right-radius: variables.$bento-border-radius;
+  }
+}

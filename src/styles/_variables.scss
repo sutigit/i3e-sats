@@ -2,9 +2,7 @@
 $dashboard-bg-color: #1f2124;
 $dashboard-bg-highlight: #2c2d33;
 $dashboard-bg-accent: #35363d;
-
 $border-color: #3f3f4699;
-
 $accent-color: #f472b6;
 
 // bento
@@ -13,3 +11,20 @@ $bento-gap: 8px;
 
 // misc
 $thin-scrollbar-width: 8px;
+
+// --- EXPOSE AS CSS VARIABLES ---
+// style={{ backgroundColor: "var(--dashboard-bg-color)" }}
+:root {
+  --dashboard-bg-color: #{$dashboard-bg-color};
+  --dashboard-bg-highlight: #{$dashboard-bg-highlight};
+  --dashboard-bg-accent: #{$dashboard-bg-accent};
+
+  --border-color: #{$border-color};
+
+  --accent-color: #{$accent-color};
+
+  --bento-border-radius: #{$bento-border-radius};
+  --bento-gap: #{$bento-gap};
+
+  --thin-scrollbar-width: #{$thin-scrollbar-width};
+}
