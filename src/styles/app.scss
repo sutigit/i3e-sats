@@ -96,11 +96,17 @@
     display: flex;
     justify-content: space-between;
     border-radius: variables.$bento-border-radius;
+    background-color: variables.$dashboard-bg-color;
     padding: 1.5rem;
+    cursor: pointer;
 
     .name {
       font-size: 1.1rem;
       font-weight: bold;
+    }
+
+    &:hover {
+      background-color: variables.$dashboard-bg-highlight;
     }
   }
 
@@ -117,11 +123,17 @@
     display: flex;
     justify-content: space-between;
     border-radius: variables.$bento-border-radius;
+    background-color: variables.$dashboard-bg-color;
     padding: 1.5rem calc(1.5rem - variables.$thin-scrollbar-width) 1.5rem 1.5rem;
+    cursor: pointer;
 
     .name {
       font-size: 0.9rem;
       font-weight: bold;
+    }
+
+    &:hover {
+      background-color: variables.$dashboard-bg-highlight;
     }
   }
 

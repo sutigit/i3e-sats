@@ -1,11 +1,11 @@
 import type { Satellite } from "../types"
 import { Measure } from "./common/Measure";
 
-export const SatPrimaryCard = ({ focus, data }: { focus: boolean, data: Satellite }) => {
+export const SatPrimary = ({ focus, setFocus, data }: { focus: boolean, setFocus: () => void; data: Satellite }) => {
     const s = data.stat;
 
     return (
-        <div className={`sat-primary ${focus ? 'focus' : ''}`}>
+        <div className={`sat-primary ${focus ? 'focus' : ''}`} onClick={setFocus}>
             <p className="name">{data.name}</p>
             <Measure label="Time to visible" value={0.0} unit="min" />
             <Measure label="Visible time" value={0.0} unit="min" />
@@ -13,11 +13,11 @@ export const SatPrimaryCard = ({ focus, data }: { focus: boolean, data: Satellit
     )
 }
 
-export const SatSecondaryCard = ({ focus, data }: { focus: boolean, data: Satellite }) => {
+export const SatSecondary = ({ focus, setFocus, data }: { focus: boolean, setFocus: () => void, data: Satellite }) => {
     const s = data.stat;
 
     return (
-        <div className={`sat-secondary ${focus ? 'focus' : ''}`}>
+        <div className={`sat-secondary ${focus ? 'focus' : ''}`} onClick={setFocus}>
             <p className="name">{data.name}</p>
             <Measure label="" value={46} unit="min" variant="minified" />
         </div>

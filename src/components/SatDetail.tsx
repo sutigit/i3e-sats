@@ -8,7 +8,7 @@ import { TabBody, TabHeader } from "./common/Tabs"
 
 export default function SatDetail() {
     const cesiumMinimapRef = useRef(null)
-    const { observer, targetSatellite } = useSatellites()
+    const { observer, targetSatellite, satellitesReady } = useSatellites()
 
     useEffect(() => {
         if (!cesiumMinimapRef.current || !targetSatellite) return
@@ -27,7 +27,7 @@ export default function SatDetail() {
         })
 
         // never re-render this. modify entities for animations
-    }, [targetSatellite])
+    }, [satellitesReady])
 
     return (
         <div id="right-panel">

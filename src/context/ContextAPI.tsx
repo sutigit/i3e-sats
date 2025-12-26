@@ -6,14 +6,14 @@ import { getSatStats } from '../utils/getSatStats';
 
 interface SatelliteContextType {
     satellites: Satellite[];
-    targetSatellite?: Satellite;
-    setTargetSatellite: (sat: Satellite) => void;
+    satellitesReady: boolean;
     observer: { lat: number; lon: number };
     setObserver: (coords: { lat: number; lon: number }) => void;
+    targetSatellite?: Satellite;
+    setTargetSatellite: (sat: Satellite) => void;
     isLoading: boolean;
     isFetching: boolean;
     isError: boolean;
-    isSuccess: boolean;
 }
 
 const SatelliteContext = createContext<SatelliteContextType | undefined>(undefined);
@@ -22,6 +22,7 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
     const [satellites, setSatellites] = useState<Satellite[]>([]);
     const [targetSatellite, setTargetSatellite] = useState<Satellite>()
     const [observer, setObserver] = useState({ lat: coords["otaniemi"].lat, lon: coords["otaniemi"].lon });
+    const [satellitesReady, setSatellitesReady] = useState<boolean>(false)
     const { data: rawData, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
 
     useEffect(() => {
@@ -32,11 +33,13 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
         });
         setSatellites(processed);
         setTargetSatellite(processed[0])
+        setSatellitesReady(isSuccess && !!processed)
     }, [rawData, observer]);
 
     return (
         <SatelliteContext.Provider value={{
             satellites,
+            satellitesReady,
             observer,
             setObserver,
             targetSatellite,
@@ -44,7 +47,6 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
             isLoading,
             isFetching,
             isError,
-            isSuccess
         }}>
             {children}
         </SatelliteContext.Provider>

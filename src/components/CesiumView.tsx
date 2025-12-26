@@ -9,7 +9,7 @@ import { useSatellites } from '../context/ContextAPI';
 
 export default function CesiumView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumRef = useRef<HTMLDivElement>(null)
-    const { satellites, observer, isLoading, isError } = useSatellites()
+    const { satellites, observer, isLoading, isError, satellitesReady } = useSatellites()
 
     useEffect(() => {
         if (!cesiumRef.current || !satellites) return
@@ -28,7 +28,7 @@ export default function CesiumView({ showFPS = false }: { showFPS?: boolean }) {
         }
 
         // never re-render this. modify entities for animations
-    }, [satellites])
+    }, [satellitesReady])
 
     if (isLoading) return (<Loading />)
     if (isError) return (<Error />)

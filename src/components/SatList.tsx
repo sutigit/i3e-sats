@@ -1,11 +1,11 @@
 import type { Satellite } from "../types"
-import { SatPrimaryCard, SatSecondaryCard } from "./SatCard"
+import { SatPrimary, SatSecondary } from "./SatCard"
 import Loading from "./common/Loading"
 import ObserverInput from "./ObserverInput"
 import { useSatellites } from "../context/ContextAPI"
 
 export default function SatList() {
-    const { satellites, targetSatellite, observer, setObserver, isLoading, isError } = useSatellites();
+    const { satellites, targetSatellite, setTargetSatellite, observer, setObserver, isLoading, isError } = useSatellites();
     if (isLoading) return (<div id="left-panel"><Loading /></div>)
     if (isError) return (<div id="left-panel"><Error /></div>)
 
@@ -21,7 +21,12 @@ export default function SatList() {
                     <h4 className="panel-content-title">Nearest visible time</h4>
                     <div className="sat-primary-list">
                         {satellites.slice(0, 4).map((sat: Satellite) => (
-                            <SatPrimaryCard focus={sat.name === targetSatellite?.name} key={sat.name} data={sat} />
+                            <SatPrimary
+                                key={sat.name}
+                                setFocus={() => setTargetSatellite(sat)}
+                                focus={sat.name === targetSatellite?.name}
+                                data={sat}
+                            />
                         ))}
                     </div>
                 </div>
@@ -33,7 +38,12 @@ export default function SatList() {
                     </h4>
                     <div className="sat-secondary-list">
                         {satellites.map((sat: Satellite) => (
-                            <SatSecondaryCard focus={sat.name === targetSatellite?.name} key={sat.name} data={sat} />
+                            <SatSecondary
+                                key={sat.name}
+                                setFocus={() => setTargetSatellite(sat)}
+                                focus={sat.name === targetSatellite?.name}
+                                data={sat}
+                            />
                         ))}
                     </div>
                 </div>
