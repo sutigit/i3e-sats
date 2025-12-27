@@ -7,12 +7,14 @@ export type TLE = {
   full: string;
 };
 
+export type Location = {
+  lat: number; // Degrees (-90 to 90)
+  lon: number; // Degrees (-180 to 180)
+  alt: number; // Kilometers (km)
+};
+
 export type SatData = {
-  location: {
-    lat: number; // Degrees (-90 to 90)
-    lon: number; // Degrees (-180 to 180)
-    alt: number; // Kilometers (km)
-  };
+  location: Location;
 
   look: {
     azimuth: number; // Degrees (0 to 360)
@@ -33,6 +35,16 @@ export type SatData = {
       y: number;
       z: number;
     };
+  };
+
+  visibility: {
+    visible: boolean;
+    visibilityWindow: {
+      startTime: Date;
+      endTime: Date;
+      startPoint: Location;
+      endPoint: Location;
+    }[];
   };
 
   status: {
@@ -83,3 +95,10 @@ export type ObserverDrawEntity = {
   position: Cartesian3;
   viewer: Viewer;
 };
+
+// Internal type for satellite.js (missing in library exports)
+export interface Geodetic {
+  longitude: number;
+  latitude: number;
+  height: number;
+}
