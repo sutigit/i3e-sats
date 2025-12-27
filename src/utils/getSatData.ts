@@ -72,7 +72,7 @@ export const getSatData = (
     location: {
       lat: satLatDeg,
       lon: satLonDeg,
-      altitude: positionGd.height,
+      alt: positionGd.height,
     },
     look: {
       azimuth: azimuthDeg,
