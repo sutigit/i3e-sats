@@ -1,5 +1,5 @@
 import { useState } from "preact/hooks"
-import { useSatellites } from "../context/ContextAPI"
+import { useSatellites } from "../context/SatelliteContext"
 import type { Satellite } from "../types"
 import { Measure } from "./common/Measure"
 import { TabBody, TabHeader } from "./common/Tabs"

@@ -3,7 +3,7 @@ import { TleProvider } from "./queries/TleQuery";
 import CesiumGlobeView from "./components/CesiumGlobeView";
 import SatList from './components/SatList';
 import SatDetail from './components/SatDetail';
-import { SatelliteProvider } from './context/ContextAPI';
+import { SatelliteProvider } from './context/SatelliteContext';
 
 export function App() {
   return (

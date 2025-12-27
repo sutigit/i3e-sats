@@ -31,10 +31,11 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
             const data = getSatData(tle, observer.lat, observer.lon);
             return { name: tle.name, tle, data };
         });
+
         setSatellites(processed);
         setTargetSatellite(processed[0])
         setSatellitesReady(isSuccess && !!processed)
-    }, [rawData, observer]);
+    }, [rawData]);
 
     return (
         <SatelliteContext.Provider value={{

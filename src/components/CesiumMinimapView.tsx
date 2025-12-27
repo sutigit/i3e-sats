@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals2D, } from '../cesium/add';
-import { useSatellites } from '../context/ContextAPI';
+import { useSatellites } from '../context/SatelliteContext';
 import SatelliteTracker from '../cesium/utils/SatelliteTracker';
 import type { Viewer } from 'cesium';
 

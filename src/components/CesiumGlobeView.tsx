@@ -3,7 +3,7 @@ import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals3D } from '../cesium/add';
 import Loading from './common/Loading';
-import { useSatellites } from '../context/ContextAPI';
+import { useSatellites } from '../context/SatelliteContext';
 
 export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumRef = useRef<HTMLDivElement>(null)

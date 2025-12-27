@@ -2,7 +2,7 @@ import type { Satellite } from "../types"
 import { SatPrimary, SatSecondary } from "./SatCard"
 import Loading from "./common/Loading"
 import ObserverInput from "./ObserverInput"
-import { useSatellites } from "../context/ContextAPI"
+import { useSatellites } from "../context/SatelliteContext"
 
 export default function SatList() {
     const { satellites, targetSatellite, setTargetSatellite, observer, setObserver, isLoading, isError } = useSatellites();
