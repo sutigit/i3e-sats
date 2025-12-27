@@ -1,5 +1,4 @@
 import { PinIcon } from "./common/PinIcon";
-import { TelescopeIcon } from "./common/TelescopeIcon";
 
 interface Coords {
     lat: number;
