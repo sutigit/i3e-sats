@@ -108,7 +108,7 @@ const createRainbowTrail = () => {
 const SHARED_RAINBOW_TRAIL = createRainbowTrail();
 
 // --- THE MERGED CLASS ---
-export class SpaceObjectPrimitive {
+export class SpaceObjectComposition3D {
   private _viewer: Viewer;
   private _satrec: satellite.SatRec;
   private _removeListener: (() => void) | undefined;
