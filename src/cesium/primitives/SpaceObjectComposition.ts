@@ -31,12 +31,12 @@ const SEGMENTS = 60;
 
 // 1. The Box Geometry (Satellite Body)
 // Centered at 0,0,0. Dimensions 50km x 50km x 50km
-const SHARED_BOX = new BoxGeometry({
+const BOX_FILL_GEOM = new BoxGeometry({
   maximum: new Cartesian3(25000, 25000, 25000),
   minimum: new Cartesian3(-25000, -25000, -25000),
 });
 
-const SHARED_BOX_OUTLINE = new BoxOutlineGeometry({
+const BOX_OUTLINE_GEOM = new BoxOutlineGeometry({
   maximum: new Cartesian3(25000, 25000, 25000),
   minimum: new Cartesian3(-25000, -25000, -25000),
 });
@@ -65,7 +65,7 @@ const createPathTrail = () => {
     arcType: ArcType.NONE,
   });
 };
-const SHARED_PATH_TRAIL = createPathTrail();
+const PATH_TRAIL_GEOM = createPathTrail();
 
 // 3. The Rainbow Trail Geometry
 // Starts at 0,0,0 and curves backwards (Shorter)
@@ -105,7 +105,7 @@ const createRainbowTrail = () => {
     arcType: ArcType.NONE,
   });
 };
-const SHARED_RAINBOW_TRAIL = createRainbowTrail();
+const RAINBOW_TRAIL_GEOM = createRainbowTrail();
 
 // --- THE MERGED CLASS ---
 export class SpaceObjectComposition3D {
@@ -134,10 +134,10 @@ export class SpaceObjectComposition3D {
     this._viewer = viewer;
     this._satrec = satellite.twoline2satrec(tle.line1, tle.line2);
 
-    // A1. Setup Box FILL (Translucent)
+    // A1. Setup Box (FILL)
     this._boxPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
-        geometry: SHARED_BOX,
+        geometry: BOX_FILL_GEOM,
         id: "box-fill-" + Math.random(),
         attributes: {
           color: ColorGeometryInstanceAttribute.fromColor(
@@ -152,10 +152,10 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // A2. Setup Box OUTLINE (Solid Lines)
+    // A2. Setup Box (OUTLINE)
     this._boxOutlinePrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
-        geometry: SHARED_BOX_OUTLINE,
+        geometry: BOX_OUTLINE_GEOM,
         attributes: {
           color: ColorGeometryInstanceAttribute.fromColor(
             Color.fromCssColorString("#ccfbf1") // Outline Color
@@ -172,9 +172,9 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // B. Setup Long Trail
+    // B. Setup Path Trail
     this._longTrailPrimitive = new Primitive({
-      geometryInstances: new GeometryInstance({ geometry: SHARED_PATH_TRAIL }),
+      geometryInstances: new GeometryInstance({ geometry: PATH_TRAIL_GEOM }),
       appearance: new PolylineColorAppearance({ translucent: true }),
       asynchronous: false,
     });
@@ -182,7 +182,7 @@ export class SpaceObjectComposition3D {
     // C. Setup Rainbow Trail
     this._rainbowPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
-        geometry: SHARED_RAINBOW_TRAIL,
+        geometry: RAINBOW_TRAIL_GEOM,
       }),
       appearance: new PolylineColorAppearance({ translucent: true }),
       asynchronous: false,
