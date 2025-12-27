@@ -129,8 +129,8 @@ export class SpaceObjectComposition2D {
     this._billboard = this._billboardCollection.add({
       image: SHARED_ICON_URL,
       position: Cartesian3.ZERO,
-      width: 15, // Fixed Pixel Size
-      height: 15, // Fixed Pixel Size
+      width: 14, // Fixed Pixel Size
+      height: 14, // Fixed Pixel Size
       color: Color.WHITE,
     });
     // Don't depth test the billboard so it sits "on top" of the trail

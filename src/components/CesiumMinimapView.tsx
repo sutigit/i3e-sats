@@ -3,20 +3,23 @@ import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals2D, } from '../cesium/add';
 import { useSatellites } from '../context/ContextAPI';
-import { getMinimapViewConfig } from '../cesium/utils';
+import SatelliteTracker from '../cesium/utils/SatelliteTracker';
 import type { Viewer } from 'cesium';
 
+const ALTITUDE = 10000.0
+
 export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boolean }) {
-    const cesiumMinimapRef = useRef(null)
+    const cesiumMinimapRef = useRef<HTMLDivElement>(null)
     const viewerRef = useRef<Viewer>(null)
+    const trackerRef = useRef<SatelliteTracker>(null);
     const { observer, satellites, targetSatellite, satellitesReady } = useSatellites()
 
     useEffect(() => {
-        if (!cesiumMinimapRef.current || !targetSatellite) return
+        if (!cesiumMinimapRef.current || !satellitesReady) return
         viewerRef.current = cesiumView(cesiumMinimapRef, {
-            lon: targetSatellite.data.location.lon,
-            lat: targetSatellite.data.location.lat,
-            alt: 100000.0,
+            lon: 0,
+            lat: 0,
+            alt: ALTITUDE,
             minimap: true,
         })
 
@@ -26,18 +29,27 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
         // Debugging
         viewerRef.current.scene.debugShowFramesPerSecond = showFPS;
 
+        // Satellite tracking. Start tracking immediately
+        trackerRef.current = new SatelliteTracker(viewerRef.current, ALTITUDE); // Try 100km range first
+        if (targetSatellite) {
+            trackerRef.current.track(targetSatellite.tle);
+        }
+
         return (() => {
-            viewerRef.current?.destroy()
+            trackerRef.current?.stop();
+            viewerRef.current?.destroy();
+            viewerRef.current = null;
+            trackerRef.current = null;
         })
 
         // never re-render this to avoid re-instantiating cesium renderer.
     }, [satellitesReady])
 
     useEffect(() => {
-        // Teleport to new view on target satellite change
-        if (!viewerRef.current || !targetSatellite) return
-        const viewConfig = getMinimapViewConfig(targetSatellite.data.location.lon, targetSatellite.data.location.lat, 100000.0)
-        viewerRef.current.camera.setView(viewConfig)
+        if (!trackerRef.current || !targetSatellite) return
+
+        // Handles changing targets
+        trackerRef.current.track(targetSatellite.tle);
     }, [targetSatellite])
 
     return (
