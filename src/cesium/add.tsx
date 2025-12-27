@@ -4,7 +4,7 @@ import { drawPath, drawObserver, drawPoint, drawTrail } from "./draw"
 import { getOrbitPath, getOrbitPositionOrientation } from "./utils"
 
 // SPACE ENTITIES ---------------------------------------------
-export const addSatellitePathsSpace = ({ satellites, viewer }: SatellitesEntity) => {
+export const addSatellitePathsSpace = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPath(s.tle, Date.now())
@@ -12,7 +12,7 @@ export const addSatellitePathsSpace = ({ satellites, viewer }: SatellitesEntity)
     })
 }
 
-export const addSatelliteTrailsSpace = ({ satellites, viewer }: SatellitesEntity) => {
+export const addSatelliteTrailsSpace = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPath(s.tle, Date.now(), 10)
@@ -20,21 +20,28 @@ export const addSatelliteTrailsSpace = ({ satellites, viewer }: SatellitesEntity
     })
 }
 
-export const addSatellitePointsSpace = ({ satellites, viewer }: SatellitesEntity) => {
+export const addSatellitePointsSpace = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
-        const { position, orientation } = getOrbitPositionOrientation(s.tle, Date.now())
-        drawPoint({ id: `${s.name}-point-space`, position, orientation, viewer, mode: "space" })
+        const id = `${s.name}-point-space`
+        const result = getOrbitPositionOrientation(s.tle, Date.now())
+
+        if (result) {
+            const { position, orientation } = result
+            drawPoint({ id, position, orientation, viewer, mode: "space" })
+        } else {
+            console.warn(`Error creating ${id}`)
+        }
     })
 }
 
 // GROUND ENTITIES -----------------------------------------------
-export const addObserverGround = ({ observer, viewer }: ObserverEntity) => {
+export const addObserverGround = ({ observer, viewer }: ObserverEntity): void => {
     const position = Cartesian3.fromDegrees(observer.lon, observer.lat);
     drawObserver({ id: 'observer-ground', position, viewer });
 }
 
-export const addSatellitePathsGround = ({ satellites, viewer }: SatellitesEntity) => {
+export const addSatellitePathsGround = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPath(s.tle, Date.now())
@@ -42,7 +49,7 @@ export const addSatellitePathsGround = ({ satellites, viewer }: SatellitesEntity
     })
 }
 
-export const addSatelliteTrailsGround = ({ satellites, viewer }: SatellitesEntity) => {
+export const addSatelliteTrailsGround = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const path = getOrbitPath(s.tle, Date.now(), 10)
@@ -50,10 +57,17 @@ export const addSatelliteTrailsGround = ({ satellites, viewer }: SatellitesEntit
     })
 }
 
-export const addSatellitePointsGround = ({ satellites, viewer }: SatellitesEntity) => {
+export const addSatellitePointsGround = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
-        const { position, orientation } = getOrbitPositionOrientation(s.tle, Date.now())
-        drawPoint({ id: `${s.name}-point-ground`, position, orientation, viewer, mode: "ground" })
+        const id = `${s.name}-point-ground`
+        const result = getOrbitPositionOrientation(s.tle, Date.now())
+
+        if (result) {
+            const { position, orientation } = result
+            drawPoint({ id, position, orientation, viewer, mode: "ground" })
+        } else {
+            console.warn(`Error creating ${id}`)
+        }
     })
 }

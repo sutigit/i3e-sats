@@ -1,90 +1,118 @@
-import { Cartesian3, Matrix4, Quaternion, Transforms, HeadingPitchRoll, Math as CesiumMath } from "cesium";
-import { getSatelliteInfo, type SatelliteInfoOutput, type Timestamp } from "tle.js";
+import {
+    Cartesian3,
+    Matrix4,
+    Quaternion,
+    Transforms,
+    HeadingPitchRoll,
+    Math as CesiumMath
+} from "cesium";
+import * as satellite from "satellite.js";
 import type { TLE } from "../types";
 
-const _getVelocityVector = (tle: string, time: number): Cartesian3 => {
-    // 1. Get positions 1 second apart
-    const now = getSatelliteInfo(tle, time);
-    const next = getSatelliteInfo(tle, time + 1000);
+/**
+ * Helper: Pure Math to get Fixed Frame (ECF) coordinates.
+ * Returns a simple {x, y, z} object in meters (not Cartesian3 yet to save allocs).
+ */
+const _getEcfFixed = (satrec: satellite.SatRec, date: Date) => {
+    const gmst = satellite.gstime(date);
+    const posVel = satellite.propagate(satrec, date);
 
-    // 2. Convert to Cesium Cartesian3 (Earth Fixed)
-    const p1 = Cartesian3.fromDegrees(now.lng, now.lat, now.height * 1000);
-    const p2 = Cartesian3.fromDegrees(next.lng, next.lat, next.height * 1000);
+    if (!posVel?.position) {
+        return null;
+    }
 
-    // 3. Calculate Vector (p2 - p1)
-    return Cartesian3.subtract(p2, p1, new Cartesian3());
+    const positionEci = posVel.position as satellite.EciVec3<number>;
+
+    // ECI (Inertial) -> ECF (Fixed)
+    // This rotates the coordinate frame to match the spinning Earth.
+    const positionEcf = satellite.eciToEcf(positionEci, gmst);
+
+    return {
+        x: positionEcf.x * 1000, // km -> meters
+        y: positionEcf.y * 1000,
+        z: positionEcf.z * 1000
+    };
 };
 
-const _getPosition = (info: SatelliteInfoOutput): Cartesian3 => {
-    return Cartesian3.fromDegrees(
-        info.lng,
-        info.lat,
-        info.height * 1000 // km to meters
-    );
-}
+/**
+ * Calculates the exact Position and Orientation for a satellite.
+ * Orientation: Faces velocity vector (Heading), with "Belly" facing Earth.
+ */
+export const getOrbitPositionOrientation = (
+    tle: TLE,
+    time: number // Unix Timestamp (ms)
+): { position: Cartesian3, orientation: Quaternion } | null => {
 
-const _getOrientation = (
-    info: SatelliteInfoOutput,
-    velocityVector: Cartesian3
-): Quaternion => {
+    // 1. Setup (Direct access, no parsing needed)
+    const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
 
-    // 1. Get Position (Cesium World Coords)
-    // info.height is km, convert to meters
-    const position = Cartesian3.fromDegrees(info.lng, info.lat, info.height * 1000);
+    const now = new Date(time);
+    const next = new Date(time + 1000); // 1 second lookahead
 
-    // 2. Transform Velocity to Local Frame (ENU)
-    // Local: X=East, Y=North, Z=Up
-    const toLocal = Matrix4.inverse(Transforms.eastNorthUpToFixedFrame(position), new Matrix4());
-    const vLocal = Matrix4.multiplyByPointAsVector(toLocal, velocityVector, new Cartesian3());
+    // 2. Get Positions (ECF)
+    const posNow = _getEcfFixed(satrec, now);
+    const posNext = _getEcfFixed(satrec, next);
 
-    // 3. Compute Heading (Yaw)
-    // Math.atan2(y, x) = Angle from East (Counter-Clockwise).
-    // Cesium Heading  = Rotation around Negative-Z (Clockwise).
-    //
-    // We simply NEGATE the math angle to convert CCW -> CW.
-    // Examples:
-    // - Velocity East (0°):  -atan2(0, 1) = -0   -> Points East (Correct)
-    // - Velocity North (90°): -atan2(1, 0) = -90  -> Rotates 90° CCW -> Points North (Correct)
+    if (!posNow || !posNext) return null;
+
+    // 3. Convert to Cesium Types
+    const position = new Cartesian3(posNow.x, posNow.y, posNow.z);
+    const positionNext = new Cartesian3(posNext.x, posNext.y, posNext.z);
+
+    // 4. Calculate Velocity Vector (Fixed Frame)
+    const velocityVector = new Cartesian3();
+    Cartesian3.subtract(positionNext, position, velocityVector);
+
+    // 5. Compute Orientation (Heading + Belly Down)
+
+    // A. Get Local Frame (ENU)
+    const fixedFrameTransform = Transforms.eastNorthUpToFixedFrame(position);
+    const inverseTransform = new Matrix4();
+    Matrix4.inverse(fixedFrameTransform, inverseTransform);
+
+    // B. Transform Velocity to Local Frame
+    const vLocal = new Cartesian3();
+    Matrix4.multiplyByPointAsVector(inverseTransform, velocityVector, vLocal);
+
+    // C. Calculate Heading (-atan2 for Cesium CW rotation)
     const heading = -Math.atan2(vLocal.y, vLocal.x);
 
-    // 4. Force "Belly Down"
-    // Pitch=0, Roll=0 ensures the local Z-axis matches the global Up-axis.
-    // The cube glides parallel to the curve of the earth.
-    return Transforms.headingPitchRollQuaternion(
-        position,
-        new HeadingPitchRoll(heading, 0, 0)
-    );
-}
+    // D. Create Quaternion
+    const hpr = new HeadingPitchRoll(heading, 0, 0);
+    const orientation = Transforms.headingPitchRollQuaternion(position, hpr);
 
-export const getOrbitPath = (tle: TLE["full"], now: Timestamp, lastMins: number = 97): Cartesian3[] => {
+    return { position, orientation };
+};
+
+/**
+ * Generates the orbit path trace.
+ * Optimally reuses the satrec object for the entire loop.
+ */
+export const getOrbitPath = (
+    tle: TLE,
+    nowTime: number,
+    lastMins: number = 97
+): Cartesian3[] => {
     const positions: Cartesian3[] = [];
     const stepInMinutes = 1;
-    const durationMinutes = lastMins; // // default 97 min ICEYE satellite approximate orbit duration
 
-    for (let i = -durationMinutes; i <= 0; i += stepInMinutes) {
-        const timestamp = now + (i * 60000); // i is negative, so this subtracts time
-        const info = getSatelliteInfo(tle, timestamp);
+    // 1. Setup (Parse ONCE)
+    const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
 
-        if (info && info.height) {
+    // 2. Loop
+    for (let i = -lastMins; i <= 0; i += stepInMinutes) {
+        const loopTime = new Date(nowTime + (i * 60000));
 
-            if (info.height < 100) {
-                console.warn("⚠️ Satellite is crashing!", info.height);
-            }
+        // Direct ECI -> ECF -> XYZ
+        const pos = _getEcfFixed(satrec, loopTime);
 
-            const pos = _getPosition(info)
-            positions.push(pos);
+        if (pos) {
+            positions.push(new Cartesian3(pos.x, pos.y, pos.z));
         }
     }
-    return positions;
-}
 
-export const getOrbitPositionOrientation = (tle: TLE["full"], now: Timestamp): { position: Cartesian3, orientation: Quaternion } => {
-    const info = getSatelliteInfo(tle, now);
-    const velocity = _getVelocityVector(tle, now)
-    const position = _getPosition(info)
-    const orientation = _getOrientation(info, velocity)
-    return { position, orientation }
-}
+    return positions;
+};
 
 export const getMinimapViewConfig = (lon: number, lat: number, alt: number) => {
     const viewConfig = {

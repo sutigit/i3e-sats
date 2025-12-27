@@ -29,7 +29,7 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
         if (!rawData) return;
         const processed: Satellite[] = rawData.map((tle: TLE) => {
             const stats = getSatStats(tle, observer.lat, observer.lon);
-            return { name: tle.name, tle: tle.full, stat: stats };
+            return { name: tle.name, tle, stat: stats };
         });
         setSatellites(processed);
         setTargetSatellite(processed[0])
