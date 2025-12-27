@@ -6,119 +6,96 @@ import {
     Matrix4,
     CallbackProperty,
     CallbackPositionProperty,
+    SampledProperty,
     Color,
     HeightReference,
     Math as CesiumMath,
     JulianDate,
     Transforms,
     BoxGraphics,
-    BillboardGraphics
+    BillboardGraphics,
+    LinearApproximation
 } from "cesium";
 import * as satellite from "satellite.js";
 import type { TLE } from "../../types";
-// Ensure this import is pointing to a URL string or Image object, NOT a React component!
 import { satelliteSVG } from "../icons";
 
 const SATELLITE_ICON = satelliteSVG;
 
-// Pre-calculate constants to avoid math in the loop
-const UNIX_EPOCH_JULIAN = 2440587.5;
-const TICKS_PER_DAY = 86400000; // Daily milliseconds
-
 export class PointEntity {
     public readonly entity: Entity;
 
+    // --- Private State ---
     private readonly satrec: satellite.SatRec;
-    private readonly scratchDate = new Date();
+
+    // --- Scratch Variables (Zero-Allocation) ---
     private readonly scratchPosNow = new Cartesian3();
-    private readonly scratchPosNext = new Cartesian3();
-    private readonly scratchVel = new Cartesian3();
-    private readonly scratchHpr = new HeadingPitchRoll(0, 0, 0);
-    private readonly scratchQuaternion = new Quaternion();
-    private readonly scratchFixedFrame = new Matrix4();
-    private readonly scratchInverse = new Matrix4();
-    private readonly scratchLocalVel = new Cartesian3();
+    private readonly scratchQ = new Quaternion();
+    private readonly scratchHpr = new HeadingPitchRoll();
     private readonly scratchAxis = new Cartesian3();
 
     constructor(
         id: string,
         tle: TLE,
-        mode: "space" | "ground"
+        mode: "space" | "ground",
+        startTime: Date = new Date()
     ) {
         this.satrec = satellite.twoline2satrec(tle.line1, tle.line2);
 
-        const positionCallback = new CallbackPositionProperty(
+        // --- 1. DEFINE PHYSICS (The "Model") ---
+        // These are the Single Sources of Truth for this object.
+
+        const position = new CallbackPositionProperty(
             this.updatePosition.bind(this),
             false
         );
 
-        const orientationCallback = new CallbackProperty(
-            this.updateOrientation.bind(this),
-            false
-        );
+        // Generate 1 day (1440 mins) of orientation samples
+        const orientation = this.generateOrientationSamples(startTime, 1440);
 
+
+        // --- 2. CONFIGURE ENTITY (The Container) ---
         const entityOptions: Entity.ConstructorOptions = {
             id,
-            position: positionCallback,
-            orientation: orientationCallback,
+            position,    // The Entity physically is here
+            orientation, // The Entity physically faces this way
         };
 
+
+        // --- 3. CONFIGURE VISUALS (The "View") ---
         if (mode === "space") {
+            // Box automatically uses the entity.position and entity.orientation
             entityOptions.box = new BoxGraphics({
                 dimensions: new Cartesian3(50000.0, 50000.0, 50000.0),
                 material: Color.fromCssColorString("#5eead4").withAlpha(0.3),
-                // WARNING: Outlines on transparent boxes are expensive. 
-                // If performance lags with 500+ sats, set this to false.
                 outline: true,
                 outlineColor: Color.fromCssColorString("#ccfbf1"),
             });
-        } else {
-            const rotationCallback = new CallbackProperty((time, _) => {
-                const q = orientationCallback.getValue(time, this.scratchQuaternion);
-                if (!q) return 0;
-                const hpr = HeadingPitchRoll.fromQuaternion(q, this.scratchHpr);
-                return -hpr.heading + CesiumMath.PI_OVER_TWO;
-            }, false);
-
-            const alignedAxisCallback = new CallbackProperty((time, result) => {
-                const pos = positionCallback.getValue(time, this.scratchPosNow);
-                return pos ? Cartesian3.normalize(pos, result || this.scratchAxis) : undefined;
-            }, false);
-
-            entityOptions.billboard = new BillboardGraphics({
-                image: SATELLITE_ICON,
-                width: 14,
-                height: 14,
-                rotation: rotationCallback,
-                alignedAxis: alignedAxisCallback,
-                heightReference: HeightReference.CLAMP_TO_GROUND,
-            });
+        }
+        else {
+            // Billboards need a derived "Rotation Angle" (Number), not a Quaternion.
+            // We pass our physics properties to the helper to bridge this gap.
+            entityOptions.billboard = this.createBillboardGraphics(
+                orientation, // Pass the source of truth
+                position     // Pass the source of truth
+            );
         }
 
         this.entity = new Entity(entityOptions);
     }
 
-    // --- INTERNAL PHYSICS ---
-
     /**
-     * Helper to convert Cesium Time to JS Date without allocation
+     * Calculates the satellite position for a specific time frame.
+     * Uses Cesium's Date converter to handle Leap Seconds (TAI vs UTC) correctly.
      */
-    private setScratchDate(time: JulianDate, offsetMs: number = 0): void {
-        // (Day - Epoch) * msPerDay + SecondsOfThatDay * 1000 + Offset
-        const unixMs = (time.dayNumber - UNIX_EPOCH_JULIAN) * TICKS_PER_DAY
-            + (time.secondsOfDay * 1000)
-            + offsetMs;
-        this.scratchDate.setTime(unixMs);
-    }
-
     private updatePosition(time?: JulianDate, result?: Cartesian3): Cartesian3 | undefined {
         if (!time) return undefined;
 
-        // Zero-Allocation Time Update
-        this.setScratchDate(time, 0);
+        // CRITICAL: Fix for 37-second offset
+        const dateNow = JulianDate.toDate(time);
 
-        const gmst = satellite.gstime(this.scratchDate);
-        const posVel = satellite.propagate(this.satrec, this.scratchDate);
+        const gmst = satellite.gstime(dateNow);
+        const posVel = satellite.propagate(this.satrec, dateNow);
 
         if (posVel?.position) {
             const pEci = posVel.position as satellite.EciVec3<number>;
@@ -133,49 +110,112 @@ export class PointEntity {
         return undefined;
     }
 
-    private updateOrientation(time?: JulianDate, result?: Quaternion): Quaternion | undefined {
-        if (!time) return undefined;
+    /**
+     * Generates sparse orientation samples for the next [durationMins] minutes.
+     * This avoids heavy math per-frame.
+     */
+    private generateOrientationSamples(startDate: Date, durationMins: number): SampledProperty {
+        const property = new SampledProperty(Quaternion);
+        property.setInterpolationOptions({
+            interpolationDegree: 1,
+            interpolationAlgorithm: LinearApproximation
+        });
 
-        // 1. Get Position Now (Reuses scratchDate internally)
-        const pNow = this.updatePosition(time, this.scratchPosNow);
-        if (!pNow) return undefined;
+        const stepSeconds = 60; // 1 Sample per minute is sufficient for orbit orientation
 
-        // 2. Get Position Next (Add 1000ms offset)
-        this.setScratchDate(time, 1000);
+        // Local scratch variables for the loop
+        const tDate = new Date(startDate);
+        const posNow = new Cartesian3();
+        const posNext = new Cartesian3();
+        const vel = new Cartesian3();
+        const fixedFrame = new Matrix4();
+        const inverse = new Matrix4();
+        const localVel = new Cartesian3();
+        const hpr = new HeadingPitchRoll(0, 0, 0);
+        const quat = new Quaternion();
 
-        const gmstNext = satellite.gstime(this.scratchDate);
-        const pvNext = satellite.propagate(this.satrec, this.scratchDate);
+        for (let i = 0; i <= durationMins * 60; i += stepSeconds) {
+            // A. Update Time
+            tDate.setTime(startDate.getTime() + (i * 1000));
+            const cesiumTime = JulianDate.fromDate(tDate);
+            const gmst = satellite.gstime(tDate);
 
-        if (!pvNext?.position) return undefined;
+            // B. Get Position Now
+            const pvNow = satellite.propagate(this.satrec, tDate);
+            if (!pvNow?.position) continue;
 
-        const pNextEci = pvNext.position as satellite.EciVec3<number>;
-        const pNextEcf = satellite.eciToEcf(pNextEci, gmstNext);
+            const pEci = pvNow.position as satellite.EciVec3<number>;
+            const pEcf = satellite.eciToEcf(pEci, gmst);
+            posNow.x = pEcf.x * 1000;
+            posNow.y = pEcf.y * 1000;
+            posNow.z = pEcf.z * 1000;
 
-        this.scratchPosNext.x = pNextEcf.x * 1000;
-        this.scratchPosNext.y = pNextEcf.y * 1000;
-        this.scratchPosNext.z = pNextEcf.z * 1000;
+            // C. Get Position Next (Forward Look for Velocity)
+            const tNext = new Date(tDate.getTime() + 1000);
+            const gNext = satellite.gstime(tNext);
+            const pvNext = satellite.propagate(this.satrec, tNext);
+            if (!pvNext?.position) continue;
 
-        // 3. Velocity & Heading Math
-        Cartesian3.subtract(this.scratchPosNext, this.scratchPosNow, this.scratchVel);
+            const pnEci = pvNext.position as satellite.EciVec3<number>;
+            const pnEcf = satellite.eciToEcf(pnEci, gNext);
+            posNext.x = pnEcf.x * 1000;
+            posNext.y = pnEcf.y * 1000;
+            posNext.z = pnEcf.z * 1000;
 
-        Transforms.eastNorthUpToFixedFrame(this.scratchPosNow, undefined, this.scratchFixedFrame);
-        Matrix4.inverse(this.scratchFixedFrame, this.scratchInverse);
-        Matrix4.multiplyByPointAsVector(this.scratchInverse, this.scratchVel, this.scratchLocalVel);
+            // D. Calculate Orientation (Belly Down)
+            Cartesian3.subtract(posNext, posNow, vel);
+            Transforms.eastNorthUpToFixedFrame(posNow, undefined, fixedFrame);
+            Matrix4.inverse(fixedFrame, inverse);
+            Matrix4.multiplyByPointAsVector(inverse, vel, localVel);
 
-        const heading = -Math.atan2(this.scratchLocalVel.y, this.scratchLocalVel.x);
+            const heading = -Math.atan2(localVel.y, localVel.x);
+            hpr.heading = heading;
 
-        this.scratchHpr.heading = heading;
-        this.scratchHpr.pitch = 0;
-        this.scratchHpr.roll = 0;
+            Transforms.headingPitchRollQuaternion(
+                posNow,
+                hpr,
+                undefined,
+                Transforms.eastNorthUpToFixedFrame,
+                quat
+            );
 
-        const target = result || this.scratchQuaternion;
+            property.addSample(cesiumTime, quat);
+        }
 
-        return Transforms.headingPitchRollQuaternion(
-            this.scratchPosNow,
-            this.scratchHpr,
-            undefined,
-            Transforms.eastNorthUpToFixedFrame,
-            target
-        );
+        return property;
+    }
+
+    /**
+     * Helper to configure the Billboard (Ground Mode)
+     * which requires extracting Rotation from the Orientation Property.
+     */
+    private createBillboardGraphics(
+        orientationProp: SampledProperty,
+        positionProp: CallbackPositionProperty
+    ): BillboardGraphics {
+
+        // 1. Rotation Callback (Fast extraction from samples)
+        const rotationCallback = new CallbackProperty((time, _) => {
+            const q = orientationProp.getValue(time, this.scratchQ);
+            if (!q) return 0;
+
+            const hpr = HeadingPitchRoll.fromQuaternion(q, this.scratchHpr);
+            return -hpr.heading + CesiumMath.PI_OVER_TWO;
+        }, false);
+
+        // 2. Alignment Callback (Locks to surface)
+        const alignedAxisCallback = new CallbackProperty((time, result) => {
+            const pos = positionProp.getValue(time, this.scratchPosNow);
+            return pos ? Cartesian3.normalize(pos, result || this.scratchAxis) : undefined;
+        }, false);
+
+        return new BillboardGraphics({
+            image: SATELLITE_ICON,
+            width: 14,
+            height: 14,
+            rotation: rotationCallback,
+            alignedAxis: alignedAxisCallback,
+            heightReference: HeightReference.CLAMP_TO_GROUND,
+        });
     }
 }
