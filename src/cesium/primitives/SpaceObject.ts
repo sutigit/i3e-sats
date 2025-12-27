@@ -244,7 +244,7 @@ export class SpaceObjectPrimitive {
       this._scratchVel.z = nextEcf.z * 1000 - this._scratchPos.z;
     }
 
-    // 5. Scale Calculation
+    // 5. Scale Calculation (ONLY for trails)
     const orbitalRadius = Cartesian3.magnitude(this._scratchPos);
     const scaleFactor = orbitalRadius / REFERENCE_RADIUS;
 
@@ -252,20 +252,31 @@ export class SpaceObjectPrimitive {
     this._scratchScale.y = scaleFactor;
     this._scratchScale.z = scaleFactor;
 
-    // 6. Compute Matrix ONCE
+    // 6. Compute Matrix for the BOX (Scale = 1.0)
+    // We pass 'undefined' for scale to avoid scaling the boxes
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
-      this._scratchScale,
+      undefined, // <--- No scaling for the box
       this._scratchOrbitFrame
     );
 
-    // 7. Apply Matrix to ALL Primitives (Zero Alloc)
+    // Apply to BOX and OUTLINE
     Matrix4.clone(this._scratchOrbitFrame, this._boxPrimitive.modelMatrix);
     Matrix4.clone(
       this._scratchOrbitFrame,
       this._boxOutlinePrimitive.modelMatrix
     );
+
+    // 7. Compute Matrix for the TRAILS (Scale = scaleFactor)
+    this.computeTransformMatrix(
+      this._scratchPos,
+      this._scratchVel,
+      this._scratchScale, // <--- Apply orbital scale here
+      this._scratchOrbitFrame
+    );
+
+    // Apply to TRAILS
     Matrix4.clone(
       this._scratchOrbitFrame,
       this._longTrailPrimitive.modelMatrix
@@ -275,7 +286,7 @@ export class SpaceObjectPrimitive {
 
   private setShow(visible: boolean) {
     this._boxPrimitive.show = visible;
-    this._boxOutlinePrimitive.show = visible; // <--- Toggle
+    this._boxOutlinePrimitive.show = visible;
     this._longTrailPrimitive.show = visible;
     this._rainbowPrimitive.show = visible;
   }
@@ -283,7 +294,7 @@ export class SpaceObjectPrimitive {
   private computeTransformMatrix(
     position: Cartesian3,
     velocity: Cartesian3,
-    scale: Cartesian3,
+    scale: Cartesian3 | undefined, // <--- Make optional
     result: Matrix4
   ): void {
     Cartesian3.normalize(position, this._scratchUp);
@@ -311,17 +322,18 @@ export class SpaceObjectPrimitive {
     );
 
     Matrix4.fromRotationTranslation(this._scratchRotation, position, result);
-    // Note: We apply scale to trails, but MAYBE not the box?
-    // If you want the box to stay 50km regardless of altitude, comment this out for the box.
-    // But scaling everything is usually visually consistent.
-    Matrix4.multiplyByScale(result, scale, result);
+
+    // ONLY multiply by scale if it is provided
+    if (scale) {
+      Matrix4.multiplyByScale(result, scale, result);
+    }
   }
 
   destroy(): void {
     if (this._removeListener) this._removeListener();
     const primitives = this._viewer.scene.primitives;
     primitives.remove(this._boxPrimitive);
-    primitives.remove(this._boxOutlinePrimitive); // <--- Remove
+    primitives.remove(this._boxOutlinePrimitive);
     primitives.remove(this._longTrailPrimitive);
     primitives.remove(this._rainbowPrimitive);
   }
