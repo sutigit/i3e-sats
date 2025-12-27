@@ -3,20 +3,17 @@ const satelliteSVGString = `
   <rect width='100' height='50' fill='rgba(94, 234, 212, 0.4)' stroke='#ccfbf1' stroke-width='10'/>
 </svg>`.trim();
 
-const telescopeSVGString = `
+const pinSVGString = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <path d="M32 42 L18 60 M32 42 L46 60 M32 42 L32 56" 
-        stroke="#fbcfe8" stroke-width="3" stroke-linecap="round" fill="none"/>
-  
-  <g transform="rotate(-45, 32, 32)">
-    <rect x="22" y="24" width="20" height="16" rx="2" 
-          fill="rgba(251, 207, 232, 0.6)" stroke="#fbcfe8" stroke-width="2"/>
-    <rect x="42" y="26" width="8" height="12" rx="1" fill="#fbcfe8"/> <rect x="16" y="29" width="6" height="6" rx="1" fill="#fbcfe8"/> </g>
+  <ellipse cx="32" cy="61" rx="16" ry="4" fill="rgba(254, 205, 211, 0.7)"/>
 
-  <circle cx="32" cy="42" r="4" fill="#fbcfe8"/>
+  <path d="M 32 61
+           C 34 56, 49 45, 49 34
+           A 17 17 0 1 0 15 34
+           C 15 45, 30 56, 32 61 Z"
+        fill="#fecdd3"/>
 </svg>
 `.trim();
 
-
 export const satelliteSVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(satelliteSVGString)}`;
-export const observerSVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(telescopeSVGString)}`;
+export const pinSVG = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(pinSVGString)}`;

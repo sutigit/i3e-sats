@@ -7,7 +7,7 @@ import {
   VerticalOrigin,
   HorizontalOrigin,
 } from "cesium";
-import { observerSVG } from "../icons";
+import { pinSVG } from "../icons";
 
 export interface ObserverPosition {
   lat: number;
@@ -37,11 +37,11 @@ export class ObserverPrimitive {
         position.lat,
         position.alt || 0
       ),
-      image: observerSVG,
-      scale: 0.6, // SVGs usually render large, scale down if needed (e.g. 0.8)
-      verticalOrigin: VerticalOrigin.BOTTOM, // The tripod feet sit on the ground
+      image: pinSVG,
+      scale: 0.4,
+      verticalOrigin: VerticalOrigin.BOTTOM,
       horizontalOrigin: HorizontalOrigin.CENTER,
-      color: Color.WHITE, // Tinting (White = Original SVG Colors)
+      color: Color.WHITE,
       disableDepthTestDistance: Number.POSITIVE_INFINITY, // Always render on top (UI style)
     });
   }

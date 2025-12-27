@@ -1,3 +1,4 @@
+import { PinIcon } from "./common/PinIcon";
 import { TelescopeIcon } from "./common/TelescopeIcon";
 
 interface Coords {
@@ -23,7 +24,7 @@ export default function ObserverInput({ coords, setCoords, onFly }: ObserverInpu
     return (
         <div className="observer-input">
             <div className="number-input">
-                <label>Latitude</label>
+                <p>Latitude</p>
                 <input
                     type="number"
                     step="any"
@@ -33,7 +34,7 @@ export default function ObserverInput({ coords, setCoords, onFly }: ObserverInpu
             </div>
 
             <div className="number-input">
-                <label>Longitude</label>
+                <p>Longitude</p>
                 <input
                     type="number"
                     step="any"
@@ -49,8 +50,8 @@ export default function ObserverInput({ coords, setCoords, onFly }: ObserverInpu
                 onMouseEnter={(e) => e.currentTarget.style.opacity = '0.8'}
                 onMouseLeave={(e) => e.currentTarget.style.opacity = '1'}
             >
-                <label>Fly to</label>
-                <TelescopeIcon />
+                <p>Fly to</p>
+                <PinIcon />
             </button>
         </div>
     )
