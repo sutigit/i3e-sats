@@ -25,7 +25,7 @@ export default function SatList() {
                                 key={sat.name}
                                 setFocus={() => setTargetSatellite(sat)}
                                 focus={sat.name === targetSatellite?.name}
-                                data={sat}
+                                sat={sat}
                             />
                         ))}
                     </div>
@@ -42,7 +42,7 @@ export default function SatList() {
                                 key={sat.name}
                                 setFocus={() => setTargetSatellite(sat)}
                                 focus={sat.name === targetSatellite?.name}
-                                data={sat}
+                                sat={sat}
                             />
                         ))}
                     </div>

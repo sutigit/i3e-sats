@@ -14,8 +14,8 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
     useEffect(() => {
         if (!cesiumMinimapRef.current || !targetSatellite) return
         viewerRef.current = cesiumView(cesiumMinimapRef, {
-            lon: targetSatellite.stat.location.lon,
-            lat: targetSatellite.stat.location.lat,
+            lon: targetSatellite.data.location.lon,
+            lat: targetSatellite.data.location.lat,
             alt: 100000.0,
             minimap: true,
         })
@@ -36,7 +36,7 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
     useEffect(() => {
         // Teleport to new view on target satellite change
         if (!viewerRef.current || !targetSatellite) return
-        const viewConfig = getMinimapViewConfig(targetSatellite.stat.location.lon, targetSatellite.stat.location.lat, 100000.0)
+        const viewConfig = getMinimapViewConfig(targetSatellite.data.location.lon, targetSatellite.data.location.lat, 100000.0)
         viewerRef.current.camera.setView(viewConfig)
     }, [targetSatellite])
 

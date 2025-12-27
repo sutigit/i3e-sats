@@ -7,11 +7,11 @@ export type TLE = {
   full: string;
 };
 
-export type SatStat = {
+export type SatData = {
   location: {
     lat: number; // Degrees (-90 to 90)
     lon: number; // Degrees (-180 to 180)
-    altitude: number; // Kilometers (km)
+    alt: number; // Kilometers (km)
   };
 
   look: {
@@ -42,13 +42,13 @@ export type SatStat = {
 
 export type SatelliteCardProps = {
   name: string;
-  stat: SatStat;
+  stat: SatData;
 };
 
 export type Satellite = {
   name: string;
   tle: TLE;
-  stat: SatStat;
+  data: SatData;
 };
 
 export type Observer = {

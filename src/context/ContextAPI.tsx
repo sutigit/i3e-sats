@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Satellite, TLE } from '../types';
 import { coords } from '../utils/defaults';
 import { useTleMockQuery } from '../queries/TleQuery';
-import { getSatStats } from '../utils/getSatStats';
+import { getSatData } from '../utils/getSatData';
 
 interface SatelliteContextType {
     satellites: Satellite[];
@@ -28,8 +28,8 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
     useEffect(() => {
         if (!rawData) return;
         const processed: Satellite[] = rawData.map((tle: TLE) => {
-            const stats = getSatStats(tle, observer.lat, observer.lon);
-            return { name: tle.name, tle, stat: stats };
+            const data = getSatData(tle, observer.lat, observer.lon);
+            return { name: tle.name, tle, data };
         });
         setSatellites(processed);
         setTargetSatellite(processed[0])

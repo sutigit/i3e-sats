@@ -1,5 +1,5 @@
 import * as satellite from "satellite.js";
-import type { SatStat, TLE } from "../types";
+import type { SatData, TLE } from "../types";
 
 /**
  * Maps an azimuth degree (0-360) to a compass card string (N, NE, etc.).
@@ -10,12 +10,12 @@ const getCompassDirection = (azimuthDeg: number): string => {
   return directions[index];
 };
 
-export const getSatStats = (
+export const getSatData = (
   tle: TLE,
   observerLat: number,
   observerLon: number,
   observerAltMeters: number = 0
-): SatStat => {
+): SatData => {
   // --- 1. INITIALIZATION ---
   const now = new Date();
 
