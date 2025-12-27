@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { addObserver } from '../cesium/add';
+import { addObserver, addSatelliteVisuals2D, } from '../cesium/add';
 import { useSatellites } from '../context/ContextAPI';
 import { getMinimapViewConfig } from '../cesium/utils';
 import type { Viewer } from 'cesium';
@@ -19,6 +19,8 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
             alt: 100000.0,
             minimap: true,
         })
+
+        // addSatelliteVisuals2D({ satellites, viewer: viewerRef.current })
         addObserver({ observer, viewer: viewerRef.current })
 
         // Debugging
