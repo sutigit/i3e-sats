@@ -20,7 +20,7 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
             minimap: true,
         })
 
-        // addSatelliteVisuals2D({ satellites, viewer: viewerRef.current })
+        addSatelliteVisuals2D({ satellites, viewer: viewerRef.current })
         addObserver({ observer, viewer: viewerRef.current })
 
         // Debugging

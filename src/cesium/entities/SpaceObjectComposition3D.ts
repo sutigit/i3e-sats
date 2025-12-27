@@ -107,7 +107,6 @@ const createRainbowTrail = () => {
 };
 const RAINBOW_TRAIL_GEOM = createRainbowTrail();
 
-// --- THE MERGED CLASS ---
 export class SpaceObjectComposition3D {
   private _viewer: Viewer;
   private _satrec: satellite.SatRec;

@@ -11,7 +11,7 @@ export function App() {
       <TleProvider devTools={false}>
         <SatelliteProvider>
           <SatList />
-          {/* <SatDetail /> */}
+          <SatDetail />
           <CesiumGlobeView showFPS />
         </SatelliteProvider>
       </TleProvider>
