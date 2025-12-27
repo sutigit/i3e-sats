@@ -1,8 +1,7 @@
-import { Cartesian3 } from "cesium"
 import type { ObserverEntity, SatellitesEntity } from "../types"
-import { drawObserver } from "./draw"
 import { SpaceObjectComposition3D } from "./entities/SpaceObjectComposition3D"
 import { SpaceObjectComposition2D } from "./entities/SpaceObjectComposition2D";
+import { ObserverPrimitive } from "./entities/ObserverPrimitive";
 
 export const addSatelliteVisuals3D = ({ satellites, viewer }: SatellitesEntity): void => {
     if (!satellites) return;
@@ -19,6 +18,8 @@ export const addSatelliteVisuals2D = ({ satellites, viewer }: SatellitesEntity):
 };
 
 export const addObserver = ({ observer, viewer }: ObserverEntity): void => {
-    const position = Cartesian3.fromDegrees(observer.lon, observer.lat);
-    drawObserver({ id: 'observer-ground', position, viewer });
+    new ObserverPrimitive(viewer, {
+        lat: observer.lat,
+        lon: observer.lon
+    });
 }
