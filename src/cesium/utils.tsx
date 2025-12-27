@@ -77,7 +77,7 @@ export const getOrbitPositionOrientation = (
     // C. Calculate Heading (-atan2 for Cesium CW rotation)
     const heading = -Math.atan2(vLocal.y, vLocal.x);
 
-    // D. Create Quaternion
+    // D. Create Quaternion (orientation: belly towards earth surface, and align with trajectory)
     const hpr = new HeadingPitchRoll(heading, 0, 0);
     const orientation = Transforms.headingPitchRollQuaternion(position, hpr);
 
