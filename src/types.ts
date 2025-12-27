@@ -4,7 +4,7 @@ export type TLE = {
   name: string;
   line1: string;
   line2: string;
-  tle: string;
+  full: string;
 };
 
 export type SatStat = {

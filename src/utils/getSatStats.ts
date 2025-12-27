@@ -1,81 +1,99 @@
-import { getSatelliteInfo, type SatelliteInfoOutput } from "tle.js";
-import type { SatStat } from "../types";
+import * as satellite from "satellite.js";
+import type { SatStat, TLE } from "../types";
 
-// 1. Helper: Convert Degrees to Compass Direction
-const getCompassDirection = (azimuth: number): string => {
+/**
+ * Maps an azimuth degree (0-360) to a compass card string (N, NE, etc.).
+ */
+const getCompassDirection = (azimuthDeg: number): string => {
   const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-  // Divide 360 into 8 chunks of 45 degrees
-  const index = Math.round(azimuth / 45) % 8;
+  const index = Math.round(azimuthDeg / 45) % 8;
   return directions[index];
 };
 
-// 2. Main Function
 export const getSatStats = (
-  tle: string,
+  tle: TLE,
   observerLat: number,
   observerLon: number,
-  observerAlt: number = 0 // meters
+  observerAltMeters: number = 0
 ): SatStat => {
-  // Current timestamp
-  const now = Date.now();
+  // --- 1. INITIALIZATION ---
+  const now = new Date();
 
-  // --- BASIC INFO (Position, Look Angles) ---
-  // tle.js returns: { azimuth, elevation, range, velocity, height, lat, lng }
-  const info: SatelliteInfoOutput = getSatelliteInfo(
-    tle,
-    now,
-    observerLat,
-    observerLon,
-    observerAlt
+  const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
+
+  // Configure Observer: Convert input (Degrees/Meters) to Lib Units (Radians/KM)
+  const observerGd = {
+    latitude: satellite.degreesToRadians(observerLat),
+    longitude: satellite.degreesToRadians(observerLon),
+    height: observerAltMeters / 1000,
+  };
+
+  // --- 2. PROPAGATION (ECI) ---
+  // Propagate satellite physics to current time
+  const gmst = satellite.gstime(now);
+  const posVel = satellite.propagate(satrec, now);
+
+  if (!posVel?.position || !posVel?.velocity) {
+    throw new Error("Satellite propagation failed (decayed or invalid TLE)");
+  }
+
+  // Extract Earth-Centered Inertial (ECI) coordinates
+  const positionEci = posVel.position as satellite.EciVec3<number>;
+  const velocityEci = posVel.velocity as satellite.EciVec3<number>;
+
+  // --- 3. COORDINATE TRANSFORMS ---
+  // Convert ECI (Inertial) -> ECF (Fixed/Rotating Earth) -> Geodetic (Lat/Lon)
+  const positionEcf = satellite.eciToEcf(positionEci, gmst);
+  const positionGd = satellite.eciToGeodetic(positionEci, gmst);
+
+  // Calculate Look Angles (Azimuth, Elevation, Slant Range) relative to Observer
+  const lookAngles = satellite.ecfToLookAngles(observerGd, positionEcf);
+
+  // --- 4. PHYSICS & DOPPLER ---
+  // Orbital Speed (Scalar magnitude of velocity vector)
+  const speed = Math.sqrt(
+    velocityEci.x ** 2 + velocityEci.y ** 2 + velocityEci.z ** 2
   );
 
-  // --- DOPPLER (Range Rate) TRICK ---
-  // We can't get range-rate directly from tle.js without vectors.
-  // So, we calculate range for 1 second ago and compare.
-  // Negative = Approaching (Blue), Positive = Leaving (Red)
-  const oneSecondAgo = now - 1000;
-  const infoPast: SatelliteInfoOutput = getSatelliteInfo(
-    tle,
-    oneSecondAgo,
-    observerLat,
-    observerLon,
-    observerAlt
-  );
+  // Range Rate (Doppler): Calculate delta range over 1 second (t - 1s)
+  // Negative = approaching, Positive = receding
+  const pastDate = new Date(now.getTime() - 1000);
+  const pastGmst = satellite.gstime(pastDate);
+  const pastPosVel = satellite.propagate(satrec, pastDate);
 
-  const rangeRate = info.range - infoPast.range; // km/s
+  let rangeRate = 0;
+  if (pastPosVel?.position) {
+    const pastPosEci = pastPosVel.position as satellite.EciVec3<number>;
+    const pastPosEcf = satellite.eciToEcf(pastPosEci, pastGmst);
+    const pastLook = satellite.ecfToLookAngles(observerGd, pastPosEcf);
+    rangeRate = lookAngles.rangeSat - pastLook.rangeSat; // km/s
+  }
 
-  // --- VISIBILITY (Simple Estimation) ---
-  // A true eclipse check requires solar geometry (complex).
-  // For a hobbyist, we check:
-  // 1. Is it above the horizon? (Elevation > 10 degrees)
-  // 2. Is it night time? (We assume yes if they are using the app)
-  const isVisible = info.elevation > 10;
+  // --- 5. FORMAT & RETURN ---
+  // Normalize units back to standard Degrees & KM for UI consumption
+  const satLatDeg = satellite.degreesLat(positionGd.latitude);
+  const satLonDeg = satellite.degreesLong(positionGd.longitude);
+  const azimuthDeg = satellite.radiansToDegrees(lookAngles.azimuth);
+  const elevationDeg = satellite.radiansToDegrees(lookAngles.elevation);
 
   return {
-    // --- Where is it on the Map? ---
     location: {
-      lat: info.lat,
-      lon: info.lng,
-      altitude: info.height, // km
+      lat: satLatDeg,
+      lon: satLonDeg,
+      altitude: positionGd.height,
     },
-
-    // --- Where do I look? ---
     look: {
-      azimuth: info.azimuth, // e.g. 270.5
-      compass: getCompassDirection(info.azimuth), // e.g. "W"
-      elevation: info.elevation, // e.g. 45.0
-      range: info.range, // km
+      azimuth: azimuthDeg,
+      compass: getCompassDirection(azimuthDeg),
+      elevation: elevationDeg,
+      range: lookAngles.rangeSat,
     },
-
-    // --- Physics & Status ---
     physics: {
-      speed: info.velocity, // km/s (Speed). NOTE: this is actually speed. the lib returns "velocity"
-      rangeRate: rangeRate, // km/s (Doppler Speed)
+      speed: speed,
+      rangeRate: rangeRate,
     },
-
-    // --- User Helpers ---
     status: {
-      visible: isVisible,
+      visible: elevationDeg > 10, // Simple horizon check
     },
   };
 };

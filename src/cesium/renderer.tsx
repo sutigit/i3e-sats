@@ -3,7 +3,7 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import type { RefObject } from 'preact';
 
 const CESIUM_KEY = import.meta.env.VITE_CESIUM_KEY
-if (!CESIUM_KEY) console.log("📌 Missing cesium api key")
+if (!CESIUM_KEY) console.warn("📌 Missing cesium api key")
 
 Ion.defaultAccessToken = CESIUM_KEY
 

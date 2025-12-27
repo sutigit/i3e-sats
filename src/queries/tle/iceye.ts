@@ -24,7 +24,7 @@ export async function getIceyeData() {
         name,
         line1,
         line2,
-        tle: `${name}\n${line1}\n${line2}`,
+        full: `${name}\n${line1}\n${line2}`,
       };
       tle.push(rec);
     }
@@ -49,7 +49,7 @@ export async function getIceyeMockData() {
         name,
         line1,
         line2,
-        tle: `${name}\n${line1}\n${line2}`,
+        full: `${name}\n${line1}\n${line2}`,
       };
       tle.push(rec);
     }

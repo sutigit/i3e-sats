@@ -27,9 +27,9 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
 
     useEffect(() => {
         if (!rawData) return;
-        const processed: Satellite[] = rawData.map((d: TLE) => {
-            const stats = getSatStats(d.tle, observer.lat, observer.lon);
-            return { name: d.name, tle: d.tle, stat: stats };
+        const processed: Satellite[] = rawData.map((tle: TLE) => {
+            const stats = getSatStats(tle, observer.lat, observer.lon);
+            return { name: tle.name, tle: tle.full, stat: stats };
         });
         setSatellites(processed);
         setTargetSatellite(processed[0])
