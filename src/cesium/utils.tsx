@@ -15,7 +15,7 @@ const _getVelocityVector = (tle: string, time: number): Cartesian3 => {
     return Cartesian3.subtract(p2, p1, new Cartesian3());
 };
 
-const _getPosition = (info: SatelliteInfoOutput) => {
+const _getPosition = (info: SatelliteInfoOutput): Cartesian3 => {
     return Cartesian3.fromDegrees(
         info.lng,
         info.lat,

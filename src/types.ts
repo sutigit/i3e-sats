@@ -18,18 +18,25 @@ export type SatStat = {
     azimuth: number; // Degrees (0 to 360)
     compass: string; // Cardinal direction (e.g., "SW", "N")
     elevation: number; // Degrees (-90 to 90). >0 is above horizon.
-    range: number; // Kilometers (km). Distance from observer to sat.
+    range: number; // Kilometers (km). Slant range (Observer -> Sat).
   };
 
   physics: {
-    speed: number; // km/s. Orbital speed.
+    speed: number; // km/s. Scalar orbital speed.
     rangeRate: number; // km/s. Doppler shift estimate.
-    // Negative (-) = Approaching (Blue Shift)
-    // Positive (+) = Moving Away (Red Shift)
+    // Negative (-) = Approaching
+    // Positive (+) = Receding
+
+    velocityVector: {
+      // km/s. Vector components in ECI frame.
+      x: number;
+      y: number;
+      z: number;
+    };
   };
 
   status: {
-    visible: boolean; // True if elevation > 10° (or your horizon mask)
+    visible: boolean; // True if elevation > 10° (Simple horizon mask)
   };
 };
 
