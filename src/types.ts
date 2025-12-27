@@ -1,3 +1,5 @@
+import type { Cartesian3, Quaternion, Viewer } from "cesium";
+
 export type TLE = {
   name: string;
   line1: string;
@@ -45,4 +47,32 @@ export type Satellite = {
 export type Observer = {
   lon: number;
   lat: number;
+};
+
+export type SatellitesEntity = {
+  satellites: Satellite[] | undefined;
+  viewer: Viewer;
+};
+
+export type ObserverEntity = { observer: Observer; viewer: Viewer };
+
+export type PathDrawEntity = {
+  id: string;
+  path: Cartesian3[];
+  viewer: Viewer;
+  mode: "space" | "ground";
+};
+
+export type PointDrawEntity = {
+  id: string;
+  position: Cartesian3;
+  orientation: Quaternion;
+  viewer: Viewer;
+  mode: "space" | "ground";
+};
+
+export type ObserverDrawEntity = {
+  id: string;
+  position: Cartesian3;
+  viewer: Viewer;
 };

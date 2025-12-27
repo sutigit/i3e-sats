@@ -1,11 +1,12 @@
-import { Cartesian3, Color, Entity, type Viewer, Math as CesiumMath, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, Quaternion, HeadingPitchRoll, HeightReference } from "cesium";
+import { Cartesian3, Color, Entity, Math as CesiumMath, GeometryInstance, PolylineGeometry, ArcType, Primitive, PolylineColorAppearance, HeadingPitchRoll, HeightReference } from "cesium";
 import { satelliteSVG } from "./icons";
+import type { ObserverDrawEntity, PathDrawEntity, PointDrawEntity } from "../types";
 const SATELLITE_ICON = satelliteSVG;
 
 /**
  * Renders a trajectory path in the Cesium viewer.
  */
-export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "ground") => {
+export const drawPath = ({ id, path, viewer, mode }: PathDrawEntity): void => {
     if (!path || path.length < 2) return;
 
     const baseColor = Color.fromCssColorString("#2dd4bf");
@@ -23,6 +24,7 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
 
         viewer.scene.primitives.add(new Primitive({
             geometryInstances: new GeometryInstance({
+                id,
                 geometry: new PolylineGeometry({
                     positions: path,
                     colors: colors,        // Vertex colors enable the gradient
@@ -38,6 +40,7 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
     // --- MODE: GROUND (Solid Clamp) ---
     else {
         viewer.entities.add({
+            id,
             polyline: {
                 positions: path,
                 width: 2.0,
@@ -51,7 +54,7 @@ export const drawPath = (path: Cartesian3[], viewer: Viewer, mode: "space" | "gr
 /**
  * Renders a multi-color trail.
  */
-export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "ground") => {
+export const drawTrail = ({ id, path, viewer, mode }: PathDrawEntity): void => {
     if (!path || path.length < 2) return;
 
     // --- Config: Gradient Palette (Tail -> Head) ---
@@ -82,6 +85,7 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
 
         viewer.scene.primitives.add(new Primitive({
             geometryInstances: new GeometryInstance({
+                id,
                 geometry: new PolylineGeometry({
                     positions: path,
                     colors: colors,        // The gradient array
@@ -98,6 +102,7 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
     else {
         const solidColor = Color.fromCssColorString('#ea580c');
         viewer.entities.add({
+            id,
             polyline: {
                 positions: path,
                 width: 2.0,
@@ -111,19 +116,13 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
 /**
  * Renders a satellite point in the Cesium viewer.
  */
-export const drawPoint = (
-    id: string,
-    point: Cartesian3,
-    orientation: Quaternion,
-    viewer: Viewer,
-    mode: "space" | "ground"
-) => {
+export const drawPoint = ({ id, position, orientation, viewer, mode }: PointDrawEntity): void => {
 
     // --- MODE: SPACE (3D Box) ---
     if (mode === "space") {
         viewer.entities.add(new Entity({
-            id: `${id}-point-space`,
-            position: point,
+            id,
+            position,
             orientation: orientation,
             box: {
                 dimensions: new Cartesian3(50000.0, 50000.0, 50000.0),
@@ -142,8 +141,8 @@ export const drawPoint = (
         // But Compass Heading is Clockwise.
         const rotation = -hpr.heading + CesiumMath.PI_OVER_TWO;
         viewer.entities.add(new Entity({
-            id: `${id}-point-ground`,
-            position: point,
+            id,
+            position,
             billboard: {
                 image: SATELLITE_ICON,
                 width: 14,
@@ -153,7 +152,7 @@ export const drawPoint = (
 
                 // Locks the rotation to the map surface (Compass behavior)
                 // instead of the screen (Spinning icon behavior)
-                alignedAxis: Cartesian3.normalize(point, new Cartesian3()),
+                alignedAxis: Cartesian3.normalize(position, new Cartesian3()),
 
             }
         }));
@@ -163,9 +162,10 @@ export const drawPoint = (
 /**
  * Renders the observer point in the Cesium viewer.
  */
-export const drawObserver = (point: Cartesian3, viewer: Viewer) => {
+export const drawObserver = ({ id, position, viewer }: ObserverDrawEntity): void => {
     const ent = new Entity({
-        position: point,
+        id,
+        position: position,
         point: {
             pixelSize: 12,
             color: Color.fromCssColorString('#f9a8d4'),
