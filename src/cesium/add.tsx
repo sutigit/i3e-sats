@@ -25,7 +25,7 @@ export const addSatellitePointsSpace = ({ satellites, viewer }: { satellites: Sa
     if (!satellites) return
     satellites.forEach((satellite: Satellite) => {
         const { position, orientation } = getOrbitPositionOrientation(satellite.tle, Date.now())
-        drawPoint(position, orientation, viewer, "space")
+        drawPoint(satellite.name, position, orientation, viewer, "space")
     })
 }
 
@@ -35,20 +35,26 @@ export const addObserverGround = ({ observer, viewer }: { observer: Observer, vi
     drawObserver(position, viewer);
 }
 
-export const addSatellitePathGround = ({ satellite, viewer }: { satellite: Satellite | undefined, viewer: Viewer }) => {
-    if (!satellite) return
-    const path = getOrbitPath(satellite.tle, Date.now())
-    drawPath(path, viewer, "ground")
+export const addSatellitePathsGround = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+    if (!satellites) return
+    satellites.forEach((satellite: Satellite) => {
+        const path = getOrbitPath(satellite.tle, Date.now())
+        drawPath(path, viewer, "ground")
+    })
 }
 
-export const addSatelliteTrailGround = ({ satellite, viewer }: { satellite: Satellite | undefined, viewer: Viewer }) => {
-    if (!satellite) return
-    const path = getOrbitPath(satellite.tle, Date.now(), 10)
-    drawTrail(path, viewer, "ground")
+export const addSatelliteTrailsGround = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+    if (!satellites) return
+    satellites.forEach((satellite: Satellite) => {
+        const path = getOrbitPath(satellite.tle, Date.now(), 10)
+        drawTrail(path, viewer, "ground")
+    })
 }
 
-export const addSatellitePointGround = ({ satellite, viewer }: { satellite: Satellite | undefined, viewer: Viewer }) => {
-    if (!satellite) return
-    const { position, orientation } = getOrbitPositionOrientation(satellite.tle, Date.now())
-    drawPoint(position, orientation, viewer, "ground")
+export const addSatellitePointsGround = ({ satellites, viewer }: { satellites: Satellite[] | undefined, viewer: Viewer }) => {
+    if (!satellites) return
+    satellites.forEach((satellite: Satellite) => {
+        const { position, orientation } = getOrbitPositionOrientation(satellite.tle, Date.now())
+        drawPoint(satellite.name, position, orientation, viewer, "ground")
+    })
 }

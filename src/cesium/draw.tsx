@@ -96,7 +96,7 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
 
     // --- MODE: GROUND (Solid Head Color) ---
     else {
-        const solidColor = Color.fromCssColorString('#d97706');
+        const solidColor = Color.fromCssColorString('#ea580c');
         viewer.entities.add({
             polyline: {
                 positions: path,
@@ -112,6 +112,7 @@ export const drawTrail = (path: Cartesian3[], viewer: Viewer, mode: "space" | "g
  * Renders a satellite point in the Cesium viewer.
  */
 export const drawPoint = (
+    id: string,
     point: Cartesian3,
     orientation: Quaternion,
     viewer: Viewer,
@@ -121,6 +122,7 @@ export const drawPoint = (
     // --- MODE: SPACE (3D Box) ---
     if (mode === "space") {
         viewer.entities.add(new Entity({
+            id: `${id}-point-space`,
             position: point,
             orientation: orientation,
             box: {
@@ -139,21 +141,20 @@ export const drawPoint = (
         // We negate the heading because Cesium rotates Billboards Counter-Clockwise
         // But Compass Heading is Clockwise.
         const rotation = -hpr.heading + CesiumMath.PI_OVER_TWO;
-
         viewer.entities.add(new Entity({
+            id: `${id}-point-ground`,
             position: point,
             billboard: {
                 image: SATELLITE_ICON,
                 width: 14,
                 height: 14,
-
                 rotation: rotation,
+                heightReference: HeightReference.CLAMP_TO_GROUND,
+
                 // Locks the rotation to the map surface (Compass behavior)
                 // instead of the screen (Spinning icon behavior)
                 alignedAxis: Cartesian3.normalize(point, new Cartesian3()),
 
-                heightReference: HeightReference.CLAMP_TO_GROUND,
-                disableDepthTestDistance: Number.POSITIVE_INFINITY
             }
         }));
     }

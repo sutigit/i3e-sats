@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
-import { addObserverGround, addSatellitePointGround, addSatelliteTrailGround } from '../cesium/add';
+import { addObserverGround, addSatellitePointsGround, addSatelliteTrailsGround } from '../cesium/add';
 import { useSatellites } from '../context/ContextAPI';
 import { getMinimapViewConfig } from '../cesium/utils';
 import type { Viewer } from 'cesium';
@@ -9,7 +9,7 @@ import type { Viewer } from 'cesium';
 export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumMinimapRef = useRef(null)
     const viewerRef = useRef<Viewer>(null)
-    const { observer, targetSatellite, satellitesReady } = useSatellites()
+    const { observer, satellites, targetSatellite, satellitesReady } = useSatellites()
 
     useEffect(() => {
         if (!cesiumMinimapRef.current || !targetSatellite) return
@@ -20,8 +20,8 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
             minimap: true,
         })
         addObserverGround({ observer, viewer: viewerRef.current })
-        addSatellitePointGround({ satellite: targetSatellite, viewer: viewerRef.current })
-        addSatelliteTrailGround({ satellite: targetSatellite, viewer: viewerRef.current })
+        addSatellitePointsGround({ satellites, viewer: viewerRef.current })
+        addSatelliteTrailsGround({ satellites, viewer: viewerRef.current })
 
         // Debugging
         viewerRef.current.scene.debugShowFramesPerSecond = showFPS;
