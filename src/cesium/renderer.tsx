@@ -117,5 +117,22 @@ export const cesiumView = (
     }
     viewer.camera.setView(viewConfig);
 
+    // --- FORCE ANIMATION ON ---
+    // Since we hid the UI controls (animation = false), we must programmatically start the animation clock.
+    viewer.clock.shouldAnimate = true;
+
+    // Debug: Speed up time so movement is visible immediately 
+    // (Satellites at 1x speed look like they are standing still)
+    // viewer.clock.multiplier = 10;
+
+    // Lock Rendering to ~30 FPS
+    // This tells Cesium: "Don't try to render more often than this."
+    // It frees up the CPU to finish calculations without choking.
+    // viewer.targetFrameRate = 30;
+
+    // Optional: Disable "Request Render Mode" if it's on
+    // (It's off by default, but ensures the loop runs steadily at your target rate)
+    // viewer.scene.requestRenderMode = false;
+
     return viewer;
 }

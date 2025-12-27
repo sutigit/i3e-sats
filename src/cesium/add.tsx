@@ -2,6 +2,7 @@ import { Cartesian3 } from "cesium"
 import type { ObserverEntity, Satellite, SatellitesEntity } from "../types"
 import { drawPath, drawObserver, drawPoint, drawTrail } from "./draw"
 import { getOrbitPath, getOrbitPositionOrientation } from "./utils"
+import { PointEntity } from "./entities/PointEntity"
 
 // SPACE ENTITIES ---------------------------------------------
 export const addSatellitePathsSpace = ({ satellites, viewer }: SatellitesEntity): void => {
@@ -24,14 +25,8 @@ export const addSatellitePointsSpace = ({ satellites, viewer }: SatellitesEntity
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const id = `${s.name}-point-space`
-        const result = getOrbitPositionOrientation(s.tle, Date.now())
-
-        if (result) {
-            const { position, orientation } = result
-            drawPoint({ id, position, orientation, viewer, mode: "space" })
-        } else {
-            console.warn(`Error creating ${id}`)
-        }
+        const satellite = new PointEntity(id, s.tle, "space")
+        viewer.entities.add(satellite.entity)
     })
 }
 
@@ -61,13 +56,7 @@ export const addSatellitePointsGround = ({ satellites, viewer }: SatellitesEntit
     if (!satellites) return
     satellites.forEach((s: Satellite) => {
         const id = `${s.name}-point-ground`
-        const result = getOrbitPositionOrientation(s.tle, Date.now())
-
-        if (result) {
-            const { position, orientation } = result
-            drawPoint({ id, position, orientation, viewer, mode: "ground" })
-        } else {
-            console.warn(`Error creating ${id}`)
-        }
+        const satellite = new PointEntity(id, s.tle, "ground")
+        viewer.entities.add(satellite.entity)
     })
 }
