@@ -34,7 +34,7 @@ export const getSatStats = (
   // So, we calculate range for 1 second ago and compare.
   // Negative = Approaching (Blue), Positive = Leaving (Red)
   const oneSecondAgo = now - 1000;
-  const infoPast = getSatelliteInfo(
+  const infoPast: SatelliteInfoOutput = getSatelliteInfo(
     tle,
     oneSecondAgo,
     observerLat,
