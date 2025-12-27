@@ -5,7 +5,7 @@ import { addObserverGround, addSatellitePathsSpace, addSatellitePointsSpace, add
 import Loading from './common/Loading';
 import { useSatellites } from '../context/ContextAPI';
 
-export default function CesiumView({ showFPS = false }: { showFPS?: boolean }) {
+export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumRef = useRef<HTMLDivElement>(null)
     const { satellites, observer, isLoading, isError, satellitesReady } = useSatellites()
 

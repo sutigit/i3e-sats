@@ -1,6 +1,6 @@
 import './styles/app.scss'
 import { TleProvider } from "./queries/TleQuery";
-import CesiumView from "./components/CesiumView";
+import CesiumGlobeView from "./components/CesiumGlobeView";
 import SatList from './components/SatList';
 import SatDetail from './components/SatDetail';
 import { SatelliteProvider } from './context/ContextAPI';
@@ -12,7 +12,7 @@ export function App() {
         <SatelliteProvider>
           <SatList />
           <SatDetail />
-          <CesiumView showFPS />
+          <CesiumGlobeView showFPS />
         </SatelliteProvider>
       </TleProvider>
     </main>
