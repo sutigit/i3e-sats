@@ -44,7 +44,7 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
         setSatellitesReady(isSuccess && !!sorted);
     }, [isSuccess]);
 
-    // --- 2. Update the satellite timetable data every 10 seconds ---
+    // --- 2. Update the satellite timetable data every 30 seconds ---
     useEffect(() => {
         if (!rawData) return;
 
@@ -59,7 +59,7 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
             setTimetableSatellites(sorted);
         };
 
-        const intervalId = setInterval(tick, 10000);
+        const intervalId = setInterval(tick, 30000);
 
         return () => clearInterval(intervalId);
     }, [rawData, observer]); // Re-start timer if observer changes

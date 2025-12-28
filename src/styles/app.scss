@@ -81,6 +81,7 @@
         min-width: 70px;
         font-size: 0.8rem;
         opacity: 0.7;
+        padding-right: 1.2rem;
       }
     }
 
@@ -124,7 +125,7 @@
     justify-content: space-between;
     border-radius: variables.$bento-border-radius;
     background-color: variables.$dashboard-bg-color;
-    padding: 1.5rem calc(1.5rem - variables.$thin-scrollbar-width) 1.5rem 1.5rem;
+    padding: 1.5rem 2.1rem 1.5rem 1.5rem;
     cursor: pointer;
 
     .name {
@@ -152,8 +153,12 @@
   }
 
   .value {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 600;
+
+    &.highlight {
+      color: #2dd4bf;
+    }
   }
 
   .unit {

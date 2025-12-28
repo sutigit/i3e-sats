@@ -12,7 +12,7 @@ export default function SatList() {
         <div id="left-panel">
             <div className="panel-content">
                 <div className="panel-content-item">
-                    <h4 className="panel-content-title">My location</h4>
+                    <h2 className="panel-content-title">My location</h2>
                     <ObserverInput coords={observer} setCoords={setObserver} />
                 </div>
 
@@ -25,7 +25,7 @@ export default function SatList() {
                                     key={sat.name}
                                     setFocus={() => setTargetSatellite(sat)}
                                     focus={sat.name === targetSatellite?.name}
-                                    sat={sat}
+                                    satellite={sat}
                                 />
                             ))}
                         </Suspense>
@@ -44,7 +44,7 @@ export default function SatList() {
                                     key={sat.name}
                                     setFocus={() => setTargetSatellite(sat)}
                                     focus={sat.name === targetSatellite?.name}
-                                    sat={sat}
+                                    satellite={sat}
                                 />
                             ))}
                         </Suspense>
