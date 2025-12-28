@@ -19,6 +19,7 @@ import type {
   Geodetic,
   VisibilityWindow,
 } from "../types"; // Added Location type import
+import { getCompassDirection } from "./getCompassDirection";
 
 // --- TYPES ---
 
@@ -26,14 +27,6 @@ import type {
 const MIN_ELEVATION = 10; // Degrees
 const COARSE_STEP_MS = 4 * 60 * 1000; // 4 Minutes
 const LOOKAHEAD_MS = 24 * 60 * 60 * 1000; // 24 Hours
-
-// --- HELPERS ---
-
-const getCompassDirection = (azimuthDeg: number): string => {
-  const directions = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
-  const index = Math.round(azimuthDeg / 45) % 8;
-  return directions[index];
-};
 
 /** * Calculates the specific Lat/Lon/Alt for a given time.
  */
@@ -234,9 +227,6 @@ export const getSatData = (
     visibility: {
       visible: elevationDeg > MIN_ELEVATION,
       visibilityWindow,
-    },
-    status: {
-      visible: elevationDeg > MIN_ELEVATION,
     },
   };
 };

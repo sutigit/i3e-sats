@@ -27,7 +27,7 @@ export type SatData = {
     azimuth: number; // Degrees (0 to 360)
     compass: string; // Cardinal direction (e.g., "SW", "N")
     elevation: number; // Degrees (-90 to 90). >0 is above horizon.
-    range: number; // Kilometers (km). Slant range (Observer -> Sat).
+    range: number; // Km. Slant range (Observer -> Sat).
   };
 
   physics: {
@@ -48,10 +48,15 @@ export type SatData = {
     visible: boolean;
     visibilityWindow: VisibilityWindow[];
   };
+};
 
-  status: {
-    visible: boolean; // True if elevation > 10° (Simple horizon mask)
-  };
+export type SatLiveData = {
+  speed: number; // km/s. Scalar orbital speed.
+  distance: number; // Km. Slant range (Observer -> Sat).
+  altitude: number; // Km
+  compass: string; // Cardinal direction (e.g., "SW", "N")
+  azimuth: number; // Degrees (0 to 360)
+  elevation: number; // Degrees (-90 to 90). >0 is above horizon.
 };
 
 export type SatelliteCardProps = {
