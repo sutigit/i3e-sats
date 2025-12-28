@@ -11,7 +11,7 @@ export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean
     useEffect(() => {
         if (!cesiumRef.current || !cesiumSatellites) return
         const { lon, lat } = observer
-        const viewer = cesiumView(cesiumRef, { lon, lat, alt: 24000000.0 })
+        const viewer = cesiumView(cesiumRef, { lon, lat, alt: 20000000.0 })
 
         addSatelliteVisuals3D({ satellites: cesiumSatellites, viewer })
         addObserver({ observer, viewer })

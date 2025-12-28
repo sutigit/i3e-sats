@@ -18,3 +18,10 @@ export const TabBody = ({ tab, tabs, children, }: { tab: number, tabs: string[],
         </div>
     )
 }
+
+
+export const TabContent = ({ active, children }: { active: boolean; children: any }) => (
+    <div style={{ display: active ? 'block' : 'none', height: '100%' }}>
+        {children}
+    </div>
+);
