@@ -5,13 +5,13 @@ const satelliteSVGString = `
 
 const pinSVGString = `
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
-  <ellipse cx="32" cy="61" rx="16" ry="4" fill="rgba(254, 205, 211, 0.7)"/>
+  <ellipse cx="32" cy="61" rx="16" ry="4" fill="#EDDDD4"/>
 
   <path d="M 32 61
            C 34 56, 49 45, 49 34
            A 17 17 0 1 0 15 34
            C 15 45, 30 56, 32 61 Z"
-        fill="#fecdd3"/>
+        fill="#EDDDD4"/>
 </svg>
 `.trim();
 

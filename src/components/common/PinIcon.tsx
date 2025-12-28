@@ -5,7 +5,7 @@ interface PinIconProps extends React.SVGProps<SVGSVGElement> {
 
 export const PinIcon: React.FC<PinIconProps> = ({
     size = 25,
-    color = "#fecdd3", // Default to the pink from your snippet
+    color = "#EDDDD4", // Default to the pink from your snippet
     ...props
 }) => {
     return (

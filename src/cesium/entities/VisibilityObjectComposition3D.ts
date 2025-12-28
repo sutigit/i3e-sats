@@ -26,14 +26,19 @@ import type { Satellite, VisibilityWindow, LookPoint } from "../../types";
 // --- CONFIGURATION ---
 const PATH_SAMPLES = 50;
 const BOX_SIZE = 50000;
-const FAN_COLOR = Color.fromCssColorString("#f472b6").withAlpha(0.3);
-const PATH_COLOR = Color.fromCssColorString("#f472b6");
+const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.21);
+const PATH_COLOR = Color.fromCssColorString("#EDDDD4");
+const BOX_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
+const BOX_OUTLINE_COLOR = Color.fromCssColorString("#ffffff").withAlpha(0.4);
+const PATH_MAX_ALPHA = 0.5;
+const EXTENSION_MINUTES = 2; // How long the tail extends past the visibility window
+const EXTENSION_MS = EXTENSION_MINUTES * 60 * 1000;
 
 export class VisibilityObjectComposition3D {
   private _viewer: Viewer;
   private _primitives: Primitive[] = [];
 
-  // Scratch variables for Matrix calculation (reused)
+  // Scratch variables
   private _scratchUp = new Cartesian3();
   private _scratchRight = new Cartesian3();
   private _scratchForward = new Cartesian3();
@@ -51,35 +56,58 @@ export class VisibilityObjectComposition3D {
     const window = this.findBestWindow(sat);
     if (!window) return;
 
-    const pathPositions = this.samplePath(
+    const now = new Date();
+
+    // 1. Full Window Path (Static Context) - Unchanged
+    const fullWindowPositions = this.samplePath(
       sat.tle,
       window.startTime,
       window.endTime
     );
 
+    // 2. Active Path with Extension (Trajectory)
+    // We calculate the end time for the LINE, which includes the extension
+    const lineEndTime = new Date(window.endTime.getTime() + EXTENSION_MS);
+
+    // We generate positions from NOW -> (WindowEnd + Extension)
+    const activePathPositions = this.samplePath(sat.tle, now, lineEndTime);
+
+    // 3. Create Components
     this.createLookBoxes(window.lookPoints);
-    this.createFadedPath(pathPositions);
-    this.createSensorFan(pathPositions, observerLat, observerLon);
+
+    // Pass the original window.endTime so we know where to start fading
+    this.createFadedPath(activePathPositions, now, lineEndTime, window.endTime);
+
+    this.createSensorFan(fullWindowPositions, observerLat, observerLon);
   }
 
   private findBestWindow(sat: Satellite): VisibilityWindow | null {
     const windows = sat.visibility.visibilityWindow || [];
     const now = new Date().getTime();
 
+    // Priority 1: Active
     const active = windows.find(
       (w) => w.startTime.getTime() <= now && w.endTime.getTime() >= now
     );
     if (active) return active;
 
+    // Priority 2: Next Future
     return windows.find((w) => w.startTime.getTime() > now) || null;
   }
 
   private samplePath(tle: any, start: Date, end: Date): Cartesian3[] {
     const positions: Cartesian3[] = [];
+
+    // Safety: If we are past the end time, return empty (don't draw backwards)
+    if (start.getTime() >= end.getTime()) return positions;
+
     const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
     const startMs = start.getTime();
     const endMs = end.getTime();
     const duration = endMs - startMs;
+
+    // Smoothness: Ensure enough samples even if duration is short
+    // (Or conversely, if duration is long, 50 samples is usually enough for LEO)
     const step = duration / PATH_SAMPLES;
 
     for (let i = 0; i <= PATH_SAMPLES; i++) {
@@ -116,26 +144,19 @@ export class VisibilityObjectComposition3D {
     });
 
     lookPoints.forEach((lp) => {
-      // 1. Position from LookPoint
-      // Note: We multiply alt * 1000 because lookPoint.location.alt is in km, Cesium wants meters
       const position = Cartesian3.fromDegrees(
         lp.location.lon,
         lp.location.lat,
         lp.location.alt * 1000
       );
 
-      // 2. Velocity from LookPoint
-      // Note: We use the raw values directly.
       const velocity = new Cartesian3(
         lp.velocity.x,
         lp.velocity.y,
         lp.velocity.z
       );
 
-      // 3. Compute Rotation
       this.computeOrientation(position, velocity, this._scratchMatrix);
-
-      // 4. Create Instances
       const modelMatrix = Matrix4.clone(this._scratchMatrix);
 
       fillInstances.push(
@@ -143,9 +164,7 @@ export class VisibilityObjectComposition3D {
           geometry: fillGeom,
           modelMatrix: modelMatrix,
           attributes: {
-            color: ColorGeometryInstanceAttribute.fromColor(
-              Color.fromCssColorString("#f472b6").withAlpha(0.4)
-            ),
+            color: ColorGeometryInstanceAttribute.fromColor(BOX_COLOR),
           },
         })
       );
@@ -155,9 +174,7 @@ export class VisibilityObjectComposition3D {
           geometry: outlineGeom,
           modelMatrix: modelMatrix,
           attributes: {
-            color: ColorGeometryInstanceAttribute.fromColor(
-              Color.fromCssColorString("#fbcfe8")
-            ),
+            color: ColorGeometryInstanceAttribute.fromColor(BOX_OUTLINE_COLOR),
           },
         })
       );
@@ -180,9 +197,7 @@ export class VisibilityObjectComposition3D {
         appearance: new PerInstanceColorAppearance({
           flat: true,
           translucent: true,
-          renderState: {
-            lineWidth: 1, // Outline width
-          },
+          renderState: { lineWidth: 1 },
         }),
         asynchronous: false,
       })
@@ -190,15 +205,46 @@ export class VisibilityObjectComposition3D {
   }
 
   // --- COMPONENT 2: Faded Path Polyline ---
-  private createFadedPath(positions: Cartesian3[]) {
+  private createFadedPath(
+    positions: Cartesian3[],
+    startTime: Date,
+    totalEndTime: Date,
+    fadeStartTime: Date
+  ) {
     if (positions.length < 2) return;
 
     const colors: Color[] = [];
     const length = positions.length;
 
+    const startMs = startTime.getTime();
+    const totalDuration = totalEndTime.getTime() - startMs;
+    const fadeStartMs = fadeStartTime.getTime();
+
     for (let i = 0; i < length; i++) {
+      // Calculate the specific time for this vertex
       const t = i / (length - 1);
-      const alpha = Math.sin(t * Math.PI);
+      const currentTimeMs = startMs + t * totalDuration;
+
+      let alpha = PATH_MAX_ALPHA;
+
+      // If we are past the original visibility window, start fading out
+      if (currentTimeMs > fadeStartMs) {
+        const overlap = currentTimeMs - fadeStartMs;
+        const extensionDuration = totalEndTime.getTime() - fadeStartMs;
+
+        // Normalized fade progress (0.0 at start of fade, PATH_MAX_ALPHA at very end)
+        const fadeProgress = Math.min(
+          overlap / extensionDuration,
+          PATH_MAX_ALPHA
+        );
+
+        // Linear fade out: PATH_MAX_ALPHA -> 0.0
+        alpha = PATH_MAX_ALPHA - fadeProgress;
+
+        // Optional: Use ease-out curve for smoother look (comment out if prefer linear)
+        // alpha = Math.cos(fadeProgress * (Math.PI / 2));
+      }
+
       colors.push(PATH_COLOR.withAlpha(alpha));
     }
 
