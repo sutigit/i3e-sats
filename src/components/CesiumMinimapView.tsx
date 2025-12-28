@@ -28,8 +28,7 @@ export default function CesiumMinimapView({ trackerRef, showFPS = false }: { tra
         // Debugging
         cesiumMinimapRef.current.scene.debugShowFramesPerSecond = showFPS;
 
-        // Satellite tracking. Start tracking immediately
-        trackerRef.current = new SatelliteTracker(cesiumMinimapRef.current, ALTITUDE); // Try 100km range first
+        trackerRef.current = new SatelliteTracker(cesiumMinimapRef.current, ALTITUDE);
         if (targetSatellite) {
             trackerRef.current.track(targetSatellite.tle);
         }
