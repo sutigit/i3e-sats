@@ -23,11 +23,11 @@ import type { Satellite, VisibilityWindow, LookPoint } from "../../types";
 
 // --- CONFIGURATION ---
 const PATH_SAMPLES = 50;
-const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.21);
+const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
 const PATH_COLOR = Color.fromCssColorString("#EDDDD4");
 const PATH_MAX_ALPHA = 0.6;
-const BOX_COLOR = "rgba(237, 221, 212,0.2)";
-const BOX_OUTLINE_COLOR = "rgba(255,255,255,0.4)";
+const BOX_COLOR = "rgba(237, 221, 212,0.4)";
+const BOX_OUTLINE_COLOR = "rgba(255,255,255,0.7)";
 
 // --- SHARED ASSETS ---
 const createSquareImage = () => {
@@ -148,8 +148,8 @@ export class VisibilityObjectComposition2D {
       this._billboards.add({
         image: LOOK_POINT_ICON_URL,
         position: rawPos,
-        width: 12,
-        height: 12,
+        width: 14,
+        height: 14,
         color: Color.WHITE,
         disableDepthTestDistance: Number.POSITIVE_INFINITY,
       });
