@@ -17,7 +17,7 @@ export default function SatList() {
                 </div>
 
                 <div className="panel-content-item">
-                    <h4 className="panel-content-title">Nearest visible time</h4>
+                    <h4 className="panel-content-title">Nearest visible satellites</h4>
                     <div className="sat-primary-list">
                         <Suspense fallback={<Loading />}>
                             {timetableSatellites.slice(0, 4).map((sat: Satellite) => (
