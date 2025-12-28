@@ -60,7 +60,8 @@ export type LookPointLiveData = LiveData & {
 
 export type SatLiveData = {
   live: TargetLiveData;
-  lookPoints: LookPointLiveData[];
+  lookPointsLive: LookPointLiveData[];
+  lookPointsWindow: Partial<Record<LookPoinTabs, LookPoint>>;
 };
 
 export type Observer = {

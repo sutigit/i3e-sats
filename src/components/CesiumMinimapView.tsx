@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, type RefObject } from 'react'
 import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals2D, } from '../cesium/add';
@@ -9,11 +9,10 @@ import { VisibilityObjectComposition2D } from '../cesium/entities/VisibilityObje
 
 const ALTITUDE = 10000.0
 
-export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boolean }) {
+export default function CesiumMinimapView({ trackerRef, showFPS = false }: { trackerRef: RefObject<SatelliteTracker>, showFPS?: boolean }) {
     const cesiumMinimapRef = useRef<HTMLDivElement>(null)
     const viewerRef = useRef<Viewer>(null)
     const compositionRef = useRef<VisibilityObjectComposition2D>(null)
-    const trackerRef = useRef<SatelliteTracker>(null);
     const { observer, cesiumSatellites, targetSatellite, satellitesReady } = useSatellites()
 
     useEffect(() => {
@@ -79,12 +78,6 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
         };
     }, [targetSatellite, observer]);
 
-
-    useEffect(() => {
-        if (!trackerRef.current || !targetSatellite) return
-        // Handles changing camera view targets
-        trackerRef.current.track(targetSatellite.tle);
-    }, [targetSatellite])
 
     return (
         <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />

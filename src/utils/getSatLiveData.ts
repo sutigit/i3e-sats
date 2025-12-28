@@ -10,7 +10,13 @@ import {
   twoline2satrec,
   type EciVec3,
 } from "satellite.js";
-import type { Geodetic, SatLiveData, Satellite, Location } from "../types";
+import type {
+  Geodetic,
+  SatLiveData,
+  Satellite,
+  Location,
+  LookPoinTabs,
+} from "../types";
 import { getCompassDirection } from "./getCompassDirection";
 
 // Helper: Convert Location (Deg/Deg/Km) to satellite.js Geodetic (Rad/Rad/Km)
@@ -78,7 +84,9 @@ export const getSatLiveData = (
   }
 
   // --- 3. LOOK POINTS CALCULATIONS ---
-  const lookPointsData: SatLiveData["lookPoints"] = [];
+  const lookPointsLive: SatLiveData["lookPointsLive"] = [];
+  const lookPointsWindow: SatLiveData["lookPointsWindow"] = {};
+
   const windows = visibility.visibilityWindow || [];
 
   // Find active or next window
@@ -101,20 +109,31 @@ export const getSatLiveData = (
       const look = ecfToLookAngles(observerGd, lpEcf);
       const azDeg = radiansToDegrees(look.azimuth);
 
-      lookPointsData.push({
-        lp: `LP${index + 1}` as any,
-        timeToDestination,
-        distance: look.rangeSat,
-        altitude: lp.location.alt,
-        compass: getCompassDirection(azDeg),
-        azimuth: azDeg,
-        elevation: radiansToDegrees(look.elevation),
-      });
+      // 3. Create Key (LP1, LP2...)
+      // Ensure we only process up to 5 points to match the type definition
+      if (index < 5) {
+        const key = `LP${index + 1}` as LookPoinTabs;
+
+        // Populate the Window Dictionary (The Static Data)
+        lookPointsWindow[key] = lp;
+
+        // Populate the Live Array (The Calculated Data)
+        lookPointsLive.push({
+          lp: key,
+          timeToDestination,
+          distance: look.rangeSat,
+          altitude: lp.location.alt,
+          compass: getCompassDirection(azDeg),
+          azimuth: azDeg,
+          elevation: radiansToDegrees(look.elevation),
+        });
+      }
     });
   }
 
   return {
     live: liveData,
-    lookPoints: lookPointsData,
+    lookPointsLive,
+    lookPointsWindow,
   };
 };

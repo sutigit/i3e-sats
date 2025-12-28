@@ -1,17 +1,26 @@
-import { useEffect, useState } from "preact/hooks"
+import { useEffect, useRef, useState } from "preact/hooks"
 import { useSatellites } from "../context/SatelliteContext"
 import type { LookPointLiveData, Satellite, SatLiveData, SatLiveDetailTabs, TargetLiveData } from "../types"
 import { Measure } from "./common/Measure"
 import { TabBody, TabContent, TabHeader } from "./common/Tabs"
 import { LoadingAbsolute } from "./common/Loading"
-import { lazy, Suspense } from "preact/compat"
+import { lazy, Suspense, type RefObject } from "preact/compat"
 import { getSatLiveData } from "../utils/getSatLiveData"
 import { formatCountdown } from "../utils/formatting"
+import type SatelliteTracker from "../cesium/utils/SatelliteTracker"
 
 const CesiumMinimapView = lazy(() => import("./CesiumMinimapView"))
 
 export default function SatLiveDetail() {
     const { targetSatellite } = useSatellites()
+    const trackerRef = useRef<SatelliteTracker>(null);
+    const [tab, setTab] = useState<SatLiveDetailTabs>("LIVE");
+
+    useEffect(() => {
+        if (!trackerRef.current || !targetSatellite) return
+        trackerRef.current.track(targetSatellite.tle);
+        setTab("LIVE")
+    }, [targetSatellite])
 
     return (
         <div id="right-panel">
@@ -20,28 +29,40 @@ export default function SatLiveDetail() {
                     <div id="cesium-minimap-container">
                         <div id="cesium-minimap-north-pointer">N</ div>
                         <Suspense fallback={<LoadingAbsolute />}>
-                            <CesiumMinimapView />
+                            <CesiumMinimapView trackerRef={trackerRef} />
                         </Suspense>
                     </div>
-                    <LiveMeasurements satellite={targetSatellite} />
+                    <LiveData tab={tab} setTab={setTab} targetSatellite={targetSatellite} trackerRef={trackerRef} />
                 </div>
             </div>
         </div>
     )
 }
 
-const LiveMeasurements = ({ satellite }: { satellite: Satellite | undefined }) => {
+const LiveData = ({ tab, setTab, targetSatellite, trackerRef }: { tab: SatLiveDetailTabs, setTab: (tab: SatLiveDetailTabs) => void, targetSatellite: Satellite | undefined, trackerRef: RefObject<SatelliteTracker> }) => {
     const { observer } = useSatellites();
-    const [tab, setTab] = useState<SatLiveDetailTabs>("LIVE");
+
     const [liveData, setLiveData] = useState<SatLiveData | null>(null);
     const tabs: SatLiveDetailTabs[] = ['LIVE', 'LP1', 'LP2', 'LP3', 'LP4', 'LP5'];
 
+    const handleSetTab = (tab: SatLiveDetailTabs) => {
+        if (!trackerRef.current || !targetSatellite || !liveData) return null;
+
+        if (tab === "LIVE") {
+            trackerRef.current.track(targetSatellite.tle);
+        } else {
+            const targetLookPoint = liveData.lookPointsWindow[tab]
+            if (targetLookPoint) trackerRef.current.point(targetLookPoint);
+        }
+        setTab(tab)
+    }
+
     // Update every second
     useEffect(() => {
-        if (!satellite) return;
+        if (!targetSatellite) return;
         const tick = () => {
             const data = getSatLiveData(
-                satellite,
+                targetSatellite,
                 observer.lat,
                 observer.lon,
                 0,
@@ -52,19 +73,19 @@ const LiveMeasurements = ({ satellite }: { satellite: Satellite | undefined }) =
         tick();
         const interval = setInterval(tick, 1000);
         return () => clearInterval(interval);
-    }, [satellite, observer]);
+    }, [targetSatellite, observer]);
 
-    if (!satellite || !liveData) return null;
+    if (!targetSatellite || !liveData) return null;
 
     return (
         <div>
-            <h3 style={{ padding: '1.5rem' }}>{satellite.name}</h3>
-            <TabHeader tab={tab} setTab={setTab} tabs={tabs} />
+            <h3 style={{ padding: '1.5rem' }}>{targetSatellite.name}</h3>
+            <TabHeader tab={tab} setTab={handleSetTab} tabs={tabs} />
             <TabBody tab={tab}>
                 <TabContent active={tab === "LIVE"}>
                     <LiveDetail data={liveData.live} />
                 </TabContent>
-                {liveData.lookPoints.map((lookPoint, i) => (
+                {liveData.lookPointsLive.map((lookPoint, i) => (
                     <TabContent active={tab === lookPoint.lp} key={lookPoint.lp}>
                         <LookPointDetail spot={i + 1} data={lookPoint} />
                     </TabContent>
