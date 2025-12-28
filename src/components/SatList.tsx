@@ -1,6 +1,6 @@
 import type { Satellite } from "../types"
 import { SatPrimary, SatSecondary } from "./SatCard"
-import Loading from "./common/Loading"
+import { Loading } from "./common/Loading"
 import ObserverInput from "./ObserverInput"
 import { useSatellites } from "../context/SatelliteContext"
 

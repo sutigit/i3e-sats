@@ -21,4 +21,20 @@ export default defineConfig({
       ],
     }),
   ],
+  build: {
+    chunkSizeWarningLimit: 4000, // cesium chunks are big
+    rolldownOptions: {
+      output: {
+        advancedChunks: {
+          groups: [
+            {
+              name: "cesium",
+              test: /node_modules[\\/]cesium/,
+              priority: 10,
+            },
+          ],
+        },
+      },
+    },
+  },
 });

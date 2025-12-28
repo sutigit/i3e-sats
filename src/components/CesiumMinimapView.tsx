@@ -53,9 +53,6 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
     }, [targetSatellite])
 
     return (
-        <div id="cesium-minimap-container">
-            <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
-            <div id="cesium-minimap-north-pointer">N</ div>
-        </div>
+        <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
     )
 }
