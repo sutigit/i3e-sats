@@ -141,7 +141,7 @@ export class VisibilityObjectComposition3D {
           attributes: {
             color: ColorGeometryInstanceAttribute.fromColor(
               Color.fromCssColorString("#f472b6").withAlpha(0.4)
-            ), // Amber
+            ),
           },
         })
       );

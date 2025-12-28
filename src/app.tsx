@@ -16,7 +16,7 @@ export function App() {
           <SatTimetable />
           <SatLiveDetail />
           <Suspense fallback={<LoadingAbsolute />}>
-            <CesiumGlobeView showFPS />
+            <CesiumGlobeView />
           </Suspense>
         </SatelliteProvider>
       </TleProvider>
