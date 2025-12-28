@@ -13,6 +13,13 @@ export type Location = {
   alt: number; // Kilometers (km)
 };
 
+export type VisibilityWindow = {
+  startTime: Date;
+  endTime: Date;
+  startPoint: Location;
+  endPoint: Location;
+};
+
 export type SatData = {
   location: Location;
 
@@ -39,12 +46,7 @@ export type SatData = {
 
   visibility: {
     visible: boolean;
-    visibilityWindow: {
-      startTime: Date;
-      endTime: Date;
-      startPoint: Location;
-      endPoint: Location;
-    }[];
+    visibilityWindow: VisibilityWindow[];
   };
 
   status: {

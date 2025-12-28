@@ -12,7 +12,13 @@ import {
   type EciVec3,
   type SatRec,
 } from "satellite.js";
-import type { SatData, TLE, Location, Geodetic } from "../types"; // Added Location type import
+import type {
+  SatData,
+  TLE,
+  Location,
+  Geodetic,
+  VisibilityWindow,
+} from "../types"; // Added Location type import
 
 // --- TYPES ---
 
@@ -88,11 +94,11 @@ const findCrossingTime = (
 
 // --- CORE LOGIC: Visibility Calculation ---
 
-const calculateVisibilityWindows = (
+export const calculateVisibilityWindows = (
   satrec: SatRec,
   observerGd: Geodetic,
   now: Date
-) => {
+): VisibilityWindow[] => {
   const windows: SatData["visibility"]["visibilityWindow"] = [];
   const endTime = now.getTime() + LOOKAHEAD_MS;
 
