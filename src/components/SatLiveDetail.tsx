@@ -89,11 +89,21 @@ type LiveDataPanelProps = {
     trackerRef: RefObject<SatelliteTracker>;
 };
 
+
 const LiveDataPanel = ({ tab, setTab, targetSatellite, trackerRef }: LiveDataPanelProps) => {
     const liveData = useSatLiveData(targetSatellite);
-    const tabs: SatLiveDetailTabs[] = ['LIVE', 'LP1', 'LP2', 'LP3', 'LP4', 'LP5'];
 
     if (!targetSatellite || !liveData) return null;
+
+    // Determine which tabs are enabled based on available data
+    const tabsStatus: Record<SatLiveDetailTabs, boolean> = {
+        "LIVE": true,
+        "LP1": !!liveData.lookPointsWindow.LP1,
+        "LP2": !!liveData.lookPointsWindow.LP2,
+        "LP3": !!liveData.lookPointsWindow.LP3,
+        "LP4": !!liveData.lookPointsWindow.LP4,
+        "LP5": !!liveData.lookPointsWindow.LP5,
+    };
 
     const handleTabChange = (newTab: SatLiveDetailTabs) => {
         if (!trackerRef.current) return;
@@ -113,7 +123,7 @@ const LiveDataPanel = ({ tab, setTab, targetSatellite, trackerRef }: LiveDataPan
         <div>
             <h3 style={{ padding: '1.5rem' }}>{targetSatellite.name}</h3>
 
-            <TabHeader tab={tab} setTab={handleTabChange} tabs={tabs} />
+            <TabHeader tab={tab} setTab={handleTabChange} tabs={tabsStatus} />
 
             <TabBody tab={tab}>
                 <TabContent active={tab === "LIVE"}>

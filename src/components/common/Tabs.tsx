@@ -1,12 +1,31 @@
 import type { ReactNode } from "preact/compat"
 import type { SatLiveDetailTabs } from "../../types"
 
-export const TabHeader = ({ tab, setTab, tabs }: { tab: SatLiveDetailTabs, setTab: (tab: SatLiveDetailTabs) => void, tabs: SatLiveDetailTabs[] }) => {
+const TAB_ORDER: SatLiveDetailTabs[] = ["LIVE", "LP1", "LP2", "LP3", "LP4", "LP5"];
+
+export const TabHeader = ({
+    tab,
+    setTab,
+    tabs
+}: {
+    tab: SatLiveDetailTabs,
+    setTab: (tab: SatLiveDetailTabs) => void,
+    tabs: Record<SatLiveDetailTabs, boolean>
+}) => {
     return (
         <div className="tab-header">
-            {tabs.map((t) => (
-                <div key={t} className={`tab-button ${tab === t ? 'selected' : ''}`} onClick={() => setTab(t)}>{t}</div>
-            ))}
+            {TAB_ORDER.map((t) => {
+                const isEnabled = tabs[t];
+                return (
+                    <div
+                        key={t}
+                        className={`tab-button ${tab === t ? 'selected' : ''} ${!isEnabled ? 'disabled' : ''}`}
+                        onClick={() => isEnabled && setTab(t)}
+                    >
+                        {t}
+                    </div>
+                );
+            })}
             <div className="background-piece" />
         </div>
     )

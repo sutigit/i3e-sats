@@ -261,6 +261,12 @@
     &:has(+ .selected) {
       border-bottom-right-radius: 0.8rem;
     }
+
+    &.disabled {
+      cursor: not-allowed;
+      pointer-events: none;
+      color: #f4f4f555;
+    }
   }
 
   .background-piece {
