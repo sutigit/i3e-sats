@@ -65,7 +65,7 @@ const LiveMeasurements = ({ satellite }: { satellite: Satellite | undefined }) =
                 </TabContent>
                 {[1, 2, 3, 4, 5].map((spotIndex) => (
                     <TabContent active={tab === spotIndex} key={spotIndex}>
-                        <LookPointDetail spot={spotIndex} />
+                        <LookPointDetail spot={spotIndex} data={liveData} />
                     </TabContent>
                 ))}
             </TabBody>
@@ -91,7 +91,7 @@ const LiveDetail = ({ data }: { data: SatLiveData }) => {
     )
 }
 
-const LookPointDetail = ({ spot }: { spot: number }) => (
+const LookPointDetail = ({ spot, data }: { spot: number, data: SatLiveData }) => (
     <div className="tab-body-page">
         <h3 className="title">Look point {spot}</h3>
         <div className="content">
