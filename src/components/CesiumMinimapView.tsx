@@ -5,12 +5,14 @@ import { addObserver, addSatelliteVisuals2D, } from '../cesium/add';
 import { useSatellites } from '../context/SatelliteContext';
 import SatelliteTracker from '../cesium/utils/SatelliteTracker';
 import type { Viewer } from 'cesium';
+import { VisibilityObjectComposition2D } from '../cesium/entities/VisibilityObjectComposition2D';
 
 const ALTITUDE = 10000.0
 
 export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumMinimapRef = useRef<HTMLDivElement>(null)
     const viewerRef = useRef<Viewer>(null)
+    const compositionRef = useRef<VisibilityObjectComposition2D>(null)
     const trackerRef = useRef<SatelliteTracker>(null);
     const { observer, cesiumSatellites, targetSatellite, satellitesReady } = useSatellites()
 
@@ -46,9 +48,41 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
     }, [satellitesReady])
 
     useEffect(() => {
-        if (!trackerRef.current || !targetSatellite) return
+        if (!viewerRef.current || !targetSatellite) {
+            // Cleanup if no focus
+            if (compositionRef.current) {
+                compositionRef.current.destroy();
+                compositionRef.current = null;
+            }
+            return;
+        }
 
-        // Handles changing targets
+        // 1. Cleanup previous composition (if switching from Sat A to Sat B)
+        if (compositionRef.current) {
+            compositionRef.current.destroy();
+        }
+
+        // 2. Create new composition
+        compositionRef.current = new VisibilityObjectComposition2D(
+            viewerRef.current,
+            targetSatellite,
+            observer.lat,
+            observer.lon
+        );
+
+        // 3. Cleanup on unmount or dependency change
+        return () => {
+            if (compositionRef.current) {
+                compositionRef.current.destroy();
+                compositionRef.current = null;
+            }
+        };
+    }, [targetSatellite, observer]);
+
+
+    useEffect(() => {
+        if (!trackerRef.current || !targetSatellite) return
+        // Handles changing camera view targets
         trackerRef.current.track(targetSatellite.tle);
     }, [targetSatellite])
 
