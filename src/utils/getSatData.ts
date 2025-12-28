@@ -94,7 +94,7 @@ const findCrossingTime = (
 
 // --- CORE LOGIC: Visibility Calculation ---
 
-export const calculateVisibilityWindows = (
+const calculateVisibilityWindows = (
   satrec: SatRec,
   observerGd: Geodetic,
   now: Date
