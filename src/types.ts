@@ -15,6 +15,7 @@ export type Location = {
 
 export type LookPoint = {
   location: Location;
+  velocity: { x: number; y: number; z: number };
 };
 
 export type VisibilityWindow = {

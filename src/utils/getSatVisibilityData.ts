@@ -46,6 +46,20 @@ const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
   };
 };
 
+/** * Helper to get raw ECF coordinates (km) for vector math
+ */
+const getEcfPosition = (satrec: SatRec, time: Date) => {
+  const gmst = gstime(time);
+  const posVel = propagate(satrec, time);
+
+  if (posVel?.position && typeof posVel.position === "object") {
+    const pEci = posVel.position as EciVec3<number>;
+    // eciToEcf returns km
+    return eciToEcf(pEci, gmst);
+  }
+  return { x: 0, y: 0, z: 0 };
+};
+
 /**
  * Generates 1 to 5 evenly spaced look points within a time window.
  */
@@ -57,31 +71,34 @@ const generateLookPoints = (
   const duration = end.getTime() - start.getTime();
   const lookPoints: LookPoint[] = [];
 
-  // Determine how many points fit (Max 5, Min 1)
-  // We want points to be separated by at least MIN_POINT_SPACING_MS
-  // Example: 3 min duration / 1 min spacing = 3 points max
   let count = Math.floor(duration / MIN_POINT_SPACING_MS);
-
-  // Clamp between 1 and 5
   if (count > 5) count = 5;
   if (count < 1) count = 1;
 
-  // Calculate step size to distribute them evenly *inside* the window
-  // We use (count + 1) to pad them from the very start/end horizons
-  // e.g. 1 point -> 50% mark
-  // e.g. 2 points -> 33%, 66% marks
   const stepSize = duration / (count + 1);
 
   for (let i = 1; i <= count; i++) {
-    const time = new Date(start.getTime() + stepSize * i);
+    const timeA = new Date(start.getTime() + stepSize * i);
+    const timeB = new Date(timeA.getTime() + 1000); // 1 second later
+
+    const locA = getLocationAtTime(satrec, timeA);
+
+    // Get ECF positions to calculate the Velocity Vector (Direction)
+    const posA = getEcfPosition(satrec, timeA);
+    const posB = getEcfPosition(satrec, timeB);
+
+    const vx = posB.x - posA.x;
+    const vy = posB.y - posA.y;
+    const vz = posB.z - posA.z;
+
     lookPoints.push({
-      location: getLocationAtTime(satrec, time),
+      location: locA,
+      velocity: { x: vx, y: vy, z: vz },
     });
   }
 
   return lookPoints;
 };
-
 /**
  * Lightweight helper to get elevation for the lookahead loop.
  */
