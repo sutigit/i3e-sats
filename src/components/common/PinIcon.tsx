@@ -5,7 +5,7 @@ interface PinIconProps extends React.SVGProps<SVGSVGElement> {
 
 export const PinIcon: React.FC<PinIconProps> = ({
     size = 25,
-    color = "#EDDDD4", // Default to the pink from your snippet
+    color = "#EDDDD4",
     ...props
 }) => {
     return (
@@ -14,7 +14,7 @@ export const PinIcon: React.FC<PinIconProps> = ({
             viewBox="0 0 64 64"
             width={size}
             height={size}
-            fill="none" // standard reset
+            fill="none"
             {...props}
         >
             {/* Shadow Base */}

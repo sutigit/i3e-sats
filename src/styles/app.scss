@@ -188,10 +188,10 @@
   .number-input {
     width: 0;
     flex: 1;
-    padding: 1rem 1.5rem;
+    padding: 1.5rem;
     display: flex;
-    flex-direction: column;
-    border-radius: variables.$bento-border-radius;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
   p {
@@ -208,6 +208,8 @@
     background: none;
     font-weight: 900;
     font-size: 1.2rem;
+    max-width: 60px;
+    cursor: pointer;
   }
 
   .observer-button {
@@ -221,6 +223,7 @@
     border-radius: variables.$bento-border-radius;
     background-color: variables.$dashboard-bg-accent;
     box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
 
     p {
       font-weight: 900;

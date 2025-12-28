@@ -1,3 +1,4 @@
+import { PencilIcon } from "./common/PencilIcon";
 import { PinIcon } from "./common/PinIcon";
 
 interface Coords {
@@ -23,24 +24,36 @@ export default function ObserverInput({ coords, setCoords, onFly }: ObserverInpu
     return (
         <div className="observer-input">
             <div className="number-input">
-                <p>Latitude</p>
-                <input
-                    type="number"
-                    step="any"
-                    value={coords.lat}
-                    onChange={(e) => update('lat', (e.target as HTMLInputElement).value)}
-                />
+                <div onClick={() => alert("Sorry, can't do that yet.")}>
+                    <p>Latitude</p>
+                    <div className="place-horizontal">
+                        <input
+                            style={{ pointerEvents: 'none' }}
+                            type="number"
+                            step="any"
+                            value={coords.lat}
+                            disabled
+                            onChange={(e) => update('lat', (e.target as HTMLInputElement).value)}
+                        />
+                        <PencilIcon size={16} />
+                    </div>
+                </div>
+                <div onClick={() => alert("Sorry, can't do that yet.")}>
+                    <p>Longitude</p>
+                    <div className="place-horizontal">
+                        <input
+                            style={{ pointerEvents: 'none' }}
+                            type="number"
+                            step="any"
+                            value={coords.lon}
+                            disabled
+                            onChange={(e) => update('lon', (e.target as HTMLInputElement).value)}
+                        />
+                        <PencilIcon size={16} />
+                    </div>
+                </div>
             </div>
 
-            <div className="number-input">
-                <p>Longitude</p>
-                <input
-                    type="number"
-                    step="any"
-                    value={coords.lon}
-                    onChange={(e) => update('lon', (e.target as HTMLInputElement).value)}
-                />
-            </div>
 
             <button
                 className="observer-button"

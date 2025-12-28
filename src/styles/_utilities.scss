@@ -6,6 +6,12 @@
   align-items: center;
 }
 
+.place-horizontal {
+  display: flex;
+  align-items: center;
+  flex-direction: row;
+}
+
 .divider {
   width: 100%;
   border-bottom: 1px solid variables.$border-color;
