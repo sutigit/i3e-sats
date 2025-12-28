@@ -22,10 +22,14 @@ import type {
 } from "../types";
 
 // --- CONSTANTS ---
-const MIN_ELEVATION = 10; // Elevation degree, which determines when satellite is "visible".
-const COARSE_STEP_MS = 4 * 60 * 1000; // 4 Minutes step interval to sample the visibility timings
-const LOOKAHEAD_MS = 24 * 60 * 60 * 1000; // 24 Hours lookahead of visibility time windows
-const MIN_POINT_SPACING_MS = 60 * 1000; // 1 Minute minimum between look points
+const MIN_ELEVATION = 10;
+const COARSE_STEP_MS = 4 * 60 * 1000;
+const LOOKAHEAD_MS = 24 * 60 * 60 * 1000;
+const MIN_POINT_SPACING_MS = 60 * 1000;
+
+// Safety: Maximum duration of a LEO pass to backtrack (e.g., 20 mins)
+// If we backtrack more than this and it's still visible, something is wrong or it's GEO.
+const MAX_BACKTRACK_MS = 25 * 60 * 1000;
 
 /** Calculates the specific Lat/Lon/Alt for a given time. */
 const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
@@ -46,23 +50,19 @@ const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
   };
 };
 
-/** * Helper to get raw ECF coordinates (km) for vector math
- */
+/** Helper to get raw ECF coordinates (km) for vector math */
 const getEcfPosition = (satrec: SatRec, time: Date) => {
   const gmst = gstime(time);
   const posVel = propagate(satrec, time);
 
   if (posVel?.position && typeof posVel.position === "object") {
     const pEci = posVel.position as EciVec3<number>;
-    // eciToEcf returns km
     return eciToEcf(pEci, gmst);
   }
   return { x: 0, y: 0, z: 0 };
 };
 
-/**
- * Generates 1 to 5 evenly spaced look points within a time window.
- */
+/** Generates evenly spaced look points within a time window. */
 const generateLookPoints = (
   satrec: SatRec,
   start: Date,
@@ -78,7 +78,7 @@ const generateLookPoints = (
   const stepSize = duration / (count + 1);
 
   for (let i = 1; i <= count; i++) {
-    const timeA = new Date(start.getTime() + stepSize * i); // This is the exact time
+    const timeA = new Date(start.getTime() + stepSize * i);
     const timeB = new Date(timeA.getTime() + 1000);
 
     const locA = getLocationAtTime(satrec, timeA);
@@ -99,9 +99,7 @@ const generateLookPoints = (
   return lookPoints;
 };
 
-/**
- * Lightweight helper to get elevation for the lookahead loop.
- */
+/** Lightweight helper to get elevation. */
 const getElevation = (
   satrec: SatRec,
   date: Date,
@@ -117,9 +115,7 @@ const getElevation = (
   return radiansToDegrees(look.elevation);
 };
 
-/**
- * Linearly interpolates the exact time the satellite crosses the horizon.
- */
+/** Linearly interpolates the exact time the satellite crosses the horizon. */
 const findCrossingTime = (
   satrec: SatRec,
   observerGd: Geodetic,
@@ -135,6 +131,37 @@ const findCrossingTime = (
   return new Date(start.getTime() + fraction * timeDiff);
 };
 
+/** * Finds the true rise time by searching backwards from 'now'.
+ * Used when the satellite is already visible at the start of the scan.
+ */
+const findHistoricalRiseTime = (
+  satrec: SatRec,
+  observerGd: Geodetic,
+  now: Date
+): Date => {
+  let backScan = now.getTime();
+  const limit = backScan - MAX_BACKTRACK_MS;
+
+  // Step backward until invisible
+  while (backScan > limit) {
+    const prevTime = backScan - COARSE_STEP_MS;
+    const prevDate = new Date(prevTime);
+    const isVisible =
+      getElevation(satrec, prevDate, observerGd) > MIN_ELEVATION;
+
+    if (!isVisible) {
+      // Found the transition (Invisible -> Visible)
+      // Note: passing arguments in (Invisible, Visible) order
+      return findCrossingTime(satrec, observerGd, prevDate, new Date(backScan));
+    }
+    backScan = prevTime;
+  }
+
+  // Fallback: If we couldn't find the rise (unlikely for LEO), just return 'now'
+  // or the limit. This prevents infinite loops.
+  return now;
+};
+
 // --- CORE LOGIC: Visibility Calculation ---
 const calculateVisibilityWindows = (
   satrec: SatRec,
@@ -148,7 +175,13 @@ const calculateVisibilityWindows = (
   let isVisible = getElevation(satrec, now, observerGd) > MIN_ELEVATION;
 
   // Track the start of the current window
-  let openWindowStart: Date | null = isVisible ? now : null;
+  let openWindowStart: Date | null = null;
+
+  if (isVisible) {
+    // If visible NOW, find the TRUE start time in the past.
+    // This anchors the window so it doesn't shift on reload.
+    openWindowStart = findHistoricalRiseTime(satrec, observerGd, now);
+  }
 
   // Coarse Scan Loop
   while (scanTime < endTime) {
@@ -158,7 +191,6 @@ const calculateVisibilityWindows = (
       getElevation(satrec, nextDate, observerGd) > MIN_ELEVATION;
 
     if (isVisible !== nextVisible) {
-      // Precise crossing time calculation
       const crossingTime = findCrossingTime(
         satrec,
         observerGd,
@@ -168,6 +200,7 @@ const calculateVisibilityWindows = (
 
       if (isVisible && !nextVisible) {
         // EVENT: Setting (Visible -> Invisible)
+        // Only add if we have a valid start (which we should)
         if (openWindowStart) {
           windows.push({
             startTime: openWindowStart,
