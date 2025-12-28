@@ -8,7 +8,7 @@ export type VisibilitySatus = {
 
 export const getVisibilityDisplay = (satellite: Satellite): VisibilitySatus => {
   const now = new Date().getTime();
-  const windows = satellite.data.visibility.visibilityWindow || [];
+  const windows = satellite.visibility.visibilityWindow;
 
   // 1. Find the relevant window (Active or Next Future)
   let activeWindow = null;

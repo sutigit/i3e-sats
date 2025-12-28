@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import type { Satellite, TLE } from '../types';
 import { coords } from '../utils/defaults';
 import { useTleMockQuery } from '../queries/TleQuery';
-import { getSatData } from '../utils/getSatData';
+import { getSatVisibilityData } from '../utils/getSatVisibilityData';
 import { sortNearestSat } from '../utils/sortNearestSat';
 
 interface SatelliteContextType {
@@ -26,15 +26,15 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
     const [targetSatellite, setTargetSatellite] = useState<Satellite>()
     const [observer, setObserver] = useState({ lat: coords["otaniemi"].lat, lon: coords["otaniemi"].lon });
     const [satellitesReady, setSatellitesReady] = useState<boolean>(false)
-    const { data: rawData, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
+    const { data, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
 
-    // --- 1. Initial load. Should run once when rawData is ready ---
+    // --- 1. Initial load. Should run once when data is ready ---
     useEffect(() => {
-        if (!rawData) return;
+        if (!data) return;
         const now = new Date();
-        const processed: Satellite[] = rawData.map((tle: TLE) => {
-            const data = getSatData(tle, observer.lat, observer.lon, 0, now); // Removed 'now' arg based on previous file signature
-            return { name: tle.name, tle, data };
+        const processed: Satellite[] = data.map((tle: TLE) => {
+            const visibility = getSatVisibilityData(tle, observer.lat, observer.lon, 0, now); // Removed 'now' arg based on previous file signature
+            return { name: tle.name, tle, visibility };
         });
         const sorted: Satellite[] = sortNearestSat(processed, now);
 
@@ -46,13 +46,13 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
 
     // --- 2. Update the satellite timetable data every 30 seconds ---
     useEffect(() => {
-        if (!rawData) return;
+        if (!data) return;
 
         const tick = () => {
             const now = new Date();
-            const processed: Satellite[] = rawData.map((tle: TLE) => {
-                const data = getSatData(tle, observer.lat, observer.lon, 0, now)
-                return { name: tle.name, tle, data };
+            const processed: Satellite[] = data.map((tle: TLE) => {
+                const visibility = getSatVisibilityData(tle, observer.lat, observer.lon, 0, now)
+                return { name: tle.name, tle, visibility };
             });
 
             const sorted: Satellite[] = sortNearestSat(processed, now);
@@ -62,7 +62,7 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
         const intervalId = setInterval(tick, 30000);
 
         return () => clearInterval(intervalId);
-    }, [rawData, observer]); // Re-start timer if observer changes
+    }, [data, observer]); // Re-start timer if observer changes
 
     return (
         <SatelliteContext.Provider value={{

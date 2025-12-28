@@ -13,7 +13,7 @@ export const sortNearestSat = (
 
   // 1. MAP: Calculate the sorting state for every satellite once
   const mapped = satellites.map((sat) => {
-    const windows = sat.data.visibility.visibilityWindow;
+    const windows = sat.visibility.visibilityWindow;
 
     let state: VisibilityState = "NONE";
     let sortKey = Number.MAX_SAFE_INTEGER; // Default for NONE (pushed to bottom)

@@ -13,13 +13,12 @@ import {
   type SatRec,
 } from "satellite.js";
 import type {
-  SatData,
   TLE,
   Location,
   Geodetic,
   VisibilityWindow,
+  SatVisibilityData,
 } from "../types"; // Added Location type import
-import { getCompassDirection } from "./getCompassDirection";
 
 // --- TYPES ---
 
@@ -92,7 +91,7 @@ const calculateVisibilityWindows = (
   observerGd: Geodetic,
   now: Date
 ): VisibilityWindow[] => {
-  const windows: SatData["visibility"]["visibilityWindow"] = [];
+  const windows: SatVisibilityData["visibilityWindow"] = [];
   const endTime = now.getTime() + LOOKAHEAD_MS;
 
   let scanTime = now.getTime();
@@ -153,14 +152,13 @@ const calculateVisibilityWindows = (
 };
 
 // --- MAIN FUNCTION ---
-
-export const getSatData = (
+export const getSatVisibilityData = (
   tle: TLE,
   observerLat: number,
   observerLon: number,
   observerAltMeters: number = 0,
   now: Date
-): SatData => {
+): SatVisibilityData => {
   // 1. Setup
   const satrec = twoline2satrec(tle.line1, tle.line2);
   const observerGd: Geodetic = {
@@ -178,55 +176,18 @@ export const getSatData = (
   }
 
   const pEci = posVel.position as EciVec3<number>;
-  const vEci = posVel.velocity as EciVec3<number>;
 
   // 3. Coordinate Transforms
   const pEcf = eciToEcf(pEci, gmst);
-  const pGeo = eciToGeodetic(pEci, gmst);
   const look = ecfToLookAngles(observerGd, pEcf);
 
-  // 4. Derived Physics (Speed & Doppler)
-  const speed = Math.sqrt(vEci.x ** 2 + vEci.y ** 2 + vEci.z ** 2);
-
-  let rangeRate = 0;
-  const pastDate = new Date(now.getTime() - 1000);
-  const pastPosVel = propagate(satrec, pastDate);
-
-  if (pastPosVel && pastPosVel.position) {
-    const pastPosEcf = eciToEcf(
-      pastPosVel.position as EciVec3<number>,
-      gstime(pastDate)
-    );
-    const pastLook = ecfToLookAngles(observerGd, pastPosEcf);
-    rangeRate = look.rangeSat - pastLook.rangeSat;
-  }
-
-  // 5. Calculate Visibility Window with Locations
+  // 4. Calculate Visibility Window with Locations
   const elevationDeg = radiansToDegrees(look.elevation);
-  const azimuthDeg = radiansToDegrees(look.azimuth);
   const visibilityWindow = calculateVisibilityWindows(satrec, observerGd, now);
 
-  // 6. Return Data
+  // 5. Return Data
   return {
-    location: {
-      lat: degreesLat(pGeo.latitude),
-      lon: degreesLong(pGeo.longitude),
-      alt: pGeo.height,
-    },
-    look: {
-      azimuth: azimuthDeg,
-      compass: getCompassDirection(azimuthDeg),
-      elevation: elevationDeg,
-      range: look.rangeSat,
-    },
-    physics: {
-      speed,
-      rangeRate,
-      velocityVector: { x: vEci.x, y: vEci.y, z: vEci.z },
-    },
-    visibility: {
-      visible: elevationDeg > MIN_ELEVATION,
-      visibilityWindow,
-    },
+    visible: elevationDeg > MIN_ELEVATION,
+    visibilityWindow,
   };
 };
