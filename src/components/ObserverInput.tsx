@@ -1,3 +1,5 @@
+import { Cartesian3 } from "cesium";
+import { useSatellites } from "../context/SatelliteContext";
 import { PencilIcon } from "./common/PencilIcon";
 import { PinIcon } from "./common/PinIcon";
 
@@ -9,10 +11,24 @@ interface Coords {
 interface ObserverInputProps {
     coords: Coords;
     setCoords: (val: Coords) => void;
-    onFly?: () => void;
 }
 
-export default function ObserverInput({ coords, setCoords, onFly }: ObserverInputProps) {
+const GLOBE_ALTITUDE = 20000000.0
+
+export default function ObserverInput({ coords, setCoords }: ObserverInputProps) {
+    const { cesiumGlobeRef, observer } = useSatellites();
+
+
+    const onFly = () => {
+        if (!cesiumGlobeRef.current) return;
+        const location = Cartesian3.fromDegrees(observer.lon, observer.lat, GLOBE_ALTITUDE);
+
+        cesiumGlobeRef.current.camera.flyTo({
+            destination: location,
+            duration: 2 // smooth flight duration in seconds
+        });
+    }
+
 
     const update = (field: 'lat' | 'lon', value: string) => {
         setCoords({

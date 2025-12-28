@@ -3,35 +3,34 @@ import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals3D } from '../cesium/add';
 import { useSatellites } from '../context/SatelliteContext';
-import type { Viewer } from 'cesium';
 import { VisibilityObjectComposition3D } from '../cesium/entities/VisibilityObjectComposition3D';
 
+const GLOBE_ALTITUDE = 20000000.0
+
 export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean }) {
-    const cesiumGlobeRef = useRef<HTMLDivElement>(null)
-    const viewerRef = useRef<Viewer>(null)
+    const viewRef = useRef<HTMLDivElement>(null)
     const compositionRef = useRef<VisibilityObjectComposition3D>(null)
-    const { cesiumSatellites, targetSatellite, observer, satellitesReady } = useSatellites()
+    const { cesiumGlobeRef, cesiumSatellites, targetSatellite, observer, satellitesReady } = useSatellites()
 
     useEffect(() => {
-        if (!cesiumGlobeRef.current || !cesiumSatellites) return
-        const { lon, lat } = observer
-        viewerRef.current = cesiumView(cesiumGlobeRef, { lon, lat, alt: 20000000.0 })
+        if (!viewRef.current || !cesiumSatellites) return
+        cesiumGlobeRef.current = cesiumView(viewRef, { lon: observer.lon, lat: observer.lat, alt: GLOBE_ALTITUDE })
 
-        addSatelliteVisuals3D({ satellites: cesiumSatellites, viewer: viewerRef.current })
-        addObserver({ observer, viewer: viewerRef.current })
+        addSatelliteVisuals3D({ satellites: cesiumSatellites, viewer: cesiumGlobeRef.current })
+        addObserver({ observer, viewer: cesiumGlobeRef.current })
 
         // Debugging
-        viewerRef.current.scene.debugShowFramesPerSecond = showFPS;
+        cesiumGlobeRef.current.scene.debugShowFramesPerSecond = showFPS;
 
         return () => {
-            viewerRef.current?.destroy()
+            cesiumGlobeRef.current?.destroy()
         }
 
         // never re-render this to avoid re-instantiating cesium renderer.
     }, [satellitesReady])
 
     useEffect(() => {
-        if (!viewerRef.current || !targetSatellite) {
+        if (!cesiumGlobeRef.current || !targetSatellite) {
             // Cleanup if no focus
             if (compositionRef.current) {
                 compositionRef.current.destroy();
@@ -48,7 +47,7 @@ export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean
         // 2. Create new composition
         // We pass observer coords to draw the fan tip
         compositionRef.current = new VisibilityObjectComposition3D(
-            viewerRef.current,
+            cesiumGlobeRef.current,
             targetSatellite,
             observer.lat,
             observer.lon
@@ -64,6 +63,6 @@ export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean
     }, [targetSatellite, observer]);
 
     return (
-        <div ref={cesiumGlobeRef} id='cesium-view' />
+        <div ref={viewRef} id='cesium-view' />
     )
 }

@@ -1,11 +1,14 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, type RefObject } from 'react';
 import type { Satellite, TLE } from '../types';
 import { coords } from '../utils/defaults';
 import { useTleMockQuery } from '../queries/TleQuery';
 import { getSatVisibilityData } from '../utils/getSatVisibilityData';
 import { sortNearestSat } from '../utils/sortNearestSat';
+import { Viewer } from 'cesium';
 
 interface SatelliteContextType {
+    cesiumGlobeRef: RefObject<Viewer>;
+    cesiumMinimapRef: RefObject<Viewer>;
     cesiumSatellites: Satellite[];
     timetableSatellites: Satellite[];
     satellitesReady: boolean;
@@ -21,6 +24,9 @@ interface SatelliteContextType {
 const SatelliteContext = createContext<SatelliteContextType | undefined>(undefined);
 
 export const SatelliteProvider = ({ children }: { children: React.ReactNode }) => {
+    const cesiumGlobeRef = useRef<Viewer>(null)
+    const cesiumMinimapRef = useRef<Viewer>(null)
+
     const [cesiumSatellites, setCesiumSatellites] = useState<Satellite[]>([]);
     const [timetableSatellites, setTimetableSatellites] = useState<Satellite[]>([]);
     const [targetSatellite, setTargetSatellite] = useState<Satellite>()
@@ -66,6 +72,8 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
 
     return (
         <SatelliteContext.Provider value={{
+            cesiumGlobeRef,
+            cesiumMinimapRef,
             cesiumSatellites,
             timetableSatellites,
             satellitesReady,

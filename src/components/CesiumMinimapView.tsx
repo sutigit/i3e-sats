@@ -4,42 +4,40 @@ import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals2D, } from '../cesium/add';
 import { useSatellites } from '../context/SatelliteContext';
 import SatelliteTracker from '../cesium/utils/SatelliteTracker';
-import type { Viewer } from 'cesium';
 import { VisibilityObjectComposition2D } from '../cesium/entities/VisibilityObjectComposition2D';
 
 const ALTITUDE = 10000.0
 
 export default function CesiumMinimapView({ trackerRef, showFPS = false }: { trackerRef: RefObject<SatelliteTracker>, showFPS?: boolean }) {
-    const cesiumMinimapRef = useRef<HTMLDivElement>(null)
-    const viewerRef = useRef<Viewer>(null)
+    const viewRef = useRef<HTMLDivElement>(null)
     const compositionRef = useRef<VisibilityObjectComposition2D>(null)
-    const { observer, cesiumSatellites, targetSatellite, satellitesReady } = useSatellites()
+    const { cesiumMinimapRef, observer, cesiumSatellites, targetSatellite, satellitesReady } = useSatellites()
 
     useEffect(() => {
-        if (!cesiumMinimapRef.current || !satellitesReady) return
-        viewerRef.current = cesiumView(cesiumMinimapRef, {
+        if (!viewRef.current || !satellitesReady) return
+        cesiumMinimapRef.current = cesiumView(viewRef, {
             lon: 0,
             lat: 0,
             alt: ALTITUDE,
             minimap: true,
         })
 
-        addSatelliteVisuals2D({ satellites: cesiumSatellites, viewer: viewerRef.current })
-        addObserver({ observer, viewer: viewerRef.current })
+        addSatelliteVisuals2D({ satellites: cesiumSatellites, viewer: cesiumMinimapRef.current })
+        addObserver({ observer, viewer: cesiumMinimapRef.current })
 
         // Debugging
-        viewerRef.current.scene.debugShowFramesPerSecond = showFPS;
+        cesiumMinimapRef.current.scene.debugShowFramesPerSecond = showFPS;
 
         // Satellite tracking. Start tracking immediately
-        trackerRef.current = new SatelliteTracker(viewerRef.current, ALTITUDE); // Try 100km range first
+        trackerRef.current = new SatelliteTracker(cesiumMinimapRef.current, ALTITUDE); // Try 100km range first
         if (targetSatellite) {
             trackerRef.current.track(targetSatellite.tle);
         }
 
         return (() => {
             trackerRef.current?.stop();
-            viewerRef.current?.destroy();
-            viewerRef.current = null;
+            cesiumMinimapRef.current?.destroy();
+            cesiumMinimapRef.current = null;
             trackerRef.current = null;
         })
 
@@ -47,7 +45,7 @@ export default function CesiumMinimapView({ trackerRef, showFPS = false }: { tra
     }, [satellitesReady])
 
     useEffect(() => {
-        if (!viewerRef.current || !targetSatellite) {
+        if (!cesiumMinimapRef.current || !targetSatellite) {
             // Cleanup if no focus
             if (compositionRef.current) {
                 compositionRef.current.destroy();
@@ -63,7 +61,7 @@ export default function CesiumMinimapView({ trackerRef, showFPS = false }: { tra
 
         // 2. Create new composition
         compositionRef.current = new VisibilityObjectComposition2D(
-            viewerRef.current,
+            cesiumMinimapRef.current,
             targetSatellite,
             observer.lat,
             observer.lon
@@ -80,6 +78,6 @@ export default function CesiumMinimapView({ trackerRef, showFPS = false }: { tra
 
 
     return (
-        <div id="cesium-minimap-view" ref={cesiumMinimapRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
+        <div id="cesium-minimap-view" ref={viewRef} style={{ position: 'absolute', inset: '0 0 0 0' }} />
     )
 }
