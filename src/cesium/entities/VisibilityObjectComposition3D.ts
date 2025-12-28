@@ -26,12 +26,12 @@ import type { Satellite, VisibilityWindow, LookPoint } from "../../types";
 // --- CONFIGURATION ---
 const PATH_SAMPLES = 50;
 const BOX_SIZE = 50000;
-const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.21);
+const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
 const PATH_COLOR = Color.fromCssColorString("#EDDDD4");
-const BOX_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
-const BOX_OUTLINE_COLOR = Color.fromCssColorString("#ffffff").withAlpha(0.4);
 const PATH_MAX_ALPHA = 0.5;
-const EXTENSION_MINUTES = 2; // How long the tail extends past the visibility window
+const BOX_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
+const BOX_OUTLINE_COLOR = Color.fromCssColorString("#ffffff").withAlpha(0.2);
+const EXTENSION_MINUTES = 3; // How long the tail extends past the visibility window
 const EXTENSION_MS = EXTENSION_MINUTES * 60 * 1000;
 
 export class VisibilityObjectComposition3D {
