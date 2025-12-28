@@ -13,11 +13,16 @@ export type Location = {
   alt: number; // Kilometers (km)
 };
 
+export type LookPoint = {
+  location: Location;
+};
+
 export type VisibilityWindow = {
   startTime: Date;
   endTime: Date;
   startPoint: Location;
   endPoint: Location;
+  lookPoints: LookPoint[];
 };
 
 export type SatVisibilityData = {

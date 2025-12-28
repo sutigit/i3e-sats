@@ -18,17 +18,14 @@ import type {
   Geodetic,
   VisibilityWindow,
   SatVisibilityData,
-} from "../types"; // Added Location type import
-
-// --- TYPES ---
+} from "../types";
 
 // --- CONSTANTS ---
 const MIN_ELEVATION = 10; // Degrees
 const COARSE_STEP_MS = 4 * 60 * 1000; // 4 Minutes
 const LOOKAHEAD_MS = 24 * 60 * 60 * 1000; // 24 Hours
 
-/** * Calculates the specific Lat/Lon/Alt for a given time.
- */
+/** * Calculates the specific Lat/Lon/Alt for a given time. */
 const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
   const gmst = gstime(date);
   const posVel = propagate(satrec, date);
@@ -85,7 +82,6 @@ const findCrossingTime = (
 };
 
 // --- CORE LOGIC: Visibility Calculation ---
-
 const calculateVisibilityWindows = (
   satrec: SatRec,
   observerGd: Geodetic,
@@ -124,6 +120,7 @@ const calculateVisibilityWindows = (
             endTime: crossingTime,
             startPoint: getLocationAtTime(satrec, openWindowStart),
             endPoint: getLocationAtTime(satrec, crossingTime),
+            lookPoints: [],
           });
         }
         openWindowStart = null;
@@ -145,6 +142,7 @@ const calculateVisibilityWindows = (
       endTime: finalDate,
       startPoint: getLocationAtTime(satrec, openWindowStart),
       endPoint: getLocationAtTime(satrec, finalDate),
+      lookPoints: [],
     });
   }
 
