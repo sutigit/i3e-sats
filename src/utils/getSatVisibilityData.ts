@@ -78,27 +78,27 @@ const generateLookPoints = (
   const stepSize = duration / (count + 1);
 
   for (let i = 1; i <= count; i++) {
-    const timeA = new Date(start.getTime() + stepSize * i);
-    const timeB = new Date(timeA.getTime() + 1000); // 1 second later
+    const timeA = new Date(start.getTime() + stepSize * i); // This is the exact time
+    const timeB = new Date(timeA.getTime() + 1000);
 
     const locA = getLocationAtTime(satrec, timeA);
-
-    // Get ECF positions to calculate the Velocity Vector (Direction)
     const posA = getEcfPosition(satrec, timeA);
     const posB = getEcfPosition(satrec, timeB);
 
-    const vx = posB.x - posA.x;
-    const vy = posB.y - posA.y;
-    const vz = posB.z - posA.z;
-
     lookPoints.push({
       location: locA,
-      velocity: { x: vx, y: vy, z: vz },
+      velocity: {
+        x: posB.x - posA.x,
+        y: posB.y - posA.y,
+        z: posB.z - posA.z,
+      },
+      time: timeA,
     });
   }
 
   return lookPoints;
 };
+
 /**
  * Lightweight helper to get elevation for the lookahead loop.
  */

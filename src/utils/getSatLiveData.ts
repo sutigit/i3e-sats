@@ -3,25 +3,32 @@ import {
   ecfToLookAngles,
   eciToEcf,
   eciToGeodetic,
+  geodeticToEcf,
   gstime,
   propagate,
   radiansToDegrees,
   twoline2satrec,
   type EciVec3,
 } from "satellite.js";
-import type { Geodetic, SatLiveData, TLE } from "../types";
+import type { Geodetic, SatLiveData, Satellite, Location } from "../types";
 import { getCompassDirection } from "./getCompassDirection";
 
+// Helper: Convert Location (Deg/Deg/Km) to satellite.js Geodetic (Rad/Rad/Km)
+const toGeodetic = (loc: Location): Geodetic => ({
+  latitude: degreesToRadians(loc.lat),
+  longitude: degreesToRadians(loc.lon),
+  height: loc.alt,
+});
+
 export const getSatLiveData = (
-  tle: TLE,
+  satellite: Satellite,
   observerLat: number,
   observerLon: number,
   observerAltMeters: number = 0,
   now: Date
 ): SatLiveData => {
-  // 1. Setup
-  // Note: For extreme performance (thousands of sats), cache the 'satrec' object
-  // in the Satellite struct instead of recreating it from string every frame.
+  // --- 1. SETUP ---
+  const { tle, visibility } = satellite;
   const satrec = twoline2satrec(tle.line1, tle.line2);
 
   const observerGd: Geodetic = {
@@ -30,43 +37,84 @@ export const getSatLiveData = (
     height: observerAltMeters / 1000,
   };
 
-  // 2. Single Propagation (Current Time only)
+  const nowMs = now.getTime();
+
+  // --- 2. LIVE CALCULATIONS (Current State) ---
   const gmst = gstime(now);
   const posVel = propagate(satrec, now);
 
-  // Handle decay or errors gracefully
+  // Default Empty State
+  let liveData = {
+    speed: 0,
+    distance: 0,
+    altitude: 0,
+    compass: "N",
+    azimuth: 0,
+    elevation: 0,
+  };
+
   if (
-    !posVel?.position ||
-    !posVel.velocity ||
-    typeof posVel.position !== "object"
+    posVel?.position &&
+    posVel.velocity &&
+    typeof posVel.position === "object"
   ) {
-    return {
-      speed: 0,
-      distance: 0,
-      altitude: 0,
-      compass: "N",
-      azimuth: 0,
-      elevation: 0,
+    const pEci = posVel.position as EciVec3<number>;
+    const vEci = posVel.velocity as EciVec3<number>;
+
+    // Transforms
+    const pEcf = eciToEcf(pEci, gmst);
+    const pGeo = eciToGeodetic(pEci, gmst);
+    const look = ecfToLookAngles(observerGd, pEcf);
+    const azDeg = radiansToDegrees(look.azimuth);
+
+    liveData = {
+      speed: Math.sqrt(vEci.x ** 2 + vEci.y ** 2 + vEci.z ** 2),
+      distance: look.rangeSat,
+      altitude: pGeo.height,
+      compass: getCompassDirection(azDeg),
+      azimuth: azDeg,
+      elevation: radiansToDegrees(look.elevation),
     };
   }
 
-  const pEci = posVel.position as EciVec3<number>;
-  const vEci = posVel.velocity as EciVec3<number>;
+  // --- 3. LOOK POINTS CALCULATIONS ---
+  const lookPointsData: SatLiveData["lookPoints"] = [];
+  const windows = visibility.visibilityWindow || [];
 
-  // 3. Coordinate Transforms
-  const pEcf = eciToEcf(pEci, gmst);
-  const pGeo = eciToGeodetic(pEci, gmst);
-  const look = ecfToLookAngles(observerGd, pEcf);
+  // Find active or next window
+  let targetWindow = windows.find(
+    (w) => w.startTime.getTime() <= nowMs && w.endTime.getTime() >= nowMs
+  );
+  if (!targetWindow) {
+    targetWindow = windows.find((w) => w.startTime.getTime() > nowMs);
+  }
 
-  // 4. Calculations
-  const azimuthDeg = radiansToDegrees(look.azimuth);
+  if (targetWindow && targetWindow.lookPoints.length > 0) {
+    targetWindow.lookPoints.forEach((lp, index) => {
+      // 1. Time Logic (Using pre-calculated time from LookPoint)
+      const timeToDestination = lp.time.getTime() - nowMs;
+
+      // 2. Geometry (Using the Helper)
+      const lpGeodetic = toGeodetic(lp.location);
+      const lpEcf = geodeticToEcf(lpGeodetic);
+
+      const look = ecfToLookAngles(observerGd, lpEcf);
+      const azDeg = radiansToDegrees(look.azimuth);
+
+      lookPointsData.push({
+        lp: `LP${index + 1}` as any,
+        timeToDestination,
+        distance: look.rangeSat,
+        altitude: lp.location.alt,
+        compass: getCompassDirection(azDeg),
+        azimuth: azDeg,
+        elevation: radiansToDegrees(look.elevation),
+      });
+    });
+  }
 
   return {
-    speed: Math.sqrt(vEci.x ** 2 + vEci.y ** 2 + vEci.z ** 2),
-    distance: look.rangeSat, // Slant range in KM
-    altitude: pGeo.height, // Height in KM
-    compass: getCompassDirection(azimuthDeg),
-    azimuth: azimuthDeg,
-    elevation: radiansToDegrees(look.elevation),
+    live: liveData,
+    lookPoints: lookPointsData,
   };
 };
