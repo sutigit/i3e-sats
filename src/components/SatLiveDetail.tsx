@@ -8,7 +8,7 @@ import { lazy, Suspense } from "preact/compat"
 
 const CesiumMinimapView = lazy(() => import("./CesiumMinimapView"))
 
-export default function SatDetail() {
+export default function SatLiveDetail() {
     const { targetSatellite } = useSatellites()
 
     return (
