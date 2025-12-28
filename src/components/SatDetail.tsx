@@ -31,7 +31,7 @@ export default function SatDetail() {
 const SatelliteDetails = ({ satellite }: { satellite: Satellite | undefined }) => {
     if (!satellite) return
     const [tab, setTab] = useState<number>(0)
-    const tabs = ['LIVE', 'L1', 'L2', 'L3', 'L4', 'L5']
+    const tabs = ['LIVE', 'LP1', 'LP2', 'LP3', 'LP4', 'LP5']
     const renderTabPage = (tab: number) => (tab === 0 ? <LiveSatelliteDetail /> : <LookUpSpotDetail spot={tab} />)
 
     return (
@@ -47,24 +47,32 @@ const SatelliteDetails = ({ satellite }: { satellite: Satellite | undefined }) =
 
 const LiveSatelliteDetail = () => (
     <div className="tab-body-page">
-        <h4 className="title">Live details</h4>
+        <h3 className="title">Live details</h3>
         <div className="content">
             <Measure label="Speed" value={0.0} unit="km/s" />
-            <Measure label="Speed" value={0.0} unit="km/s" />
-            <Measure label="Speed" value={0.0} unit="km/s" />
-            <Measure label="Speed" value={0.0} unit="km/s" />
+            <Measure label="Distance" value={0.0} unit="km" />
+            <Measure label="Altitude" value={0.0} unit="km" />
+        </div>
+        <div className="content">
+            <Measure label="Compass" value={"NW"} />
+            <Measure label="Azimuth" value={0.0} unit="°" />
+            <Measure label="Elevation" value={0.0} unit="°" />
         </div>
     </div>
 )
 
 const LookUpSpotDetail = ({ spot }: { spot: number }) => (
     <div className="tab-body-page">
-        <h4 className="title">Look up {spot}</h4>
+        <h3 className="title">Look point {spot}</h3>
         <div className="content">
-            <Measure label="Speed" value={0.0} unit="km/s" />
-            <Measure label="Speed" value={0.0} unit="km/s" />
-            <Measure label="Speed" value={0.0} unit="km/s" />
-            <Measure label="Speed" value={0.0} unit="km/s" />
+            <Measure label="Time to visible" value={0.0} unit="min" />
+            <Measure label="Distance" value={0.0} unit="km" />
+            <Measure label="Altitude" value={0.0} unit="km" />
+        </div>
+        <div className="content">
+            <Measure label="Compass" value={"NW"} />
+            <Measure label="Azimuth" value={0.0} unit="°" />
+            <Measure label="Elevation" value={0.0} unit="°" />
         </div>
     </div>
 )

@@ -162,7 +162,7 @@
   }
 
   .unit {
-    font-size: 0.7rem;
+    font-size: 0.8rem;
   }
 
   &.minified {
@@ -284,9 +284,9 @@
   }
 
   .tab-body-page {
-    .title {
-      margin-bottom: 1.5rem;
-    }
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
 
     .content {
       display: flex;
