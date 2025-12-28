@@ -18,20 +18,21 @@ import type {
   Geodetic,
   VisibilityWindow,
   SatVisibilityData,
+  LookPoint,
 } from "../types";
 
 // --- CONSTANTS ---
-const MIN_ELEVATION = 10; // Degrees
-const COARSE_STEP_MS = 4 * 60 * 1000; // 4 Minutes
-const LOOKAHEAD_MS = 24 * 60 * 60 * 1000; // 24 Hours
+const MIN_ELEVATION = 10; // Elevation degree, which determines when satellite is "visible".
+const COARSE_STEP_MS = 4 * 60 * 1000; // 4 Minutes step interval to sample the visibility timings
+const LOOKAHEAD_MS = 24 * 60 * 60 * 1000; // 24 Hours lookahead of visibility time windows
+const MIN_POINT_SPACING_MS = 60 * 1000; // 1 Minute minimum between look points
 
-/** * Calculates the specific Lat/Lon/Alt for a given time. */
+/** Calculates the specific Lat/Lon/Alt for a given time. */
 const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
   const gmst = gstime(date);
   const posVel = propagate(satrec, date);
 
   if (!posVel?.position || typeof posVel.position !== "object") {
-    // Fallback for decay/error (should rarely happen in prediction window)
     return { lat: 0, lon: 0, alt: 0 };
   }
 
@@ -43,6 +44,42 @@ const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
     lon: degreesLong(pGeo.longitude),
     alt: pGeo.height,
   };
+};
+
+/**
+ * Generates 1 to 5 evenly spaced look points within a time window.
+ */
+const generateLookPoints = (
+  satrec: SatRec,
+  start: Date,
+  end: Date
+): LookPoint[] => {
+  const duration = end.getTime() - start.getTime();
+  const lookPoints: LookPoint[] = [];
+
+  // Determine how many points fit (Max 5, Min 1)
+  // We want points to be separated by at least MIN_POINT_SPACING_MS
+  // Example: 3 min duration / 1 min spacing = 3 points max
+  let count = Math.floor(duration / MIN_POINT_SPACING_MS);
+
+  // Clamp between 1 and 5
+  if (count > 5) count = 5;
+  if (count < 1) count = 1;
+
+  // Calculate step size to distribute them evenly *inside* the window
+  // We use (count + 1) to pad them from the very start/end horizons
+  // e.g. 1 point -> 50% mark
+  // e.g. 2 points -> 33%, 66% marks
+  const stepSize = duration / (count + 1);
+
+  for (let i = 1; i <= count; i++) {
+    const time = new Date(start.getTime() + stepSize * i);
+    lookPoints.push({
+      location: getLocationAtTime(satrec, time),
+    });
+  }
+
+  return lookPoints;
 };
 
 /**
@@ -120,7 +157,11 @@ const calculateVisibilityWindows = (
             endTime: crossingTime,
             startPoint: getLocationAtTime(satrec, openWindowStart),
             endPoint: getLocationAtTime(satrec, crossingTime),
-            lookPoints: [],
+            lookPoints: generateLookPoints(
+              satrec,
+              openWindowStart,
+              crossingTime
+            ),
           });
         }
         openWindowStart = null;
@@ -142,7 +183,7 @@ const calculateVisibilityWindows = (
       endTime: finalDate,
       startPoint: getLocationAtTime(satrec, openWindowStart),
       endPoint: getLocationAtTime(satrec, finalDate),
-      lookPoints: [],
+      lookPoints: generateLookPoints(satrec, openWindowStart, finalDate),
     });
   }
 
@@ -174,16 +215,14 @@ export const getSatVisibilityData = (
   }
 
   const pEci = posVel.position as EciVec3<number>;
-
-  // 3. Coordinate Transforms
   const pEcf = eciToEcf(pEci, gmst);
   const look = ecfToLookAngles(observerGd, pEcf);
-
-  // 4. Calculate Visibility Window with Locations
   const elevationDeg = radiansToDegrees(look.elevation);
+
+  // 3. Calculate Visibility Window with LookPoints
   const visibilityWindow = calculateVisibilityWindows(satrec, observerGd, now);
 
-  // 5. Return Data
+  // 4. Return Data
   return {
     visible: elevationDeg > MIN_ELEVATION,
     visibilityWindow,

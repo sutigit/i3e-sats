@@ -95,7 +95,7 @@ const LookPointDetail = ({ spot }: { spot: number }) => (
     <div className="tab-body-page">
         <h3 className="title">Look point {spot}</h3>
         <div className="content">
-            <Measure label="Time to visible" value={0.0} unit="min" />
+            <Measure label="Time to destination" value={0.0} unit="min" />
             <Measure label="Distance" value={0.0} unit="km" />
             <Measure label="Altitude" value={0.0} unit="km" />
         </div>
