@@ -1,4 +1,17 @@
-import * as satellite from "satellite.js";
+import {
+  degreesLat,
+  degreesLong,
+  degreesToRadians,
+  ecfToLookAngles,
+  eciToEcf,
+  eciToGeodetic,
+  gstime,
+  propagate,
+  radiansToDegrees,
+  twoline2satrec,
+  type EciVec3,
+  type SatRec,
+} from "satellite.js";
 import type { SatData, TLE, Location, Geodetic } from "../types"; // Added Location type import
 
 // --- TYPES ---
@@ -18,21 +31,21 @@ const getCompassDirection = (azimuthDeg: number): string => {
 
 /** * Calculates the specific Lat/Lon/Alt for a given time.
  */
-const getLocationAtTime = (satrec: satellite.SatRec, date: Date): Location => {
-  const gmst = satellite.gstime(date);
-  const posVel = satellite.propagate(satrec, date);
+const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
+  const gmst = gstime(date);
+  const posVel = propagate(satrec, date);
 
   if (!posVel?.position || typeof posVel.position !== "object") {
     // Fallback for decay/error (should rarely happen in prediction window)
     return { lat: 0, lon: 0, alt: 0 };
   }
 
-  const pEci = posVel.position as satellite.EciVec3<number>;
-  const pGeo = satellite.eciToGeodetic(pEci, gmst);
+  const pEci = posVel.position as EciVec3<number>;
+  const pGeo = eciToGeodetic(pEci, gmst);
 
   return {
-    lat: satellite.degreesLat(pGeo.latitude),
-    lon: satellite.degreesLong(pGeo.longitude),
+    lat: degreesLat(pGeo.latitude),
+    lon: degreesLong(pGeo.longitude),
     alt: pGeo.height,
   };
 };
@@ -41,28 +54,25 @@ const getLocationAtTime = (satrec: satellite.SatRec, date: Date): Location => {
  * Lightweight helper to get elevation for the lookahead loop.
  */
 const getElevation = (
-  satrec: satellite.SatRec,
+  satrec: SatRec,
   date: Date,
   observerGd: Geodetic
 ): number => {
-  const posVel = satellite.propagate(satrec, date);
+  const posVel = propagate(satrec, date);
   if (!posVel?.position || typeof posVel.position !== "object") return -999;
 
-  const gmst = satellite.gstime(date);
-  const posEcf = satellite.eciToEcf(
-    posVel.position as satellite.EciVec3<number>,
-    gmst
-  );
-  const look = satellite.ecfToLookAngles(observerGd, posEcf);
+  const gmst = gstime(date);
+  const posEcf = eciToEcf(posVel.position as EciVec3<number>, gmst);
+  const look = ecfToLookAngles(observerGd, posEcf);
 
-  return satellite.radiansToDegrees(look.elevation);
+  return radiansToDegrees(look.elevation);
 };
 
 /**
  * Linearly interpolates the exact time the satellite crosses the horizon.
  */
 const findCrossingTime = (
-  satrec: satellite.SatRec,
+  satrec: SatRec,
   observerGd: Geodetic,
   start: Date,
   end: Date
@@ -79,7 +89,7 @@ const findCrossingTime = (
 // --- CORE LOGIC: Visibility Calculation ---
 
 const calculateVisibilityWindows = (
-  satrec: satellite.SatRec,
+  satrec: SatRec,
   observerGd: Geodetic,
   now: Date
 ) => {
@@ -153,55 +163,55 @@ export const getSatData = (
 ): SatData => {
   // 1. Setup
   const now = new Date();
-  const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
+  const satrec = twoline2satrec(tle.line1, tle.line2);
   const observerGd: Geodetic = {
-    latitude: satellite.degreesToRadians(observerLat),
-    longitude: satellite.degreesToRadians(observerLon),
+    latitude: degreesToRadians(observerLat),
+    longitude: degreesToRadians(observerLon),
     height: observerAltMeters / 1000,
   };
 
   // 2. Propagate Current State
-  const gmst = satellite.gstime(now);
-  const posVel = satellite.propagate(satrec, now);
+  const gmst = gstime(now);
+  const posVel = propagate(satrec, now);
 
   if (!posVel?.position || !posVel.velocity) {
     throw new Error("Satellite propagation failed");
   }
 
-  const pEci = posVel.position as satellite.EciVec3<number>;
-  const vEci = posVel.velocity as satellite.EciVec3<number>;
+  const pEci = posVel.position as EciVec3<number>;
+  const vEci = posVel.velocity as EciVec3<number>;
 
   // 3. Coordinate Transforms
-  const pEcf = satellite.eciToEcf(pEci, gmst);
-  const pGeo = satellite.eciToGeodetic(pEci, gmst);
-  const look = satellite.ecfToLookAngles(observerGd, pEcf);
+  const pEcf = eciToEcf(pEci, gmst);
+  const pGeo = eciToGeodetic(pEci, gmst);
+  const look = ecfToLookAngles(observerGd, pEcf);
 
   // 4. Derived Physics (Speed & Doppler)
   const speed = Math.sqrt(vEci.x ** 2 + vEci.y ** 2 + vEci.z ** 2);
 
   let rangeRate = 0;
   const pastDate = new Date(now.getTime() - 1000);
-  const pastPosVel = satellite.propagate(satrec, pastDate);
+  const pastPosVel = propagate(satrec, pastDate);
 
   if (pastPosVel && pastPosVel.position) {
-    const pastPosEcf = satellite.eciToEcf(
-      pastPosVel.position as satellite.EciVec3<number>,
-      satellite.gstime(pastDate)
+    const pastPosEcf = eciToEcf(
+      pastPosVel.position as EciVec3<number>,
+      gstime(pastDate)
     );
-    const pastLook = satellite.ecfToLookAngles(observerGd, pastPosEcf);
+    const pastLook = ecfToLookAngles(observerGd, pastPosEcf);
     rangeRate = look.rangeSat - pastLook.rangeSat;
   }
 
   // 5. Calculate Visibility Window with Locations
-  const elevationDeg = satellite.radiansToDegrees(look.elevation);
-  const azimuthDeg = satellite.radiansToDegrees(look.azimuth);
+  const elevationDeg = radiansToDegrees(look.elevation);
+  const azimuthDeg = radiansToDegrees(look.azimuth);
   const visibilityWindow = calculateVisibilityWindows(satrec, observerGd, now);
 
   // 6. Return Data
   return {
     location: {
-      lat: satellite.degreesLat(pGeo.latitude),
-      lon: satellite.degreesLong(pGeo.longitude),
+      lat: degreesLat(pGeo.latitude),
+      lon: degreesLong(pGeo.longitude),
       alt: pGeo.height,
     },
     look: {
