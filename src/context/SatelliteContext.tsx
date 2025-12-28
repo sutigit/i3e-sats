@@ -3,6 +3,7 @@ import type { Satellite, TLE } from '../types';
 import { coords } from '../utils/defaults';
 import { useTleMockQuery } from '../queries/TleQuery';
 import { getSatData } from '../utils/getSatData';
+import { sortNearestSat } from '../utils/sortNearestSat';
 
 interface SatelliteContextType {
     satellites: Satellite[];
@@ -27,14 +28,16 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
 
     useEffect(() => {
         if (!rawData) return;
+        const now = new Date();
         const processed: Satellite[] = rawData.map((tle: TLE) => {
-            const data = getSatData(tle, observer.lat, observer.lon);
+            const data = getSatData(tle, observer.lat, observer.lon, 0, now);
             return { name: tle.name, tle, data };
         });
+        const sorted: Satellite[] = sortNearestSat(processed, now)
 
-        setSatellites(processed);
-        setTargetSatellite(processed[0])
-        setSatellitesReady(isSuccess && !!processed)
+        setSatellites(sorted);
+        setTargetSatellite(sorted[0])
+        setSatellitesReady(isSuccess && !!sorted)
     }, [rawData]);
 
     return (

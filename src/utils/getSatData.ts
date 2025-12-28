@@ -165,10 +165,10 @@ export const getSatData = (
   tle: TLE,
   observerLat: number,
   observerLon: number,
-  observerAltMeters: number = 0
+  observerAltMeters: number = 0,
+  now: Date
 ): SatData => {
   // 1. Setup
-  const now = new Date();
   const satrec = twoline2satrec(tle.line1, tle.line2);
   const observerGd: Geodetic = {
     latitude: degreesToRadians(observerLat),
