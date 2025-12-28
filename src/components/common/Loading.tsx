@@ -1,7 +1,7 @@
 export function Loading() {
     return (
         <div className="loading">
-            Loading...
+            Loading
         </div>
     )
 }
@@ -9,7 +9,7 @@ export function Loading() {
 export function LoadingAbsolute() {
     return (
         <div className="loading absolute">
-            Loading...
+            Loading
         </div>
     )
 }

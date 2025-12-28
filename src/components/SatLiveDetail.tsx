@@ -91,18 +91,21 @@ const LiveDetail = ({ data }: { data: SatLiveData }) => {
     )
 }
 
-const LookPointDetail = ({ spot, data }: { spot: number, data: SatLiveData }) => (
-    <div className="tab-body-page">
-        <h3 className="title">Look point {spot}</h3>
-        <div className="content">
-            <Measure label="Time to destination" value={0.0} unit="min" />
-            <Measure label="Distance" value={0.0} unit="km" />
-            <Measure label="Altitude" value={0.0} unit="km" />
+const LookPointDetail = ({ spot, data }: { spot: number, data: SatLiveData }) => {
+    console.log("📌 data", data)
+    return (
+        <div className="tab-body-page">
+            <h3 className="title">Look point {spot}</h3>
+            <div className="content">
+                <Measure label="Time to destination" value={0.0} unit="min" />
+                <Measure label="Distance" value={0.0} unit="km" />
+                <Measure label="Altitude" value={0.0} unit="km" />
+            </div>
+            <div className="content">
+                <Measure label="Compass" value={"NW"} />
+                <Measure label="Azimuth" value={0.0} unit="°" />
+                <Measure label="Elevation" value={0.0} unit="°" />
+            </div>
         </div>
-        <div className="content">
-            <Measure label="Compass" value={"NW"} />
-            <Measure label="Azimuth" value={0.0} unit="°" />
-            <Measure label="Elevation" value={0.0} unit="°" />
-        </div>
-    </div>
-)
+    )
+}
