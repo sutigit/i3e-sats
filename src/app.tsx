@@ -1,6 +1,6 @@
 import './styles/app.scss'
 import { TleProvider } from "./queries/TleQuery";
-import SatList from './components/SatList';
+import SatTimetable from './components/SatTimetable';
 import SatDetail from './components/SatDetail';
 import { SatelliteProvider } from './context/SatelliteContext';
 import { lazy, Suspense } from 'preact/compat';
@@ -13,7 +13,7 @@ export function App() {
     <main id="app">
       <TleProvider devTools={false}>
         <SatelliteProvider>
-          <SatList />
+          <SatTimetable />
           <SatDetail />
           <Suspense fallback={<LoadingAbsolute />}>
             <CesiumGlobeView showFPS />

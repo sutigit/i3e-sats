@@ -2,19 +2,18 @@ import { useEffect, useRef } from 'react'
 import { cesiumView } from '../cesium/renderer'
 import "cesium/Build/Cesium/Widgets/widgets.css";
 import { addObserver, addSatelliteVisuals3D } from '../cesium/add';
-import { Loading } from './common/Loading';
 import { useSatellites } from '../context/SatelliteContext';
 
 export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean }) {
     const cesiumRef = useRef<HTMLDivElement>(null)
-    const { satellites, observer, isLoading, isError, satellitesReady } = useSatellites()
+    const { cesiumSatellites, observer, satellitesReady } = useSatellites()
 
     useEffect(() => {
-        if (!cesiumRef.current || !satellites) return
+        if (!cesiumRef.current || !cesiumSatellites) return
         const { lon, lat } = observer
         const viewer = cesiumView(cesiumRef, { lon, lat, alt: 24000000.0 })
 
-        addSatelliteVisuals3D({ satellites, viewer })
+        addSatelliteVisuals3D({ satellites: cesiumSatellites, viewer })
         addObserver({ observer, viewer })
 
         // Debugging
@@ -26,9 +25,6 @@ export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean
 
         // never re-render this to avoid re-instantiating cesium renderer.
     }, [satellitesReady])
-
-    if (isLoading) return (<Loading />)
-    if (isError) return (<Error />)
 
     return (
         <div ref={cesiumRef} id='cesium-view' />

@@ -6,7 +6,8 @@ import { getSatData } from '../utils/getSatData';
 import { sortNearestSat } from '../utils/sortNearestSat';
 
 interface SatelliteContextType {
-    satellites: Satellite[];
+    cesiumSatellites: Satellite[];
+    timetableSatellites: Satellite[];
     satellitesReady: boolean;
     observer: { lat: number; lon: number };
     setObserver: (coords: { lat: number; lon: number }) => void;
@@ -20,29 +21,53 @@ interface SatelliteContextType {
 const SatelliteContext = createContext<SatelliteContextType | undefined>(undefined);
 
 export const SatelliteProvider = ({ children }: { children: React.ReactNode }) => {
-    const [satellites, setSatellites] = useState<Satellite[]>([]);
+    const [cesiumSatellites, setCesiumSatellites] = useState<Satellite[]>([]);
+    const [timetableSatellites, setTimetableSatellites] = useState<Satellite[]>([]);
     const [targetSatellite, setTargetSatellite] = useState<Satellite>()
     const [observer, setObserver] = useState({ lat: coords["otaniemi"].lat, lon: coords["otaniemi"].lon });
     const [satellitesReady, setSatellitesReady] = useState<boolean>(false)
     const { data: rawData, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
 
+    // --- 1. Initial load. Should run once when rawData is ready ---
     useEffect(() => {
         if (!rawData) return;
         const now = new Date();
         const processed: Satellite[] = rawData.map((tle: TLE) => {
-            const data = getSatData(tle, observer.lat, observer.lon, 0, now);
+            const data = getSatData(tle, observer.lat, observer.lon, 0, now); // Removed 'now' arg based on previous file signature
             return { name: tle.name, tle, data };
         });
-        const sorted: Satellite[] = sortNearestSat(processed, now)
+        const sorted: Satellite[] = sortNearestSat(processed, now);
 
-        setSatellites(sorted);
-        setTargetSatellite(sorted[0])
-        setSatellitesReady(isSuccess && !!sorted)
-    }, [rawData]);
+        setCesiumSatellites(sorted);
+        setTimetableSatellites(sorted);
+        setTargetSatellite(sorted[0]);
+        setSatellitesReady(isSuccess && !!sorted);
+    }, [isSuccess]);
+
+    // --- 2. Update the satellite timetable data every 10 seconds ---
+    useEffect(() => {
+        if (!rawData) return;
+
+        const tick = () => {
+            const now = new Date();
+            const processed: Satellite[] = rawData.map((tle: TLE) => {
+                const data = getSatData(tle, observer.lat, observer.lon, 0, now)
+                return { name: tle.name, tle, data };
+            });
+
+            const sorted: Satellite[] = sortNearestSat(processed, now);
+            setTimetableSatellites(sorted);
+        };
+
+        const intervalId = setInterval(tick, 10000);
+
+        return () => clearInterval(intervalId);
+    }, [rawData, observer]); // Re-start timer if observer changes
 
     return (
         <SatelliteContext.Provider value={{
-            satellites,
+            cesiumSatellites,
+            timetableSatellites,
             satellitesReady,
             observer,
             setObserver,

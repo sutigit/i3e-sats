@@ -12,7 +12,7 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
     const cesiumMinimapRef = useRef<HTMLDivElement>(null)
     const viewerRef = useRef<Viewer>(null)
     const trackerRef = useRef<SatelliteTracker>(null);
-    const { observer, satellites, targetSatellite, satellitesReady } = useSatellites()
+    const { observer, cesiumSatellites, targetSatellite, satellitesReady } = useSatellites()
 
     useEffect(() => {
         if (!cesiumMinimapRef.current || !satellitesReady) return
@@ -23,7 +23,7 @@ export default function CesiumMinimapView({ showFPS = false }: { showFPS?: boole
             minimap: true,
         })
 
-        addSatelliteVisuals2D({ satellites, viewer: viewerRef.current })
+        addSatelliteVisuals2D({ satellites: cesiumSatellites, viewer: viewerRef.current })
         addObserver({ observer, viewer: viewerRef.current })
 
         // Debugging

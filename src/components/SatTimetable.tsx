@@ -3,11 +3,10 @@ import { SatPrimary, SatSecondary } from "./SatCard"
 import { Loading } from "./common/Loading"
 import ObserverInput from "./ObserverInput"
 import { useSatellites } from "../context/SatelliteContext"
+import { Suspense } from "preact/compat"
 
 export default function SatList() {
-    const { satellites, targetSatellite, setTargetSatellite, observer, setObserver, isLoading, isError } = useSatellites();
-    if (isLoading) return (<div id="left-panel"><Loading /></div>)
-    if (isError) return (<div id="left-panel"><Error /></div>)
+    const { timetableSatellites, targetSatellite, setTargetSatellite, observer, setObserver } = useSatellites();
 
     return (
         <div id="left-panel">
@@ -20,14 +19,16 @@ export default function SatList() {
                 <div className="panel-content-item">
                     <h4 className="panel-content-title">Nearest visible time</h4>
                     <div className="sat-primary-list">
-                        {satellites.slice(0, 4).map((sat: Satellite) => (
-                            <SatPrimary
-                                key={sat.name}
-                                setFocus={() => setTargetSatellite(sat)}
-                                focus={sat.name === targetSatellite?.name}
-                                sat={sat}
-                            />
-                        ))}
+                        <Suspense fallback={<Loading />}>
+                            {timetableSatellites.slice(0, 4).map((sat: Satellite) => (
+                                <SatPrimary
+                                    key={sat.name}
+                                    setFocus={() => setTargetSatellite(sat)}
+                                    focus={sat.name === targetSatellite?.name}
+                                    sat={sat}
+                                />
+                            ))}
+                        </Suspense>
                     </div>
                 </div>
 
@@ -37,14 +38,16 @@ export default function SatList() {
                         <span className="second-title">Time to visible</span>
                     </h4>
                     <div className="sat-secondary-list">
-                        {satellites.map((sat: Satellite) => (
-                            <SatSecondary
-                                key={sat.name}
-                                setFocus={() => setTargetSatellite(sat)}
-                                focus={sat.name === targetSatellite?.name}
-                                sat={sat}
-                            />
-                        ))}
+                        <Suspense fallback={<Loading />}>
+                            {timetableSatellites.map((sat: Satellite) => (
+                                <SatSecondary
+                                    key={sat.name}
+                                    setFocus={() => setTargetSatellite(sat)}
+                                    focus={sat.name === targetSatellite?.name}
+                                    sat={sat}
+                                />
+                            ))}
+                        </Suspense>
                     </div>
                 </div>
             </div>

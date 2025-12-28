@@ -3,17 +3,13 @@ import { useSatellites } from "../context/SatelliteContext"
 import type { Satellite } from "../types"
 import { Measure } from "./common/Measure"
 import { TabBody, TabHeader } from "./common/Tabs"
-import { Loading, LoadingAbsolute } from "./common/Loading"
-import Error from "./common/Error"
+import { LoadingAbsolute } from "./common/Loading"
 import { lazy, Suspense } from "preact/compat"
 
 const CesiumMinimapView = lazy(() => import("./CesiumMinimapView"))
 
 export default function SatDetail() {
-    const { targetSatellite, isLoading, isError } = useSatellites()
-
-    if (isLoading) return (<div id="left-panel"><Loading /></div>)
-    if (isError) return (<div id="left-panel"><Error /></div>)
+    const { targetSatellite } = useSatellites()
 
     return (
         <div id="right-panel">
