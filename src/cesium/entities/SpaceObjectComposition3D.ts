@@ -20,8 +20,8 @@ import {
 import * as satellite from "satellite.js";
 import type { TLE } from "../../types";
 
-const TRAIL_LENGTH_BASE = 20000000; // 20 000km tail at Earth Surface
-const RAINBOW_LENGTH_BASE = 4000000; // 5000km (Shorter "Instantaneous" Tail)
+const TRAIL_LENGTH_BASE = 20000000;
+const RAINBOW_LENGTH_BASE = 4000000;
 const REFERENCE_RADIUS = 6378137.0;
 const SEGMENTS = 60; // For path smoothness
 
@@ -130,7 +130,6 @@ export class SpaceObjectComposition3D {
     this._viewer = viewer;
     this._satrec = satellite.twoline2satrec(tle.line1, tle.line2);
 
-    // Setup Box (FILL)
     this._boxPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
         geometry: BOX_FILL_GEOM,
@@ -148,7 +147,6 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // Setup Box (OUTLINE)
     this._boxOutlinePrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
         geometry: BOX_OUTLINE_GEOM,
@@ -168,14 +166,12 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // Setup Path Trail
     this._longTrailPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({ geometry: PATH_TRAIL_GEOM }),
       appearance: new PolylineColorAppearance({ translucent: true }),
       asynchronous: false,
     });
 
-    // Setup Rainbow Trail
     this._rainbowPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
         geometry: RAINBOW_TRAIL_GEOM,
@@ -221,7 +217,6 @@ export class SpaceObjectComposition3D {
     this._scratchPos.y = pEcf.y * 1000;
     this._scratchPos.z = pEcf.z * 1000;
 
-    // Velocity for Orientation
     jsDate.setSeconds(jsDate.getSeconds() + 1);
     const nextGmst = satellite.gstime(jsDate);
     const nextPosVel = satellite.propagate(this._satrec, jsDate);
@@ -235,7 +230,6 @@ export class SpaceObjectComposition3D {
       this._scratchVel.z = nextEcf.z * 1000 - this._scratchPos.z;
     }
 
-    // Scale Calculation (ONLY for trails)
     const orbitalRadius = Cartesian3.magnitude(this._scratchPos);
     const scaleFactor = orbitalRadius / REFERENCE_RADIUS;
 
@@ -243,7 +237,6 @@ export class SpaceObjectComposition3D {
     this._scratchScale.y = scaleFactor;
     this._scratchScale.z = scaleFactor;
 
-    // Compute Matrix for the BOX (Scale = 1.0)
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
@@ -251,14 +244,12 @@ export class SpaceObjectComposition3D {
       this._scratchOrbitFrame
     );
 
-    // Apply to BOX and OUTLINE
     Matrix4.clone(this._scratchOrbitFrame, this._boxPrimitive.modelMatrix);
     Matrix4.clone(
       this._scratchOrbitFrame,
       this._boxOutlinePrimitive.modelMatrix
     );
 
-    // xCompute Matrix for the TRAILS (Scale = scaleFactor)
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
@@ -266,7 +257,6 @@ export class SpaceObjectComposition3D {
       this._scratchOrbitFrame
     );
 
-    // Apply to TRAILS
     Matrix4.clone(
       this._scratchOrbitFrame,
       this._longTrailPrimitive.modelMatrix

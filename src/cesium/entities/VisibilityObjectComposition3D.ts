@@ -37,7 +37,6 @@ export class VisibilityObjectComposition3D {
   private _viewer: Viewer;
   private _primitives: Primitive[] = [];
 
-  // Scratch variables
   private _scratchUp = new Cartesian3();
   private _scratchRight = new Cartesian3();
   private _scratchForward = new Cartesian3();
@@ -57,14 +56,12 @@ export class VisibilityObjectComposition3D {
 
     const now = new Date();
 
-    // Full Window Path
     const fullWindowPositions = this.samplePath(
       sat.tle,
       window.startTime,
       window.endTime
     );
 
-    // Active Path with Extension (Trajectory)
     const lineEndTime = new Date(window.endTime.getTime() + EXTENSION_MS);
 
     const activePathPositions = this.samplePath(sat.tle, now, lineEndTime);
@@ -118,7 +115,6 @@ export class VisibilityObjectComposition3D {
     return positions;
   }
 
-  // --- Look Point Boxes ---
   private createLookBoxes(lookPoints: LookPoint[]) {
     if (!lookPoints || lookPoints.length === 0) return;
 
@@ -196,7 +192,6 @@ export class VisibilityObjectComposition3D {
     );
   }
 
-  // --- Faded Path Polyline ---
   private createFadedPath(
     positions: Cartesian3[],
     startTime: Date,
@@ -252,7 +247,6 @@ export class VisibilityObjectComposition3D {
     );
   }
 
-  // --- Sensor Fan ---
   private createSensorFan(
     pathPositions: Cartesian3[],
     lat: number,

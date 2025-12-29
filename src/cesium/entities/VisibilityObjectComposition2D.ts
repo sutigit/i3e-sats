@@ -64,7 +64,6 @@ export class VisibilityObjectComposition2D {
 
     if (!window) return;
 
-    // Calculate Full Window Path (Projected to Ground)
     const groundPathPositions = this.sampleGroundPath(
       sat.tle,
       window.startTime,
@@ -128,7 +127,6 @@ export class VisibilityObjectComposition2D {
     return positions;
   }
 
-  // --- Look Point Billboards (2D Icons) ---
   private createLookBillboards(lookPoints: LookPoint[]) {
     if (!lookPoints || lookPoints.length === 0) return;
 
@@ -150,7 +148,6 @@ export class VisibilityObjectComposition2D {
     });
   }
 
-  // --- Static Path Polyline ---
   private createStaticPath(positions: Cartesian3[]) {
     if (positions.length < 2) return;
 
@@ -160,10 +157,7 @@ export class VisibilityObjectComposition2D {
     for (let i = 0; i < length; i++) {
       const t = i / (length - 1);
 
-      // Calculate base wave (0 -> 1 -> 0)
       const baseAlpha = Math.sin(t * Math.PI);
-
-      // Scale it by the max desired alpha
       const finalAlpha = baseAlpha * PATH_MAX_ALPHA;
 
       colors.push(PATH_COLOR.withAlpha(finalAlpha));
@@ -190,7 +184,6 @@ export class VisibilityObjectComposition2D {
     );
   }
 
-  // --- Sensor Fan (Ground Projection) ---
   private createSensorFan(
     pathPositions: Cartesian3[],
     lat: number,

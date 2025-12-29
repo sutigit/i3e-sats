@@ -38,7 +38,7 @@ export class ObserverPrimitive {
       verticalOrigin: VerticalOrigin.BOTTOM,
       horizontalOrigin: HorizontalOrigin.CENTER,
       color: Color.WHITE,
-      disableDepthTestDistance: Number.POSITIVE_INFINITY, // Always render on top (UI style)
+      disableDepthTestDistance: Number.POSITIVE_INFINITY,
     });
   }
 

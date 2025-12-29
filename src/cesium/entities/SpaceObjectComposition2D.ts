@@ -18,23 +18,19 @@ import {
 import * as satellite from "satellite.js";
 import type { TLE } from "../../types";
 
-const TRAIL_LENGTH_METERS = 500000; // 500km Long Trail
-const RAINBOW_LENGTH_METERS = 500000; // 500km Rainbow Flare
-const SEGMENTS = 20; // Lower detail needed for short lines
+const TRAIL_LENGTH_METERS = 500000;
+const RAINBOW_LENGTH_METERS = 500000;
+const SEGMENTS = 20; // For path smoothness
 
-// --- SHARED ASSETS ---
-// Simple cyan square image for the Billboard.
 const createSquareImage = () => {
   const canvas = document.createElement("canvas");
   canvas.width = 32;
   canvas.height = 32;
   const ctx = canvas.getContext("2d");
   if (ctx) {
-    // Fill
     ctx.fillStyle = "rgba(94, 234, 212, 0.3)"; // #5eead4 with alpha
     ctx.fillRect(0, 0, 32, 32);
-    // Border
-    ctx.strokeStyle = "#ccfbf1"; // #ccfbf1
+    ctx.strokeStyle = "#ccfbf1";
     ctx.lineWidth = 4;
     ctx.strokeRect(0, 0, 32, 32);
   }
@@ -71,7 +67,6 @@ const createFlatTrail = (length: number, width: number, isRainbow: boolean) => {
       );
       colors.push(Color.fromAlpha(rgb, colorPos));
     } else {
-      // Simple Teal Fade
       colors.push(baseColor.withAlpha(0.7 * (1.0 - t)));
     }
   }
@@ -101,8 +96,8 @@ export class SpaceObjectComposition2D {
 
   // Zero-Allocation Scratch Memory
   private _scratchDate = new Date();
-  private _scratchPos = new Cartesian3(); // 3D Space Position
-  private _scratchGroundPos = new Cartesian3(); // Projected Ground Position
+  private _scratchPos = new Cartesian3();
+  private _scratchGroundPos = new Cartesian3();
   private _scratchNextGround = new Cartesian3();
 
   private _scratchUp = new Cartesian3();
@@ -119,8 +114,8 @@ export class SpaceObjectComposition2D {
     this._billboard = this._billboardCollection.add({
       image: SHARED_ICON_URL,
       position: Cartesian3.ZERO,
-      width: 14, // Fixed Pixel Size
-      height: 14, // Fixed Pixel Size
+      width: 14,
+      height: 14,
       color: Color.WHITE,
     });
     this._billboard.disableDepthTestDistance = Number.POSITIVE_INFINITY;
@@ -158,7 +153,6 @@ export class SpaceObjectComposition2D {
     const jsDate = JulianDate.toDate(time);
     this._scratchDate.setTime(jsDate.getTime());
 
-    // 1. Physics & Ground Projection
     const gmst = satellite.gstime(this._scratchDate);
     const posVel = satellite.propagate(this._satrec, this._scratchDate);
 
@@ -180,7 +174,6 @@ export class SpaceObjectComposition2D {
       this._scratchGroundPos
     );
 
-    // 2. Calculate Ground Velocity (Heading)
     jsDate.setSeconds(jsDate.getSeconds() + 1);
     const nextGmst = satellite.gstime(jsDate);
     const nextPosVel = satellite.propagate(this._satrec, jsDate);
@@ -206,17 +199,14 @@ export class SpaceObjectComposition2D {
         this._scratchNextGround.z - this._scratchGroundPos.z;
     }
 
-    // 3. Update Billboard Position
     this._billboard.position = this._scratchGroundPos;
 
-    // 4. Compute Matrix for Trails
     this.computeGroundMatrix(
       this._scratchGroundPos,
       this._scratchForward,
       this._scratchOrbitFrame
     );
 
-    // 5. Apply Matrix to Trails
     Matrix4.clone(
       this._scratchOrbitFrame,
       this._longTrailPrimitive.modelMatrix
@@ -232,16 +222,12 @@ export class SpaceObjectComposition2D {
     forwardDirection: Cartesian3,
     result: Matrix4
   ): void {
-    // Up = Surface Normal (Normalized Position)
     Cartesian3.normalize(position, this._scratchUp);
 
-    // Forward = Ground Track Direction
     Cartesian3.normalize(forwardDirection, this._scratchForward);
 
-    // Right = Cross(Up, Forward)
     Cartesian3.cross(this._scratchUp, this._scratchForward, this._scratchRight);
 
-    // Re-orthogonalize Forward to ensure perfect 90 degree angles
     Cartesian3.cross(this._scratchRight, this._scratchUp, this._scratchForward);
 
     // Rotation Matrix
