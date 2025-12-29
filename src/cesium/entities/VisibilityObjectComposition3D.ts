@@ -24,7 +24,7 @@ import * as satellite from "satellite.js";
 import type { Satellite, VisibilityWindow, LookPoint } from "../../types";
 
 // --- CONFIGURATION ---
-const PATH_SAMPLES = 50;
+const PATH_SAMPLES = 160;
 const BOX_SIZE = 50000;
 const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
 const PATH_COLOR = Color.fromCssColorString("#EDDDD4");
@@ -251,7 +251,7 @@ export class VisibilityObjectComposition3D {
     const instance = new GeometryInstance({
       geometry: new PolylineGeometry({
         positions: positions,
-        width: 1,
+        width: 1.2,
         colors: colors,
         colorsPerVertex: true,
         arcType: ArcType.NONE,

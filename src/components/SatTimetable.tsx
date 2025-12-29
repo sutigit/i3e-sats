@@ -39,7 +39,7 @@ export default function SatList() {
                     </h4>
                     <div className="sat-secondary-list">
                         <Suspense fallback={<Loading />}>
-                            {timetableSatellites.map((sat: Satellite) => (
+                            {timetableSatellites.slice(4).map((sat: Satellite) => (
                                 <SatSecondary
                                     key={sat.name}
                                     setFocus={() => setTargetSatellite(sat)}

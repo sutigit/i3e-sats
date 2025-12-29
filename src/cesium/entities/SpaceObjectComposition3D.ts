@@ -46,7 +46,7 @@ const BOX_OUTLINE_GEOM = new BoxOutlineGeometry({
 const createPathTrail = () => {
   const positions: Cartesian3[] = [];
   const colors: Color[] = [];
-  const baseColor = Color.fromCssColorString("#2dd4bf");
+  const baseColor = Color.fromCssColorString("#2dd4bf").withAlpha(0.8);
   const R = REFERENCE_RADIUS;
 
   for (let i = 0; i <= SEGMENTS; i++) {
@@ -73,7 +73,9 @@ const createRainbowTrail = () => {
   const positions: Cartesian3[] = [];
   const colors: Color[] = [];
   const rawColors = ["#7c3aed", "#0284c7", "#059669", "#ca8a04", "#dc2626"];
-  const palette = rawColors.map((c) => Color.fromCssColorString(c));
+  const palette = rawColors.map((c) =>
+    Color.fromCssColorString(c).withAlpha(0.8)
+  );
   const R = REFERENCE_RADIUS;
   const maxIdx = palette.length - 1;
 
@@ -101,7 +103,7 @@ const createRainbowTrail = () => {
     positions,
     colors,
     colorsPerVertex: true,
-    width: 1.0,
+    width: 1.2,
     arcType: ArcType.NONE,
   });
 };
@@ -140,7 +142,7 @@ export class SpaceObjectComposition3D {
         id: "box-fill-" + Math.random(),
         attributes: {
           color: ColorGeometryInstanceAttribute.fromColor(
-            Color.fromCssColorString("#5eead4").withAlpha(0.3)
+            Color.fromCssColorString("#5eead4").withAlpha(0.25)
           ),
         },
       }),
