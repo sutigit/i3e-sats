@@ -11,8 +11,8 @@ export function App() {
       <TleProvider>
         <SatelliteProvider>
           <SatMainView />
-          {/* <SatTimetable />
-          <SatLiveDetail /> */}
+          <SatTimetable />
+          {/* <SatLiveDetail /> */}
         </SatelliteProvider>
       </TleProvider>
     </main>

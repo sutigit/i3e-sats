@@ -12,6 +12,7 @@ export default function SatList() {
         <div id="sat-timetable">
             <div className="panel-content">
                 <div className="panel-content-item">
+                    <div className="mobile-pull-widget" />
                     <h2 className="panel-content-title">My location</h2>
                     <ObserverInput coords={observer} setCoords={setObserver} />
                 </div>

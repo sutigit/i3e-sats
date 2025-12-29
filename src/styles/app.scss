@@ -1,4 +1,4 @@
-// variables (e.g. colors, breaking-points)
+// variables (e.g. colors)
 @use "variables";
 
 // primitive styles (e.g. .bold, .centered)
@@ -16,44 +16,51 @@
 }
 
 #sat-main-view {
-  position: absolute;
+  position: sticky;
   height: 70%;
   inset: 0 0 0 0;
 
-  #cesium-view {
-    @include mixins.full-width-height;
+  @include breakpoints.mq("tablet") {
+    position: absolute;
+  }
 
-    .cesium-viewer .cesium-widget-credits {
-      position: absolute !important;
-      bottom: 5px !important;
-      opacity: 0.5;
-      scale: 0.6;
-    }
-
-    @include breakpoints.mq("tablet") {
-      .cesium-viewer .cesium-widget-credits {
-        position: absolute !important;
-        bottom: 6px !important;
-        left: 6px !important;
-        opacity: 0.7;
-        scale: 0.8;
-      }
-    }
-
-    @include breakpoints.mq("desktop") {
-      .cesium-viewer .cesium-widget-credits {
-        position: absolute !important;
-        bottom: 6px !important;
-        left: 10px !important;
-        opacity: 0.7;
-      }
-    }
+  @include breakpoints.mq("desktop") {
+    position: absolute;
   }
 }
 
 #sat-timetable {
-  @include mixins.float-panel-left;
-  height: 100%;
+  position: absolute;
+  top: calc(70%);
+  height: 150%;
+  width: 100%;
+  background-color: variables.$space-black;
+  border-radius: variables.$bento-border-radius;
+  padding: variables.$bento-gap;
+
+  .mobile-pull-widget {
+    margin: 5px auto;
+    z-index: 99;
+    height: 6px;
+    width: 80px;
+    border-radius: 6px;
+    background-color: variables.$dashboard-bg-accent;
+  }
+
+  @include breakpoints.mq("tablet") {
+  }
+
+  @include breakpoints.mq("desktop") {
+    width: 380px;
+    height: 100%;
+    padding-bottom: 3.5rem;
+    padding: 1rem;
+    left: 0;
+
+    .mobile-pull-widget {
+      display: none;
+    }
+  }
 
   .sat-primary-list {
     .sat-primary {
@@ -109,8 +116,17 @@
 }
 
 #sat-live-detail {
-  @include mixins.float-panel-right;
+  position: absolute;
   height: auto;
+
+  @include breakpoints.mq("tablet") {
+  }
+
+  @include breakpoints.mq("desktop") {
+    padding: 1rem;
+    width: 380px;
+    right: 0;
+  }
 
   #cesium-minimap-container {
     position: relative;
