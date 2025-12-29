@@ -39,12 +39,12 @@ export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean
             return;
         }
 
-        // 1. Cleanup previous composition (if switching from Sat A to Sat B)
+        // Cleanup previous composition (if switching from Sat A to Sat B)
         if (compositionRef.current) {
             compositionRef.current.destroy();
         }
 
-        // 2. Create new composition
+        // Create new composition
         // We pass observer coords to draw the fan tip
         compositionRef.current = new VisibilityObjectComposition3D(
             cesiumGlobeRef.current,
@@ -53,7 +53,7 @@ export default function CesiumGlobeView({ showFPS = false }: { showFPS?: boolean
             observer.lon
         );
 
-        // 3. Cleanup on unmount or dependency change
+        // Cleanup on unmount or dependency change
         return () => {
             if (compositionRef.current) {
                 compositionRef.current.destroy();

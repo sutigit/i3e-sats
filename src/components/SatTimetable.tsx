@@ -10,8 +10,6 @@ export default function SatList() {
 
     const handleFocus = (sat: Satellite) => {
         setTargetSatellite(sat)
-
-        // applies only if in mobile mq
         setMobileOpenMinimap(true)
     }
 
