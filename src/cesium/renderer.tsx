@@ -54,12 +54,6 @@ export const cesiumView = (
         creditContainer: view.minimap ? document.createElement('div') : undefined
     });
 
-    if (isMobile) {
-        viewer.resolutionScale = 1.0 / window.devicePixelRatio;
-        viewer.scene.postProcessStages.fxaa.enabled = false;
-        viewer.targetFrameRate = 30;
-    }
-
     // --- IMAGERY OPTIONS (ICEYE SAR style) --- 
     const layer = viewer.scene.imageryLayers.get(0)
 
@@ -100,7 +94,6 @@ export const cesiumView = (
     }
 
     // Atmosphere
-    viewer.scene.globe.showGroundAtmosphere = !isMobile;
     viewer.scene.globe.atmosphereBrightnessShift = -0.2;
     viewer.scene.globe.enableLighting = false;
     viewer.shadows = false;
@@ -139,7 +132,9 @@ export const cesiumView = (
     // Lock Rendering to ~30 FPS
     // This tells Cesium: "Don't try to render more often than this."
     // It frees up the CPU to finish calculations without choking.
-    // viewer.targetFrameRate = 30;
+    if (isMobile) {
+        viewer.targetFrameRate = 30;
+    }
 
     // Optional: Disable "Request Render Mode" if it's on
     // (It's off by default, but ensures the loop runs steadily at your target rate)
