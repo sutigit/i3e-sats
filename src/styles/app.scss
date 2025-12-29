@@ -26,7 +26,7 @@
   }
 }
 
-#sat-timetable {
+.sat-timetable {
   position: absolute;
   top: 70%;
   height: 150%;
@@ -46,9 +46,9 @@
     top: 0;
     width: 380px;
     height: 100%;
-    padding-bottom: 3.5rem;
     left: 0;
     padding: 1rem;
+    padding-bottom: 3.5rem;
     background-color: transparent;
   }
 
@@ -105,35 +105,61 @@
   }
 }
 
-#sat-live-detail {
+.sat-live-detail {
   position: fixed;
   top: 50%;
-  transform: translateY(-50%);
-  height: auto;
   width: 100%;
+  height: auto;
   background-color: variables.$space-black;
   border-radius: variables.$bento-border-radius;
   padding: variables.$bento-gap;
-  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
+
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(calc(-50% - 20px));
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0);
+
+  transition: opacity 0.3s ease-out, transform 0.3s ease-out,
+    box-shadow 0.3s ease-out, visibility 0s linear 0.3s;
+
+  &.mobile-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: all;
+    transform: translateY(-50%);
+    box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
+    transition-delay: 0s;
+
+    @include breakpoints.mq("tablet") {
+      transform: none;
+      box-shadow: none;
+    }
+  }
 
   @include breakpoints.mq("tablet") {
-    position: absolute;
-    right: 0;
-    top: 70%;
-    width: 50%;
-    background-color: variables.$space-black;
+    transition: none;
+    visibility: visible;
+    opacity: 1;
     transform: none;
-    border-radius: 0;
-    padding-right: calc(variables.$bento-gap + variables.$thin-scrollbar-width);
+    pointer-events: all;
     box-shadow: none;
+
+    position: absolute;
+    top: 70%;
+    right: 0;
+    width: 50%;
+    border-radius: 0;
+
+    padding-right: calc(variables.$bento-gap + variables.$thin-scrollbar-width);
   }
 
   @include breakpoints.mq("desktop") {
-    background-color: transparent;
+    top: 0;
+    right: 0;
     width: 380px;
     padding: 1rem;
-    right: 0;
-    top: 0;
+    background-color: transparent;
   }
 
   #cesium-minimap-container {

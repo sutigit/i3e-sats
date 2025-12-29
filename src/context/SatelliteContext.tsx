@@ -16,6 +16,8 @@ interface SatelliteContextType {
     setObserver: (coords: { lat: number; lon: number }) => void;
     targetSatellite?: Satellite;
     setTargetSatellite: (sat: Satellite) => void;
+    mobileOpenMinimap: boolean,
+    setMobileOpenMinimap: (open: boolean) => void;
     isLoading: boolean;
     isFetching: boolean;
     isError: boolean;
@@ -24,15 +26,22 @@ interface SatelliteContextType {
 const SatelliteContext = createContext<SatelliteContextType | undefined>(undefined);
 
 export const SatelliteProvider = ({ children }: { children: React.ReactNode }) => {
+    // network
+    const { data, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
+
+    // cesium refs
     const cesiumGlobeRef = useRef<Viewer>(null)
     const cesiumMinimapRef = useRef<Viewer>(null)
 
+    // data
     const [cesiumSatellites, setCesiumSatellites] = useState<Satellite[]>([]);
     const [timetableSatellites, setTimetableSatellites] = useState<Satellite[]>([]);
     const [targetSatellite, setTargetSatellite] = useState<Satellite>()
     const [observer, setObserver] = useState({ lat: coords["otaniemi"].lat, lon: coords["otaniemi"].lon });
     const [satellitesReady, setSatellitesReady] = useState<boolean>(false)
-    const { data, isLoading, isFetching, isError, isSuccess } = useTleMockQuery()
+
+    // layout
+    const [mobileOpenMinimap, setMobileOpenMinimap] = useState<boolean>(false)
 
     // --- 1. Initial load. Should run once when data is ready ---
     useEffect(() => {
@@ -81,6 +90,8 @@ export const SatelliteProvider = ({ children }: { children: React.ReactNode }) =
             setObserver,
             targetSatellite,
             setTargetSatellite,
+            mobileOpenMinimap,
+            setMobileOpenMinimap,
             isLoading,
             isFetching,
             isError,

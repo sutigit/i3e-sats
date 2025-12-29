@@ -85,14 +85,17 @@
 }
 
 .close-widget {
-  background-color: transparent;
-  border: none;
-  outline: none;
-  color: inherit;
-  width: 100%;
   padding: 0.8rem 1rem;
+  width: 100%;
   display: flex;
   justify-content: flex-end;
+
+  button {
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: inherit;
+  }
 }
 
 @include breakpoints.mq("tablet") {

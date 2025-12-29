@@ -134,7 +134,7 @@ const LookPointDetailPage = ({ spot, data }: { spot: number, data: LookPointLive
 );
 
 export default function SatLiveDetail() {
-    const { targetSatellite } = useSatellites();
+    const { targetSatellite, mobileOpenMinimap, setMobileOpenMinimap } = useSatellites();
     const trackerRef = useRef<SatelliteTracker>(null);
     const [tab, setTab] = useState<SatLiveDetailTabs>("LIVE");
 
@@ -146,12 +146,14 @@ export default function SatLiveDetail() {
     }, [targetSatellite]);
 
     return (
-        <div id="sat-live-detail">
+        <div className={`sat-live-detail ${mobileOpenMinimap ? 'mobile-open' : ''}`}>
             <div className="panel-content">
                 <div className="panel-content-item">
-                    <button className="close-widget">
-                        <CloseIcon />
-                    </button>
+                    <div className="close-widget">
+                        <button onClick={() => setMobileOpenMinimap(false)}>
+                            <CloseIcon />
+                        </button>
+                    </div>
                     <div id="cesium-minimap-container">
                         <div id="cesium-minimap-north-pointer">N</div>
                         <Suspense fallback={<LoadingAbsolute />}>

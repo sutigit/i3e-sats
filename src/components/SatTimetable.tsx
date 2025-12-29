@@ -6,10 +6,17 @@ import { useSatellites } from "../context/SatelliteContext"
 import { Suspense } from "preact/compat"
 
 export default function SatList() {
-    const { timetableSatellites, targetSatellite, setTargetSatellite, observer, setObserver } = useSatellites();
+    const { timetableSatellites, targetSatellite, setTargetSatellite, observer, setObserver, setMobileOpenMinimap } = useSatellites();
+
+    const handleFocus = (sat: Satellite) => {
+        setTargetSatellite(sat)
+
+        // applies only if in mobile mq
+        setMobileOpenMinimap(true)
+    }
 
     return (
-        <div id="sat-timetable">
+        <div className="sat-timetable">
             <div className="panel-content">
                 <div className="panel-content-item">
                     <div className="mobile-pull-widget" />
@@ -24,7 +31,7 @@ export default function SatList() {
                             {timetableSatellites.slice(0, 4).map((sat: Satellite) => (
                                 <SatPrimary
                                     key={sat.name}
-                                    setFocus={() => setTargetSatellite(sat)}
+                                    setFocus={() => handleFocus(sat)}
                                     focus={sat.name === targetSatellite?.name}
                                     satellite={sat}
                                 />
@@ -43,7 +50,7 @@ export default function SatList() {
                             {timetableSatellites.slice(4).map((sat: Satellite) => (
                                 <SatSecondary
                                     key={sat.name}
-                                    setFocus={() => setTargetSatellite(sat)}
+                                    setFocus={() => handleFocus(sat)}
                                     focus={sat.name === targetSatellite?.name}
                                     satellite={sat}
                                 />
