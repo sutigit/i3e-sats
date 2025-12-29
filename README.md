@@ -25,13 +25,13 @@ Quick map of the most interesting parts:
 This is where the "heavy lifting" happens. It handles orbital mechanics without relying on external APIs for position data.
 
 - **`getSatVisibilityData.ts`**: The core logic. It iterates through time to find interception windows between the observer and the satellite.
-- **`sortNearestSat.ts`**: Utility to filter the constellation for the most relevant satellites.
 - **`getSatLiveData.ts`**: Performs real-time SGP4 propagation to stream live telemetry (azimuth, elevation, speed, etc.) and relative look-angles to the UI.
+- **`sortNearestSat.ts`**: Utility to filter the constellation for the most relevant satellites.
 
 #### **2. The Visualization (`src/cesium/`)**
 
 - **`CesiumGlobeView.tsx`**: The main entry point for the 3D scene.
-- **`entities/`**: Contains the custom classes for drawing all entities on round and orbit.
+- **`entities/`**: Contains the custom classes for drawing entities on ground and orbit.
 
 #### **3. Main React component**
 
