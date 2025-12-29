@@ -17,7 +17,7 @@
 
 #sat-main-view {
   position: sticky;
-  height: 70%;
+  height: 64%;
   inset: 0 0 0 0;
 
   @include breakpoints.mq("desktop") {
@@ -28,7 +28,7 @@
 
 .sat-timetable {
   position: absolute;
-  top: 70%;
+  top: 64%;
   height: 1000px;
   width: 100%;
   background-color: variables.$space-black;
@@ -145,7 +145,7 @@
     box-shadow: none;
 
     position: absolute;
-    top: 70%;
+    top: 64%;
     right: 0;
     width: 50%;
     border-radius: 0;
