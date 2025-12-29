@@ -22,7 +22,7 @@ Quick map of the most interesting parts:
 
 #### **1. Calculations (`src/utils/`)**
 
-This is where the "heavy lifting" happens. It handles orbital mechanics without relying on external APIs for position data.
+This is where the "heavy lifting" happens.
 
 - **`getSatVisibilityData.ts`**: The core logic. It iterates through time to find interception windows between the observer and the satellite.
 - **`getSatLiveData.ts`**: Performs real-time SGP4 propagation to update live telemetry (azimuth, elevation, speed, etc.) and relative look-angles to the UI.
