@@ -25,9 +25,9 @@ import type { TLE } from "../../types";
 const TRAIL_LENGTH_BASE = 20000000; // 20 000km tail at Earth Surface
 const RAINBOW_LENGTH_BASE = 4000000; // 5000km (Shorter "Instantaneous" Tail)
 const REFERENCE_RADIUS = 6378137.0;
-const SEGMENTS = 60;
+const SEGMENTS = 60; // For path smoothness
 
-// --- SHARED ASSETS (Created ONCE for 45 Satellites) ---
+// --- SHARED ASSETS (45 Satellites) ---
 
 // 1. The Box Geometry (Satellite Body)
 // Centered at 0,0,0. Dimensions 50km x 50km x 50km
@@ -258,7 +258,7 @@ export class SpaceObjectComposition3D {
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
-      undefined, // <--- No scaling for the box
+      undefined,
       this._scratchOrbitFrame
     );
 
@@ -273,7 +273,7 @@ export class SpaceObjectComposition3D {
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
-      this._scratchScale, // <--- Apply orbital scale here
+      this._scratchScale,
       this._scratchOrbitFrame
     );
 
@@ -295,7 +295,7 @@ export class SpaceObjectComposition3D {
   private computeTransformMatrix(
     position: Cartesian3,
     velocity: Cartesian3,
-    scale: Cartesian3 | undefined, // <--- Make optional
+    scale: Cartesian3 | undefined,
     result: Matrix4
   ): void {
     Cartesian3.normalize(position, this._scratchUp);
@@ -324,7 +324,7 @@ export class SpaceObjectComposition3D {
 
     Matrix4.fromRotationTranslation(this._scratchRotation, position, result);
 
-    // ONLY multiply by scale if it is provided
+    // multiply by scale if it is provided
     if (scale) {
       Matrix4.multiplyByScale(result, scale, result);
     }
