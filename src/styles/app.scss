@@ -1,22 +1,19 @@
 // variables (e.g. colors, breaking-points)
 @use "variables";
 
-// common scss styles (e.g. .bold, .centered)
+// primitive styles (e.g. .bold, .centered)
 @use "utilities";
 
-// common styles (e.g. absolute-positioning, animations)
-@use "common";
-
-// common components styles (e.g. dashboard-panel)
-@use "components";
+// commonn styles (e.g. dashboard-panel)
+@use "mixins";
 
 #app {
-  @include common.full-screen-width-height;
+  @include mixins.full-screen-width-height;
   position: relative;
 }
 
 #cesium-view {
-  @include common.full-width-height;
+  @include mixins.full-width-height;
   position: absolute;
 }
 
@@ -49,12 +46,12 @@
 }
 
 #left-panel {
-  @include components.float-panel-left;
+  @include mixins.float-panel-left;
   height: 100%;
 }
 
 #right-panel {
-  @include components.float-panel-right;
+  @include mixins.float-panel-right;
   height: auto;
 }
 
@@ -213,7 +210,7 @@
   }
 
   .observer-button {
-    @include common.place-center;
+    @include mixins.place-center;
     color: inherit;
     display: flex;
     flex-direction: column;

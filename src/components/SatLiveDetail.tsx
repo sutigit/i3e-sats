@@ -44,13 +44,11 @@ const useSatLiveData = (satellite: Satellite | undefined) => {
     return data;
 };
 
-// --- MAIN COMPONENT ---
 export default function SatLiveDetail() {
     const { targetSatellite } = useSatellites();
     const trackerRef = useRef<SatelliteTracker>(null);
     const [tab, setTab] = useState<SatLiveDetailTabs>("LIVE");
 
-    // Reset to LIVE mode when satellite changes
     useEffect(() => {
         if (trackerRef.current && targetSatellite) {
             trackerRef.current.track(targetSatellite.tle);
@@ -81,7 +79,6 @@ export default function SatLiveDetail() {
     );
 }
 
-// --- SUB-COMPONENTS ---
 type LiveDataPanelProps = {
     tab: SatLiveDetailTabs;
     setTab: (tab: SatLiveDetailTabs) => void;
@@ -89,13 +86,11 @@ type LiveDataPanelProps = {
     trackerRef: RefObject<SatelliteTracker>;
 };
 
-
 const LiveDataPanel = ({ tab, setTab, targetSatellite, trackerRef }: LiveDataPanelProps) => {
     const liveData = useSatLiveData(targetSatellite);
 
     if (!targetSatellite || !liveData) return null;
 
-    // Determine which tabs are enabled based on available data
     const tabsStatus: Record<SatLiveDetailTabs, boolean> = {
         "LIVE": true,
         "LP1": !!liveData.lookPointsWindow.LP1,

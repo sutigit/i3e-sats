@@ -53,12 +53,11 @@ export default function CesiumMinimapView({ trackerRef, showFPS = false }: { tra
             return;
         }
 
-        // 1. Cleanup previous composition (if switching from Sat A to Sat B)
+        // Cleanup previous composition (if switching from Sat A to Sat B)
         if (compositionRef.current) {
             compositionRef.current.destroy();
         }
 
-        // 2. Create new composition
         compositionRef.current = new VisibilityObjectComposition2D(
             cesiumMinimapRef.current,
             targetSatellite,
@@ -66,7 +65,7 @@ export default function CesiumMinimapView({ trackerRef, showFPS = false }: { tra
             observer.lon
         );
 
-        // 3. Cleanup on unmount or dependency change
+        // Cleanup on unmount or dependency change
         return () => {
             if (compositionRef.current) {
                 compositionRef.current.destroy();
