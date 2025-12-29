@@ -7,6 +7,9 @@
 // commonn styles (e.g. dashboard-panel)
 @use "mixins";
 
+// mobile-first -> tablet -> desktop -> wide
+@use "breakpoints";
+
 #app {
   @include mixins.full-screen-width-height;
   position: relative;
