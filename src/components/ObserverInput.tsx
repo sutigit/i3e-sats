@@ -40,7 +40,7 @@ export default function ObserverInput({ coords, setCoords }: ObserverInputProps)
     return (
         <div className="observer-input">
             <div className="number-input">
-                <div onClick={() => alert("Sorry, can't do that yet.")}>
+                <div onClick={() => alert("Sorry, can't do that right now")}>
                     <p>Latitude</p>
                     <div className="place-horizontal">
                         <input
@@ -54,7 +54,7 @@ export default function ObserverInput({ coords, setCoords }: ObserverInputProps)
                         <PencilIcon size={16} />
                     </div>
                 </div>
-                <div onClick={() => alert("Sorry, can't do that yet.")}>
+                <div onClick={() => alert("Sorry, can't do that right now")}>
                     <p>Longitude</p>
                     <div className="place-horizontal">
                         <input
