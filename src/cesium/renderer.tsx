@@ -135,9 +135,5 @@ export const cesiumView = (
         viewer.targetFrameRate = 30;
     }
 
-    // Optional: Disable "Request Render Mode" if it's on
-    // (It's off by default, but ensures the loop runs steadily at your target rate)
-    // viewer.scene.requestRenderMode = false;
-
     return viewer;
 }
