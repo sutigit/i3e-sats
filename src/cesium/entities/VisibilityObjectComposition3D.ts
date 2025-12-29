@@ -23,7 +23,6 @@ import {
 import * as satellite from "satellite.js";
 import type { Satellite, VisibilityWindow, LookPoint } from "../../types";
 
-// --- CONFIGURATION ---
 const PATH_SAMPLES = 160;
 const BOX_SIZE = 50000;
 const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
@@ -58,24 +57,20 @@ export class VisibilityObjectComposition3D {
 
     const now = new Date();
 
-    // 1. Full Window Path (Static Context) - Unchanged
+    // Full Window Path
     const fullWindowPositions = this.samplePath(
       sat.tle,
       window.startTime,
       window.endTime
     );
 
-    // 2. Active Path with Extension (Trajectory)
-    // We calculate the end time for the LINE, which includes the extension
+    // Active Path with Extension (Trajectory)
     const lineEndTime = new Date(window.endTime.getTime() + EXTENSION_MS);
 
-    // We generate positions from NOW -> (WindowEnd + Extension)
     const activePathPositions = this.samplePath(sat.tle, now, lineEndTime);
 
-    // 3. Create Components
     this.createLookBoxes(window.lookPoints);
 
-    // Pass the original window.endTime so we know where to start fading
     this.createFadedPath(activePathPositions, now, lineEndTime, window.endTime);
 
     this.createSensorFan(fullWindowPositions, observerLat, observerLon);
@@ -85,20 +80,19 @@ export class VisibilityObjectComposition3D {
     const windows = sat.visibility.visibilityWindow || [];
     const now = new Date().getTime();
 
-    // Priority 1: Active
+    // Priority 1
     const active = windows.find(
       (w) => w.startTime.getTime() <= now && w.endTime.getTime() >= now
     );
     if (active) return active;
 
-    // Priority 2: Next Future
+    // Priority 2
     return windows.find((w) => w.startTime.getTime() > now) || null;
   }
 
   private samplePath(tle: any, start: Date, end: Date): Cartesian3[] {
     const positions: Cartesian3[] = [];
 
-    // Safety: If we are past the end time, return empty (don't draw backwards)
     if (start.getTime() >= end.getTime()) return positions;
 
     const satrec = satellite.twoline2satrec(tle.line1, tle.line2);
@@ -106,8 +100,6 @@ export class VisibilityObjectComposition3D {
     const endMs = end.getTime();
     const duration = endMs - startMs;
 
-    // Smoothness: Ensure enough samples even if duration is short
-    // (Or conversely, if duration is long, 50 samples is usually enough for LEO)
     const step = duration / PATH_SAMPLES;
 
     for (let i = 0; i <= PATH_SAMPLES; i++) {
@@ -126,7 +118,7 @@ export class VisibilityObjectComposition3D {
     return positions;
   }
 
-  // --- COMPONENT 1: Look Point Boxes ---
+  // --- Look Point Boxes ---
   private createLookBoxes(lookPoints: LookPoint[]) {
     if (!lookPoints || lookPoints.length === 0) return;
 
@@ -204,7 +196,7 @@ export class VisibilityObjectComposition3D {
     );
   }
 
-  // --- COMPONENT 2: Faded Path Polyline ---
+  // --- Faded Path Polyline ---
   private createFadedPath(
     positions: Cartesian3[],
     startTime: Date,
@@ -221,28 +213,21 @@ export class VisibilityObjectComposition3D {
     const fadeStartMs = fadeStartTime.getTime();
 
     for (let i = 0; i < length; i++) {
-      // Calculate the specific time for this vertex
       const t = i / (length - 1);
       const currentTimeMs = startMs + t * totalDuration;
 
       let alpha = PATH_MAX_ALPHA;
 
-      // If we are past the original visibility window, start fading out
       if (currentTimeMs > fadeStartMs) {
         const overlap = currentTimeMs - fadeStartMs;
         const extensionDuration = totalEndTime.getTime() - fadeStartMs;
 
-        // Normalized fade progress (0.0 at start of fade, PATH_MAX_ALPHA at very end)
         const fadeProgress = Math.min(
           overlap / extensionDuration,
           PATH_MAX_ALPHA
         );
 
-        // Linear fade out: PATH_MAX_ALPHA -> 0.0
         alpha = PATH_MAX_ALPHA - fadeProgress;
-
-        // Optional: Use ease-out curve for smoother look (comment out if prefer linear)
-        // alpha = Math.cos(fadeProgress * (Math.PI / 2));
       }
 
       colors.push(PATH_COLOR.withAlpha(alpha));
@@ -267,7 +252,7 @@ export class VisibilityObjectComposition3D {
     );
   }
 
-  // --- COMPONENT 3: Sensor Fan ---
+  // --- Sensor Fan ---
   private createSensorFan(
     pathPositions: Cartesian3[],
     lat: number,
@@ -324,7 +309,6 @@ export class VisibilityObjectComposition3D {
     );
   }
 
-  // --- HELPERS ---
   private computeOrientation(
     position: Cartesian3,
     velocity: Cartesian3,

@@ -10,7 +10,6 @@ export const getVisibilityDisplay = (satellite: Satellite): VisibilitySatus => {
   const now = new Date().getTime();
   const windows = satellite.visibility.visibilityWindow;
 
-  // 1. Find the relevant window (Active or Next Future)
   let activeWindow = null;
   let nextFutureWindow = null;
 
@@ -18,13 +17,11 @@ export const getVisibilityDisplay = (satellite: Satellite): VisibilitySatus => {
     const start = win.startTime.getTime();
     const end = win.endTime.getTime();
 
-    // Is it happening right now?
     if (start <= now && end >= now) {
       activeWindow = win;
-      break; // Priority found
+      break;
     }
 
-    // Is it in the future (Find the soonest one)
     if (start > now) {
       if (!nextFutureWindow || start < nextFutureWindow.startTime.getTime()) {
         nextFutureWindow = win;
@@ -32,7 +29,6 @@ export const getVisibilityDisplay = (satellite: Satellite): VisibilitySatus => {
     }
   }
 
-  // 2. Decide what to return based on what is found
   const targetWindow = activeWindow || nextFutureWindow;
 
   if (!targetWindow) {

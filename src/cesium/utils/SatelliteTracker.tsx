@@ -40,7 +40,7 @@ export default class SatelliteTracker {
     }
 
     /**
-     * Mode 1: Track a moving Satellite (re-propagates position every frame)
+     * Track a moving Satellite (re-propagates position every frame)
      */
     public track(tle: TLE) {
         this.stop(); // Clean up previous state
@@ -54,12 +54,11 @@ export default class SatelliteTracker {
     }
 
     /**
-     * Mode 2: Point to a fixed LookPoint (locks camera to specific lat/lon)
+     * Point to a fixed LookPoint (locks camera to specific lat/lon)
      */
     public point(lookPoint: LookPoint) {
         this.stop(); // Clean up previous state
 
-        // Calculate the transform ONCE since the point doesn't move relative to Earth
         const position = Cartesian3.fromDegrees(
             lookPoint.location.lon,
             lookPoint.location.lat,
@@ -69,7 +68,6 @@ export default class SatelliteTracker {
         Transforms.eastNorthUpToFixedFrame(position, undefined, this._staticTransform);
         this._mode = "STATIC";
 
-        // Snap immediately, then start loop
         this.updateCamera(this._viewer.clock.currentTime);
         this.startListener();
     }
@@ -110,7 +108,6 @@ export default class SatelliteTracker {
 
         // --- B. SATELLITE MODE ---
         if (this._mode === "SATELLITE" && this._satrec) {
-            // 1. Time & Physics
             const jsDate = JulianDate.toDate(time);
             this._scratchDate.setTime(jsDate.getTime());
 
@@ -119,7 +116,6 @@ export default class SatelliteTracker {
 
             if (!posVel?.position || typeof posVel.position !== 'object') return;
 
-            // 2. Coordinates
             const pEci = posVel.position as satellite.EciVec3<number>;
             const pEcf = satellite.eciToEcf(pEci, gmst);
 
@@ -129,14 +125,13 @@ export default class SatelliteTracker {
             this._scratchPos.y = pEcf.y * 1000;
             this._scratchPos.z = pEcf.z * 1000;
 
-            // 3. New Reference Frame (Origin = Satellite)
             Transforms.eastNorthUpToFixedFrame(
                 this._scratchPos,
                 undefined,
                 this._scratchTransform
             );
 
-            // 4. Apply Transform
+            // Apply Transform
             this._viewer.camera.lookAtTransform(
                 this._scratchTransform,
                 this._offset

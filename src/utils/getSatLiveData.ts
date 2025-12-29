@@ -19,7 +19,6 @@ import type {
 } from "../types";
 import { getCompassDirection } from "./getCompassDirection";
 
-// Helper: Convert Location (Deg/Deg/Km) to satellite.js Geodetic (Rad/Rad/Km)
 const toGeodetic = (loc: Location): Geodetic => ({
   latitude: degreesToRadians(loc.lat),
   longitude: degreesToRadians(loc.lon),
@@ -33,7 +32,6 @@ export const getSatLiveData = (
   observerAltMeters: number = 0,
   now: Date
 ): SatLiveData => {
-  // --- 1. SETUP ---
   const { tle, visibility } = satellite;
   const satrec = twoline2satrec(tle.line1, tle.line2);
 
@@ -44,8 +42,6 @@ export const getSatLiveData = (
   };
 
   const nowMs = now.getTime();
-
-  // --- 2. LIVE CALCULATIONS (Current State) ---
   const gmst = gstime(now);
   const posVel = propagate(satrec, now);
 
@@ -83,7 +79,7 @@ export const getSatLiveData = (
     };
   }
 
-  // --- 3. LOOK POINTS CALCULATIONS ---
+  // --- LOOK POINTS CALCULATIONS ---
   const lookPointsLive: SatLiveData["lookPointsLive"] = [];
   const lookPointsWindow: SatLiveData["lookPointsWindow"] = {};
 
@@ -99,25 +95,21 @@ export const getSatLiveData = (
 
   if (targetWindow && targetWindow.lookPoints.length > 0) {
     targetWindow.lookPoints.forEach((lp, index) => {
-      // 1. Time Logic (Using pre-calculated time from LookPoint)
       const timeToDestination = lp.time.getTime() - nowMs;
 
-      // 2. Geometry (Using the Helper)
       const lpGeodetic = toGeodetic(lp.location);
       const lpEcf = geodeticToEcf(lpGeodetic);
 
       const look = ecfToLookAngles(observerGd, lpEcf);
       const azDeg = radiansToDegrees(look.azimuth);
 
-      // 3. Create Key (LP1, LP2...)
+      // Create Key (LP1, LP2...)
       // Ensure we only process up to 5 points to match the type definition
       if (index < 5) {
         const key = `LP${index + 1}` as LookPoinTabs;
 
-        // Populate the Window Dictionary (The Static Data)
         lookPointsWindow[key] = lp;
 
-        // Populate the Live Array (The Calculated Data)
         lookPointsLive.push({
           lp: key,
           timeToDestination,

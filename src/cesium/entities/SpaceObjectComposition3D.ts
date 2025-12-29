@@ -17,19 +17,15 @@ import {
   ColorGeometryInstanceAttribute,
 } from "cesium";
 
-// Helper for Box Colors
 import * as satellite from "satellite.js";
 import type { TLE } from "../../types";
 
-// --- CONFIGURATION ---
 const TRAIL_LENGTH_BASE = 20000000; // 20 000km tail at Earth Surface
 const RAINBOW_LENGTH_BASE = 4000000; // 5000km (Shorter "Instantaneous" Tail)
 const REFERENCE_RADIUS = 6378137.0;
 const SEGMENTS = 60; // For path smoothness
 
-// --- SHARED ASSETS (45 Satellites) ---
-
-// 1. The Box Geometry (Satellite Body)
+// The Box Geometry (Satellite Body)
 // Centered at 0,0,0. Dimensions 50km x 50km x 50km
 const BOX_FILL_GEOM = new BoxGeometry({
   maximum: new Cartesian3(25000, 25000, 25000),
@@ -41,7 +37,7 @@ const BOX_OUTLINE_GEOM = new BoxOutlineGeometry({
   minimum: new Cartesian3(-25000, -25000, -25000),
 });
 
-// 2. The Long Trail Geometry
+// The Long Trail Geometry
 // Starts at 0,0,0 and curves backwards
 const createPathTrail = () => {
   const positions: Cartesian3[] = [];
@@ -67,7 +63,7 @@ const createPathTrail = () => {
 };
 const PATH_TRAIL_GEOM = createPathTrail();
 
-// 3. The Rainbow Trail Geometry
+// The Rainbow Trail Geometry
 // Starts at 0,0,0 and curves backwards (Shorter)
 const createRainbowTrail = () => {
   const positions: Cartesian3[] = [];
@@ -114,7 +110,6 @@ export class SpaceObjectComposition3D {
   private _satrec: satellite.SatRec;
   private _removeListener: (() => void) | undefined;
 
-  // We manage 4 Primitives internally
   private _boxPrimitive: Primitive;
   private _boxOutlinePrimitive: Primitive;
   private _longTrailPrimitive: Primitive;
@@ -135,7 +130,7 @@ export class SpaceObjectComposition3D {
     this._viewer = viewer;
     this._satrec = satellite.twoline2satrec(tle.line1, tle.line2);
 
-    // A1. Setup Box (FILL)
+    // Setup Box (FILL)
     this._boxPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
         geometry: BOX_FILL_GEOM,
@@ -153,7 +148,7 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // A2. Setup Box (OUTLINE)
+    // Setup Box (OUTLINE)
     this._boxOutlinePrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
         geometry: BOX_OUTLINE_GEOM,
@@ -173,14 +168,14 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // B. Setup Path Trail
+    // Setup Path Trail
     this._longTrailPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({ geometry: PATH_TRAIL_GEOM }),
       appearance: new PolylineColorAppearance({ translucent: true }),
       asynchronous: false,
     });
 
-    // C. Setup Rainbow Trail
+    // Setup Rainbow Trail
     this._rainbowPrimitive = new Primitive({
       geometryInstances: new GeometryInstance({
         geometry: RAINBOW_TRAIL_GEOM,
@@ -189,14 +184,12 @@ export class SpaceObjectComposition3D {
       asynchronous: false,
     });
 
-    // Add all to scene
     const primitives = this._viewer.scene.primitives;
     primitives.add(this._boxPrimitive);
     primitives.add(this._boxOutlinePrimitive);
     primitives.add(this._longTrailPrimitive);
     primitives.add(this._rainbowPrimitive);
 
-    // Start Loop
     this.startUpdateLoop();
   }
 
@@ -209,11 +202,9 @@ export class SpaceObjectComposition3D {
   }
 
   private update(time: JulianDate): void {
-    // 1. Time Sync (1 Allocation)
     const jsDate = JulianDate.toDate(time);
     this._scratchDate.setTime(jsDate.getTime());
 
-    // 2. Physics Calculation (Shared by all 3 parts)
     const gmst = satellite.gstime(this._scratchDate);
     const posVel = satellite.propagate(this._satrec, this._scratchDate);
 
@@ -223,7 +214,6 @@ export class SpaceObjectComposition3D {
     }
     this.setShow(true);
 
-    // 3. Coordinate Conversion (ECI -> ECF)
     const pEci = posVel.position as satellite.EciVec3<number>;
     const pEcf = satellite.eciToEcf(pEci, gmst);
 
@@ -231,7 +221,7 @@ export class SpaceObjectComposition3D {
     this._scratchPos.y = pEcf.y * 1000;
     this._scratchPos.z = pEcf.z * 1000;
 
-    // 4. Velocity for Orientation
+    // Velocity for Orientation
     jsDate.setSeconds(jsDate.getSeconds() + 1);
     const nextGmst = satellite.gstime(jsDate);
     const nextPosVel = satellite.propagate(this._satrec, jsDate);
@@ -245,7 +235,7 @@ export class SpaceObjectComposition3D {
       this._scratchVel.z = nextEcf.z * 1000 - this._scratchPos.z;
     }
 
-    // 5. Scale Calculation (ONLY for trails)
+    // Scale Calculation (ONLY for trails)
     const orbitalRadius = Cartesian3.magnitude(this._scratchPos);
     const scaleFactor = orbitalRadius / REFERENCE_RADIUS;
 
@@ -253,8 +243,7 @@ export class SpaceObjectComposition3D {
     this._scratchScale.y = scaleFactor;
     this._scratchScale.z = scaleFactor;
 
-    // 6. Compute Matrix for the BOX (Scale = 1.0)
-    // We pass 'undefined' for scale to avoid scaling the boxes
+    // Compute Matrix for the BOX (Scale = 1.0)
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
@@ -269,7 +258,7 @@ export class SpaceObjectComposition3D {
       this._boxOutlinePrimitive.modelMatrix
     );
 
-    // 7. Compute Matrix for the TRAILS (Scale = scaleFactor)
+    // xCompute Matrix for the TRAILS (Scale = scaleFactor)
     this.computeTransformMatrix(
       this._scratchPos,
       this._scratchVel,
@@ -324,7 +313,6 @@ export class SpaceObjectComposition3D {
 
     Matrix4.fromRotationTranslation(this._scratchRotation, position, result);
 
-    // multiply by scale if it is provided
     if (scale) {
       Matrix4.multiplyByScale(result, scale, result);
     }

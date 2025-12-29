@@ -11,7 +11,6 @@ export const sortNearestSat = (
 ): Satellite[] => {
   const nowTime = now.getTime();
 
-  // 1. MAP: Calculate the sorting state for every satellite once
   const mapped = satellites.map((sat) => {
     const windows = sat.visibility.visibilityWindow;
 
@@ -26,7 +25,7 @@ export const sortNearestSat = (
       const start = win.startTime.getTime();
       const end = win.endTime.getTime();
 
-      // Check if this window is currently active
+      // Check if window is currently active
       if (start <= nowTime && end >= nowTime) {
         activeWindow = win;
         break;

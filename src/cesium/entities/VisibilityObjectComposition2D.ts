@@ -21,7 +21,6 @@ import {
 import * as satellite from "satellite.js";
 import type { Satellite, VisibilityWindow, LookPoint } from "../../types";
 
-// --- CONFIGURATION ---
 const PATH_SAMPLES = 50;
 const FAN_COLOR = Color.fromCssColorString("#EDDDD4").withAlpha(0.2);
 const PATH_COLOR = Color.fromCssColorString("#EDDDD4");
@@ -29,7 +28,6 @@ const PATH_MAX_ALPHA = 0.6;
 const BOX_COLOR = "rgba(237, 221, 212,0.4)";
 const BOX_OUTLINE_COLOR = "rgba(255,255,255,0.7)";
 
-// --- SHARED ASSETS ---
 const createSquareImage = () => {
   const canvas = document.createElement("canvas");
   canvas.width = 24;
@@ -49,7 +47,7 @@ const LOOK_POINT_ICON_URL = createSquareImage();
 export class VisibilityObjectComposition2D {
   private _viewer: Viewer;
   private _primitives: Primitive[] = [];
-  private _billboards: BillboardCollection; // Now guaranteed to be initialized
+  private _billboards: BillboardCollection;
 
   constructor(
     viewer: Viewer,
@@ -59,23 +57,20 @@ export class VisibilityObjectComposition2D {
   ) {
     this._viewer = viewer;
 
-    // FIX: Initialize immediately so it is defined even if we return early
     this._billboards = new BillboardCollection();
     this._viewer.scene.primitives.add(this._billboards);
 
     const window = this.findBestWindow(sat);
 
-    // Early return is now safe because _billboards exists (it's just empty)
     if (!window) return;
 
-    // 1. Calculate Full Window Path (Projected to Ground)
+    // Calculate Full Window Path (Projected to Ground)
     const groundPathPositions = this.sampleGroundPath(
       sat.tle,
       window.startTime,
       window.endTime
     );
 
-    // 2. Create Components
     this.createLookBillboards(window.lookPoints);
     this.createStaticPath(groundPathPositions);
     this.createSensorFan(groundPathPositions, observerLat, observerLon);
@@ -85,13 +80,13 @@ export class VisibilityObjectComposition2D {
     const windows = sat.visibility.visibilityWindow || [];
     const now = new Date().getTime();
 
-    // Priority 1: Active
+    // Priority 1
     const active = windows.find(
       (w) => w.startTime.getTime() <= now && w.endTime.getTime() >= now
     );
     if (active) return active;
 
-    // Priority 2: Next Future
+    // Priority 2
     return windows.find((w) => w.startTime.getTime() > now) || null;
   }
 
@@ -133,12 +128,11 @@ export class VisibilityObjectComposition2D {
     return positions;
   }
 
-  // --- COMPONENT 1: Look Point Billboards (2D Icons) ---
+  // --- Look Point Billboards (2D Icons) ---
   private createLookBillboards(lookPoints: LookPoint[]) {
     if (!lookPoints || lookPoints.length === 0) return;
 
     lookPoints.forEach((lp) => {
-      // Convert Location to Cartesian3 (and clamp to ground)
       const rawPos = Cartesian3.fromDegrees(
         lp.location.lon,
         lp.location.lat,
@@ -156,7 +150,7 @@ export class VisibilityObjectComposition2D {
     });
   }
 
-  // --- COMPONENT 2: Static Path Polyline ---
+  // --- Static Path Polyline ---
   private createStaticPath(positions: Cartesian3[]) {
     if (positions.length < 2) return;
 
@@ -166,10 +160,10 @@ export class VisibilityObjectComposition2D {
     for (let i = 0; i < length; i++) {
       const t = i / (length - 1);
 
-      // 1. Calculate base wave (0 -> 1 -> 0)
+      // Calculate base wave (0 -> 1 -> 0)
       const baseAlpha = Math.sin(t * Math.PI);
 
-      // 2. Scale it by the max desired alpha
+      // Scale it by the max desired alpha
       const finalAlpha = baseAlpha * PATH_MAX_ALPHA;
 
       colors.push(PATH_COLOR.withAlpha(finalAlpha));
@@ -196,7 +190,7 @@ export class VisibilityObjectComposition2D {
     );
   }
 
-  // --- COMPONENT 3: Sensor Fan (Ground Projection) ---
+  // --- Sensor Fan (Ground Projection) ---
   private createSensorFan(
     pathPositions: Cartesian3[],
     lat: number,
@@ -253,7 +247,6 @@ export class VisibilityObjectComposition2D {
     );
   }
 
-  // --- LIFECYCLE ---
   private addPrimitive(prim: Primitive) {
     this._viewer.scene.primitives.add(prim);
     this._primitives.push(prim);
@@ -265,7 +258,6 @@ export class VisibilityObjectComposition2D {
     });
     this._primitives = [];
 
-    // Safely remove billboards
     if (this._billboards && !this._billboards.isDestroyed()) {
       this._viewer.scene.primitives.remove(this._billboards);
     }

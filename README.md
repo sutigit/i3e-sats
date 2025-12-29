@@ -16,9 +16,9 @@ The **i3e-sats** project is a React-based application that visualizes the orbits
 
 ---
 
-### **For Reviewers: How to Navigate the Code**
+### **How to Navigate the Code**
 
-If you are reviewing this project for a technical role, here is a quick map of the most interesting parts:
+Quick map of the most interesting parts:
 
 #### **1. Calculations (`src/utils/`)**
 
@@ -26,6 +26,7 @@ This is where the "heavy lifting" happens. It handles orbital mechanics without 
 
 - **`getSatVisibilityData.ts`**: The core logic. It iterates through time to find interception windows between the observer and the satellite.
 - **`sortNearestSat.ts`**: Utility to filter the constellation for the most relevant satellites.
+- **`getSatLiveData.ts`**: Performs real-time SGP4 propagation to stream live telemetry (azimuth, elevation, speed, etc.) and relative look-angles to the UI.
 
 #### **2. The Visualization (`src/cesium/`)**
 

@@ -21,14 +21,12 @@ import type {
   LookPoint,
 } from "../types";
 
-// --- CONSTANTS ---
 const MIN_ELEVATION = 10;
 const COARSE_STEP_MS = 4 * 60 * 1000;
 const LOOKAHEAD_MS = 24 * 60 * 60 * 1000;
 const MIN_POINT_SPACING_MS = 60 * 1000;
 
-// Safety: Maximum duration of a LEO pass to backtrack (e.g., 20 mins)
-// If we backtrack more than this and it's still visible, something is wrong or it's GEO.
+// Maximum duration of a LEO pass to backtrack (e.g., 20 mins)
 const MAX_BACKTRACK_MS = 25 * 60 * 1000;
 
 /** Calculates the specific Lat/Lon/Alt for a given time. */
@@ -150,19 +148,15 @@ const findHistoricalRiseTime = (
       getElevation(satrec, prevDate, observerGd) > MIN_ELEVATION;
 
     if (!isVisible) {
-      // Found the transition (Invisible -> Visible)
-      // Note: passing arguments in (Invisible, Visible) order
       return findCrossingTime(satrec, observerGd, prevDate, new Date(backScan));
     }
     backScan = prevTime;
   }
 
-  // Fallback: If we couldn't find the rise (unlikely for LEO), just return 'now'
-  // or the limit. This prevents infinite loops.
   return now;
 };
 
-// --- CORE LOGIC: Visibility Calculation ---
+// --- Visibility Calculation ---
 const calculateVisibilityWindows = (
   satrec: SatRec,
   observerGd: Geodetic,
@@ -174,7 +168,6 @@ const calculateVisibilityWindows = (
   let scanTime = now.getTime();
   let isVisible = getElevation(satrec, now, observerGd) > MIN_ELEVATION;
 
-  // Track the start of the current window
   let openWindowStart: Date | null = null;
 
   if (isVisible) {
@@ -183,7 +176,6 @@ const calculateVisibilityWindows = (
     openWindowStart = findHistoricalRiseTime(satrec, observerGd, now);
   }
 
-  // Coarse Scan Loop
   while (scanTime < endTime) {
     const nextTime = scanTime + COARSE_STEP_MS;
     const nextDate = new Date(nextTime);
@@ -199,8 +191,6 @@ const calculateVisibilityWindows = (
       );
 
       if (isVisible && !nextVisible) {
-        // EVENT: Setting (Visible -> Invisible)
-        // Only add if we have a valid start (which we should)
         if (openWindowStart) {
           windows.push({
             startTime: openWindowStart,
@@ -216,7 +206,6 @@ const calculateVisibilityWindows = (
         }
         openWindowStart = null;
       } else if (!isVisible && nextVisible) {
-        // EVENT: Rising (Invisible -> Visible)
         openWindowStart = crossingTime;
       }
     }
@@ -240,7 +229,6 @@ const calculateVisibilityWindows = (
   return windows;
 };
 
-// --- MAIN FUNCTION ---
 export const getSatVisibilityData = (
   tle: TLE,
   observerLat: number,
@@ -248,7 +236,6 @@ export const getSatVisibilityData = (
   observerAltMeters: number = 0,
   now: Date
 ): SatVisibilityData => {
-  // 1. Setup
   const satrec = twoline2satrec(tle.line1, tle.line2);
   const observerGd: Geodetic = {
     latitude: degreesToRadians(observerLat),
@@ -256,7 +243,6 @@ export const getSatVisibilityData = (
     height: observerAltMeters / 1000,
   };
 
-  // 2. Propagate Current State
   const gmst = gstime(now);
   const posVel = propagate(satrec, now);
 
@@ -269,10 +255,8 @@ export const getSatVisibilityData = (
   const look = ecfToLookAngles(observerGd, pEcf);
   const elevationDeg = radiansToDegrees(look.elevation);
 
-  // 3. Calculate Visibility Window with LookPoints
   const visibilityWindow = calculateVisibilityWindows(satrec, observerGd, now);
 
-  // 4. Return Data
   return {
     visible: elevationDeg > MIN_ELEVATION,
     visibilityWindow,
