@@ -23,7 +23,7 @@ import type { TLE } from "../../types";
 
 // --- CONFIGURATION ---
 const TRAIL_LENGTH_BASE = 20000000; // 20 000km tail at Earth Surface
-const RAINBOW_LENGTH_BASE = 5000000; // 5000km (Shorter "Instantaneous" Tail)
+const RAINBOW_LENGTH_BASE = 4000000; // 5000km (Shorter "Instantaneous" Tail)
 const REFERENCE_RADIUS = 6378137.0;
 const SEGMENTS = 60;
 
