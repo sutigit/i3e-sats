@@ -29,7 +29,6 @@ const MIN_POINT_SPACING_MS = 60 * 1000;
 // Maximum duration of a LEO pass to backtrack (e.g., 20 mins)
 const MAX_BACKTRACK_MS = 25 * 60 * 1000;
 
-/** Calculates the specific Lat/Lon/Alt for a given time. */
 const getLocationAtTime = (satrec: SatRec, date: Date): Location => {
   const gmst = gstime(date);
   const posVel = propagate(satrec, date);
@@ -171,8 +170,6 @@ const calculateVisibilityWindows = (
   let openWindowStart: Date | null = null;
 
   if (isVisible) {
-    // If visible NOW, find the TRUE start time in the past.
-    // This anchors the window so it doesn't shift on reload.
     openWindowStart = findHistoricalRiseTime(satrec, observerGd, now);
   }
 

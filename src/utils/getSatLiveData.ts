@@ -45,7 +45,6 @@ export const getSatLiveData = (
   const gmst = gstime(now);
   const posVel = propagate(satrec, now);
 
-  // Default Empty State
   let liveData = {
     speed: 0,
     distance: 0,
@@ -63,7 +62,6 @@ export const getSatLiveData = (
     const pEci = posVel.position as EciVec3<number>;
     const vEci = posVel.velocity as EciVec3<number>;
 
-    // Transforms
     const pEcf = eciToEcf(pEci, gmst);
     const pGeo = eciToGeodetic(pEci, gmst);
     const look = ecfToLookAngles(observerGd, pEcf);
@@ -103,8 +101,6 @@ export const getSatLiveData = (
       const look = ecfToLookAngles(observerGd, lpEcf);
       const azDeg = radiansToDegrees(look.azimuth);
 
-      // Create Key (LP1, LP2...)
-      // Ensure we only process up to 5 points to match the type definition
       if (index < 5) {
         const key = `LP${index + 1}` as LookPoinTabs;
 

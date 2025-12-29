@@ -39,7 +39,7 @@ export const getVisibilityDisplay = (satellite: Satellite): VisibilitySatus => {
     };
   }
 
-  // Helper to format HH:MM
+  // format HH:MM
   const fmt = (d: Date) =>
     d.toLocaleTimeString([], {
       hour: "2-digit",
@@ -51,7 +51,6 @@ export const getVisibilityDisplay = (satellite: Satellite): VisibilitySatus => {
     targetWindow.endTime
   )}`;
 
-  // Calculate minutes difference
   if (activeWindow) {
     return {
       status: "VISIBLE",
