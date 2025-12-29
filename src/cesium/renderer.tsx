@@ -20,6 +20,8 @@ export const cesiumView = (
         throw new Error('Cesium container ref is not attached to a DOM element');
     }
 
+    const isMobile = window.matchMedia("(max-width: 768px)").matches;
+
     const viewer = new Viewer(cesiumRef.current, {
 
         // UI Toggles
@@ -41,13 +43,22 @@ export const cesiumView = (
         skyBox: false,
         skyAtmosphere: false,
         contextOptions: {
-            webgl: { alpha: true } // make css background visible
+            webgl: {
+                alpha: true, // make css background visible
+                antialias: !isMobile,
+                powerPreference: "high-performance"
+            }
         },
 
         // Hide credits for minimap view
         creditContainer: view.minimap ? document.createElement('div') : undefined
     });
 
+    if (isMobile) {
+        viewer.resolutionScale = 1.0 / window.devicePixelRatio;
+        viewer.scene.postProcessStages.fxaa.enabled = false;
+        viewer.targetFrameRate = 30;
+    }
 
     // --- IMAGERY OPTIONS (ICEYE SAR style) --- 
     const layer = viewer.scene.imageryLayers.get(0)
@@ -64,7 +75,7 @@ export const cesiumView = (
         viewer.scene.screenSpaceCameraController.maximumZoomDistance = 1000000;
 
         // Resolution
-        viewer.scene.globe.maximumScreenSpaceError = 1; // default 2
+        viewer.scene.globe.maximumScreenSpaceError = isMobile ? 2 : 1; // default 2
 
         // Aesthetics
         layer.saturation = 0.1;
@@ -78,7 +89,7 @@ export const cesiumView = (
         viewer.scene.screenSpaceCameraController.maximumZoomDistance = 50000000;
 
         // Resolution
-        viewer.scene.globe.maximumScreenSpaceError = 2; // default 2
+        viewer.scene.globe.maximumScreenSpaceError = isMobile ? 3 : 2; // default 2
 
         // Aesthetics
         layer.saturation = 0.1;
@@ -89,7 +100,7 @@ export const cesiumView = (
     }
 
     // Atmosphere
-    viewer.scene.globe.showGroundAtmosphere = true;
+    viewer.scene.globe.showGroundAtmosphere = !isMobile;
     viewer.scene.globe.atmosphereBrightnessShift = -0.2;
     viewer.scene.globe.enableLighting = false;
     viewer.shadows = false;
