@@ -45,7 +45,6 @@ export const cesiumView = (
         contextOptions: {
             webgl: {
                 alpha: true, // make css background visible
-                antialias: !isMobile,
                 powerPreference: "high-performance"
             }
         },
