@@ -33,6 +33,8 @@ This is where the "heavy lifting" happens.
 - **`CesiumGlobeView.tsx`**: The main entry point for the 3D scene.
 - **`entities/`**: Contains the custom classes for drawing entities on ground and orbit.
 
-#### **3. Main React component**
+#### **3. Main React Components**
 
-- **`SatMainView.tsx`**: Manages the data flow to ensure the UI remains responsive while performing heavy SGP4 calculations in the background.
+- **`SatMainView.tsx`**: Serves as the primary container for the application, rendering the 3D Cesium globe environment.
+- **`SatTimetable.tsx`**: Manages the side panel that lists visible satellites and their fly over windows.
+- **`SatLiveDetail.tsx`**: Provides the detailed dashboard for a selected satellite, displaying telemetry, look angles, and the 2D minimap.
