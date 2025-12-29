@@ -32,12 +32,11 @@
   height: 1000px;
   width: 100%;
   background-color: variables.$space-black;
-  border-radius: variables.$bento-border-radius;
+  border-radius: 0;
   padding: 0 variables.$bento-gap variables.$bento-gap;
 
   @include breakpoints.mq("tablet") {
     width: 50%;
-    border-radius: 0;
     padding: variables.$bento-gap variables.$bento-gap;
   }
 
