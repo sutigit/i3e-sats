@@ -7,6 +7,16 @@ export type TLE = {
   full: string;
 };
 
+export type Coords = {
+  lat: number;
+  lon: number;
+};
+
+export interface ObserverInputProps {
+  coords: Coords;
+  setCoords: (val: Coords) => void;
+}
+
 export type Location = {
   lat: number; // Degrees (-90 to 90)
   lon: number; // Degrees (-180 to 180)

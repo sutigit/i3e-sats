@@ -2,16 +2,7 @@ import { Cartesian3 } from "cesium";
 import { useSatellites } from "../context/SatelliteContext";
 import { PencilIcon } from "./common/PencilIcon";
 import { PinIcon } from "./common/PinIcon";
-
-interface Coords {
-    lat: number;
-    lon: number;
-}
-
-interface ObserverInputProps {
-    coords: Coords;
-    setCoords: (val: Coords) => void;
-}
+import type { ObserverInputProps } from "../types";
 
 const GLOBE_ALTITUDE = 20000000.0
 
