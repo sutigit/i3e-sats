@@ -89,9 +89,6 @@ export class VisibilityObjectComposition2D {
     return windows.find((w) => w.startTime.getTime() > now) || null;
   }
 
-  /**
-   * Propagates TLE and projects every point to GROUND level (Alt = 0)
-   */
   private sampleGroundPath(tle: any, start: Date, end: Date): Cartesian3[] {
     const positions: Cartesian3[] = [];
 
