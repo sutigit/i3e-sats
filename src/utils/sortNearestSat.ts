@@ -18,8 +18,7 @@ export const sortNearestSat = (
     let state: VisibilityState = "NONE";
     let sortKey = Number.MAX_SAFE_INTEGER; // Default for NONE (pushed to bottom)
 
-    // We scan windows to find the "best" relevant window
-    // We assume windows are generally sorted, but we iterate to be safe against expired ones
+    // Scan windows to find the "best" relevant window
     let activeWindow = null;
     let firstFutureWindow = null;
 
@@ -30,12 +29,11 @@ export const sortNearestSat = (
       // Check if this window is currently active
       if (start <= nowTime && end >= nowTime) {
         activeWindow = win;
-        break; // Active window found! This is the highest priority.
+        break;
       }
 
-      // Check if this is a future window
+      // Check for *soonest* future window
       if (start > nowTime) {
-        // We want the *soonest* future window
         if (
           !firstFutureWindow ||
           start < firstFutureWindow.startTime.getTime()
@@ -45,23 +43,18 @@ export const sortNearestSat = (
       }
     }
 
-    // Determine the final Sort Key based on what we found
     if (activeWindow) {
       state = "ACTIVE";
-      // For active sats, we sort by who expires SOONEST
       sortKey = activeWindow.endTime.getTime();
     } else if (firstFutureWindow) {
       state = "FUTURE";
-      // For future sats, we sort by who starts SOONEST
       sortKey = firstFutureWindow.startTime.getTime();
     }
 
     return { sat, state, sortKey };
   });
 
-  // 2. SORT: Order the list based on priority state, then by time
   mapped.sort((a, b) => {
-    // Define priority order (Lower number = higher priority)
     const priority = { ACTIVE: 0, FUTURE: 1, NONE: 2 };
 
     // Primary Sort: Compare tiers (Active vs Future vs None)
@@ -75,6 +68,5 @@ export const sortNearestSat = (
     return a.sortKey - b.sortKey;
   });
 
-  // 3. MAP: Unwrap back to the original Satellite objects
   return mapped.map((item) => item.sat);
 };
