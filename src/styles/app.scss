@@ -12,47 +12,103 @@
   position: relative;
 }
 
-#cesium-view {
-  @include mixins.full-width-height;
+#sat-main-view {
   position: absolute;
-}
+  inset: 0 0 0 0;
 
-#cesium-minimap-container {
-  position: relative;
-  width: 100%;
-  padding-bottom: 100%;
-  border-radius: variables.$bento-border-radius;
-  overflow: hidden;
-  box-shadow: 0 0 8px 8px rgba(0, 0, 0, 0.1);
-
-  #cesium-minimap-view {
-    position: absolute;
-    inset: 0 0 0 0;
-  }
-
-  #cesium-minimap-north-pointer {
-    position: absolute;
-    z-index: 99;
-    top: 6px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.9rem;
-    padding: 0.3rem 0.4rem;
-    border-radius: 5px;
-    background-color: variables.$space-black;
-    box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.1);
-    opacity: 0.8;
+  #cesium-view {
+    @include mixins.full-width-height;
   }
 }
 
-#left-panel {
+#sat-timetable {
   @include mixins.float-panel-left;
   height: 100%;
+
+  .sat-primary-list {
+    .sat-primary {
+      display: flex;
+      justify-content: space-between;
+      border-radius: variables.$bento-border-radius;
+      background-color: variables.$dashboard-bg-color;
+      padding: 1.5rem;
+      cursor: pointer;
+
+      .name {
+        font-size: 1.1rem;
+        font-weight: bold;
+        min-width: 80px;
+      }
+
+      &:hover {
+        background-color: variables.$dashboard-bg-highlight;
+      }
+    }
+
+    .focus {
+      background-color: variables.$dashboard-bg-highlight;
+    }
+  }
+
+  .sat-secondary-list {
+    height: 100%;
+    overflow-y: auto;
+
+    .sat-secondary {
+      display: flex;
+      justify-content: space-between;
+      border-radius: variables.$bento-border-radius;
+      background-color: variables.$dashboard-bg-color;
+      padding: 1.5rem 2.1rem 1.5rem 1.5rem;
+      cursor: pointer;
+
+      .name {
+        font-size: 0.9rem;
+        font-weight: bold;
+      }
+
+      &:hover {
+        background-color: variables.$dashboard-bg-highlight;
+      }
+    }
+
+    .focus {
+      background-color: variables.$dashboard-bg-highlight;
+    }
+  }
 }
 
-#right-panel {
+#sat-live-detail {
   @include mixins.float-panel-right;
   height: auto;
+
+  #cesium-minimap-container {
+    position: relative;
+    width: 100%;
+    padding-bottom: 100%;
+    border-radius: variables.$bento-border-radius;
+    overflow: hidden;
+    box-shadow: 0 0 8px 8px rgba(0, 0, 0, 0.1);
+
+    #cesium-minimap-view {
+      position: absolute;
+      inset: 0 0 0 0;
+    }
+
+    #cesium-minimap-north-pointer {
+      position: absolute;
+      z-index: 99;
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 0.9rem;
+      padding: 0.3rem 0.4rem;
+      border-radius: 5px;
+      background-color: variables.$space-black;
+      box-shadow: 0 0 6px 6px rgba(0, 0, 0, 0.1);
+      opacity: 0.8;
+    }
+  }
 }
 
 .panel-content {
@@ -86,58 +142,6 @@
       flex: 1;
       overflow-y: hidden;
     }
-  }
-}
-
-.sat-primary-list {
-  .sat-primary {
-    display: flex;
-    justify-content: space-between;
-    border-radius: variables.$bento-border-radius;
-    background-color: variables.$dashboard-bg-color;
-    padding: 1.5rem;
-    cursor: pointer;
-
-    .name {
-      font-size: 1.1rem;
-      font-weight: bold;
-      min-width: 80px;
-    }
-
-    &:hover {
-      background-color: variables.$dashboard-bg-highlight;
-    }
-  }
-
-  .focus {
-    background-color: variables.$dashboard-bg-highlight;
-  }
-}
-
-.sat-secondary-list {
-  height: 100%;
-  overflow-y: auto;
-
-  .sat-secondary {
-    display: flex;
-    justify-content: space-between;
-    border-radius: variables.$bento-border-radius;
-    background-color: variables.$dashboard-bg-color;
-    padding: 1.5rem 2.1rem 1.5rem 1.5rem;
-    cursor: pointer;
-
-    .name {
-      font-size: 0.9rem;
-      font-weight: bold;
-    }
-
-    &:hover {
-      background-color: variables.$dashboard-bg-highlight;
-    }
-  }
-
-  .focus {
-    background-color: variables.$dashboard-bg-highlight;
   }
 }
 

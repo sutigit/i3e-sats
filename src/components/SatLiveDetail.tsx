@@ -44,41 +44,6 @@ const useSatLiveData = (satellite: Satellite | undefined) => {
     return data;
 };
 
-export default function SatLiveDetail() {
-    const { targetSatellite } = useSatellites();
-    const trackerRef = useRef<SatelliteTracker>(null);
-    const [tab, setTab] = useState<SatLiveDetailTabs>("LIVE");
-
-    useEffect(() => {
-        if (trackerRef.current && targetSatellite) {
-            trackerRef.current.track(targetSatellite.tle);
-            setTab("LIVE");
-        }
-    }, [targetSatellite]);
-
-    return (
-        <div id="right-panel">
-            <div className="panel-content">
-                <div className="panel-content-item">
-                    <div id="cesium-minimap-container">
-                        <div id="cesium-minimap-north-pointer">N</div>
-                        <Suspense fallback={<LoadingAbsolute />}>
-                            <CesiumMinimapView trackerRef={trackerRef} />
-                        </Suspense>
-                    </div>
-
-                    <LiveDataPanel
-                        tab={tab}
-                        setTab={setTab}
-                        targetSatellite={targetSatellite}
-                        trackerRef={trackerRef}
-                    />
-                </div>
-            </div>
-        </div>
-    );
-}
-
 type LiveDataPanelProps = {
     tab: SatLiveDetailTabs;
     setTab: (tab: SatLiveDetailTabs) => void;
@@ -166,3 +131,38 @@ const LookPointDetailPage = ({ spot, data }: { spot: number, data: LookPointLive
         </div>
     </div>
 );
+
+export default function SatLiveDetail() {
+    const { targetSatellite } = useSatellites();
+    const trackerRef = useRef<SatelliteTracker>(null);
+    const [tab, setTab] = useState<SatLiveDetailTabs>("LIVE");
+
+    useEffect(() => {
+        if (trackerRef.current && targetSatellite) {
+            trackerRef.current.track(targetSatellite.tle);
+            setTab("LIVE");
+        }
+    }, [targetSatellite]);
+
+    return (
+        <div id="sat-live-detail">
+            <div className="panel-content">
+                <div className="panel-content-item">
+                    <div id="cesium-minimap-container">
+                        <div id="cesium-minimap-north-pointer">N</div>
+                        <Suspense fallback={<LoadingAbsolute />}>
+                            <CesiumMinimapView trackerRef={trackerRef} />
+                        </Suspense>
+                    </div>
+
+                    <LiveDataPanel
+                        tab={tab}
+                        setTab={setTab}
+                        targetSatellite={targetSatellite}
+                        trackerRef={trackerRef}
+                    />
+                </div>
+            </div>
+        </div>
+    );
+}

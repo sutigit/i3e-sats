@@ -9,7 +9,7 @@ export default function SatList() {
     const { timetableSatellites, targetSatellite, setTargetSatellite, observer, setObserver } = useSatellites();
 
     return (
-        <div id="left-panel">
+        <div id="sat-timetable">
             <div className="panel-content">
                 <div className="panel-content-item">
                     <h2 className="panel-content-title">My location</h2>
