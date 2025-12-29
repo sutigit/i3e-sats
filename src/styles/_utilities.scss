@@ -68,3 +68,35 @@
     }
   }
 }
+
+.mobile-pull-widget {
+  margin: 5px auto;
+  z-index: 99;
+  height: 6px;
+  width: 80px;
+  border-radius: 6px;
+  background-color: variables.$dashboard-bg-accent;
+}
+
+@include breakpoints.mq("tablet") {
+  .mobile-pull-widget {
+    display: none;
+  }
+}
+
+.close-widget {
+  background-color: transparent;
+  border: none;
+  outline: none;
+  color: inherit;
+  width: 100%;
+  padding: 0.8rem 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+@include breakpoints.mq("tablet") {
+  .close-widget {
+    display: none;
+  }
+}

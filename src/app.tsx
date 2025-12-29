@@ -12,7 +12,7 @@ export function App() {
         <SatelliteProvider>
           <SatMainView />
           <SatTimetable />
-          {/* <SatLiveDetail /> */}
+          <SatLiveDetail />
         </SatelliteProvider>
       </TleProvider>
     </main>

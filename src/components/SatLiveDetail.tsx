@@ -15,6 +15,7 @@ import type SatelliteTracker from "../cesium/utils/SatelliteTracker";
 import { Measure } from "./common/Measure";
 import { TabBody, TabContent, TabHeader } from "./common/Tabs";
 import { LoadingAbsolute } from "./common/Loading";
+import { CloseIcon } from "./common/CloseIcon";
 
 const CesiumMinimapView = lazy(() => import("./CesiumMinimapView"));
 
@@ -148,6 +149,9 @@ export default function SatLiveDetail() {
         <div id="sat-live-detail">
             <div className="panel-content">
                 <div className="panel-content-item">
+                    <button className="close-widget">
+                        <CloseIcon />
+                    </button>
                     <div id="cesium-minimap-container">
                         <div id="cesium-minimap-north-pointer">N</div>
                         <Suspense fallback={<LoadingAbsolute />}>

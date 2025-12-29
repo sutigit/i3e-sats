@@ -35,32 +35,20 @@
   border-radius: variables.$bento-border-radius;
   padding: 0 variables.$bento-gap variables.$bento-gap;
 
-  .mobile-pull-widget {
-    margin: 5px auto;
-    z-index: 99;
-    height: 6px;
-    width: 80px;
-    border-radius: 6px;
-    background-color: variables.$dashboard-bg-accent;
-  }
-
   @include breakpoints.mq("tablet") {
     width: 50%;
     height: 1000px;
     border-radius: 0;
-
-    .mobile-pull-widget {
-      display: none;
-    }
+    padding: variables.$bento-gap variables.$bento-gap;
   }
 
   @include breakpoints.mq("desktop") {
     top: 0;
     width: 380px;
     height: 100%;
-    padding: 1rem;
     padding-bottom: 3.5rem;
     left: 0;
+    padding: 1rem;
     background-color: transparent;
   }
 
@@ -118,16 +106,34 @@
 }
 
 #sat-live-detail {
-  position: absolute;
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
   height: auto;
+  width: 100%;
+  background-color: variables.$space-black;
+  border-radius: variables.$bento-border-radius;
+  padding: variables.$bento-gap;
+  box-shadow: 0 0 0 100vmax rgba(0, 0, 0, 0.6);
 
   @include breakpoints.mq("tablet") {
+    position: absolute;
+    right: 0;
+    top: 70%;
+    width: 50%;
+    background-color: variables.$space-black;
+    transform: none;
+    border-radius: 0;
+    padding-right: calc(variables.$bento-gap + variables.$thin-scrollbar-width);
+    box-shadow: none;
   }
 
   @include breakpoints.mq("desktop") {
-    padding: 1rem;
+    background-color: transparent;
     width: 380px;
+    padding: 1rem;
     right: 0;
+    top: 0;
   }
 
   #cesium-minimap-container {
