@@ -11,7 +11,7 @@ The **i3e-sats** project is a React-based application that visualizes the orbits
 
 - **Frontend:** React, TypeScript, Vite
 - **Geospatial Engine:** CesiumJS
-- **Math & Physics:** `satellite.js` (SGP4 propagation), coordinate system transformations (ECI to ECF/Geodetic).
+- **Calculations:** `satellite.js` (SGP4 propagation), coordinate system transformations (ECI to ECF/Geodetic).
 - **Build Tooling:** Vite
 
 ---
