@@ -4,7 +4,7 @@
   font-weight: 400;
 
   color: #f4f4f5;
-  background-color: #18181b;
+  background-color: #0c1214;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -42,11 +42,4 @@ body {
   display: flex;
   min-width: 320px;
   min-height: 100vh;
-}
-
-.cesium-viewer .cesium-widget-credits {
-  position: absolute !important;
-  bottom: 6px !important;
-  left: 10px !important;
-  opacity: 0.7;
 }

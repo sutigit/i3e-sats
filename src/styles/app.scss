@@ -17,10 +17,37 @@
 
 #sat-main-view {
   position: absolute;
+  height: 70%;
   inset: 0 0 0 0;
 
   #cesium-view {
     @include mixins.full-width-height;
+
+    .cesium-viewer .cesium-widget-credits {
+      position: absolute !important;
+      bottom: 5px !important;
+      opacity: 0.5;
+      scale: 0.6;
+    }
+
+    @include breakpoints.mq("tablet") {
+      .cesium-viewer .cesium-widget-credits {
+        position: absolute !important;
+        bottom: 6px !important;
+        left: 6px !important;
+        opacity: 0.7;
+        scale: 0.8;
+      }
+    }
+
+    @include breakpoints.mq("desktop") {
+      .cesium-viewer .cesium-widget-credits {
+        position: absolute !important;
+        bottom: 6px !important;
+        left: 10px !important;
+        opacity: 0.7;
+      }
+    }
   }
 }
 

@@ -1,3 +1,5 @@
+@use "sass:map";
+
 $breakpoints: (
   "tablet": 768px,
   "desktop": 1024px,
@@ -5,14 +7,9 @@ $breakpoints: (
   "wide": 1440px,
 );
 
-// use e.g.:
-// @include mq('tablet') {
-//     flex-direction: row; // Switch to horizontal
-//     padding: 2rem;
-//   }
 @mixin mq($width, $type: min) {
-  @if map-has-key($breakpoints, $width) {
-    $width: map-get($breakpoints, $width);
+  @if map.has-key($breakpoints, $width) {
+    $width: map.get($breakpoints, $width);
 
     @if $type == max {
       $width: $width - 1px;
@@ -22,7 +19,7 @@ $breakpoints: (
       @content;
     }
   } @else {
-    // Can pass a raw value (e.g., "500px") instead of a keyword
+    // To pass a raw value (e.g., "500px")
     @media only screen and (#{$type}-width: $width) {
       @content;
     }

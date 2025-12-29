@@ -21,7 +21,6 @@
 @mixin full-screen-width-height {
   width: 100vw;
   height: 100vh;
-  min-width: 100vh;
 }
 
 @mixin place-center {
